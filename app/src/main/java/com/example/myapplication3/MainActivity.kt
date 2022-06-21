@@ -12,6 +12,11 @@ import com.example.myapplication3.databinding.ActivityMainBinding
 import com.google.android.gms.location.*
 import java.util.*
 
+/*
+TODO:
+Переключатель двух измерений
+onRequestPermissionsResult доработка
+*/
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,21 +27,19 @@ class MainActivity : AppCompatActivity() {
         override fun onLocationResult(locationResult: LocationResult?) {
             locationResult ?: return
             if (locationResult.locations.isNotEmpty()) {
-                val location =
-                    locationResult.lastLocation
+                val location = locationResult.lastLocation
                 binding.longitude.text = "${location.longitude}°"
-                binding.latitude.text = "${location.latitude} м"
+                binding.latitude.text = "${location.latitude}°"
                 binding.azimut.text = "${location.bearing}°"
                 binding.bearingAccuracy.text = "${location.bearingAccuracyDegrees} м"
+                //поработать над высотой
+                binding.altitude.text = "${location.altitude}м"
                 binding.currentDate.text = formatDate(location)
                 binding.currentTime.text = formatTime(location)
                 binding.currentSpeed.text = "${location.speed} м/c"
                 binding.accuracySpeed.text = "${location.speedAccuracyMetersPerSecond}"
-//                binding.provider.text = "${location.provider}"
+                binding.provider.text = location.provider
             }
-//            else {
-//                //binding.coordinate.text = "Ошибка получения данных"
-//            }
         }
     }
 
@@ -100,13 +103,13 @@ class MainActivity : AppCompatActivity() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
-    // Заканчиваем обновление позиционирования когда не видим активити
+    // Останавливаем обновление геолокации
     override fun onPause() {
         super.onPause()
         stopLocationUpdates()
     }
 
-    // Обновление геолокации при видимости активити
+    // Обновление геолокации при взаимодействии с активити
     override fun onResume() {
         super.onResume()
         startLocationUpdates()

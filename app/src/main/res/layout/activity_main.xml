@@ -4,251 +4,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--Поля провайдера-->
-
-    <TextView
-        android:id="@+id/provider"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:hint="Загрузка.."
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-        android:layout_marginTop="80dp"
-        android:layout_marginStart="30dp"
-        android:layout_marginEnd="@dimen/padding_big"
-        android:layout_alignTop="@+id/accuracySpeed"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/textLongitude" />
-
-    <TextView
-        android:id="@+id/textProvider"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        android:text="Провайдер:"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-
-        android:layout_marginStart="@dimen/padding_big"
-        android:layout_marginTop="80dp"
-
-        android:layout_alignTop="@+id/textAccuracySpeed"
-        android:layout_alignParentLeft="true"
-
-        android:textColor="@color/black"
-        />
-
-    <!-- Поля точности скорости -->
-    <TextView
-        android:id="@+id/accuracySpeed"
-        android:layout_width="230dp"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/currentSpeed"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginLeft="88dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="103dp"
-        android:layout_marginRight="102dp"
-        android:layout_toEndOf="@+id/textLongitude"
-        android:hint="Загрузка.." />
-
-    <TextView
-        android:id="@+id/textAccuracySpeed"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/textCurrentSpeed"
-        android:layout_alignParentLeft="true"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="-4dp"
-        android:layout_marginTop="30dp"
-        android:text="Точность:"
-        android:textColor="@color/black" />
-    <!-- Поля скорости -->
-    <TextView
-        android:id="@+id/currentSpeed"
-        android:layout_width="230dp"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/currentTime"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginLeft="88dp"
-        android:layout_marginTop="80dp"
-        android:layout_marginEnd="103dp"
-        android:layout_marginRight="102dp"
-        android:layout_toEndOf="@+id/textLongitude"
-        android:hint="Загрузка.." />
-
-    <TextView
-        android:id="@+id/textCurrentSpeed"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/textCurrentTime"
-        android:layout_alignParentLeft="true"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="-4dp"
-        android:layout_marginTop="80dp"
-        android:text="Скорость:"
-        android:textColor="@color/black" />
-
-    <!-- Время -->
-    <TextView
-        android:id="@+id/currentTime"
-        android:layout_width="230dp"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/currentDate"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginLeft="88dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="103dp"
-        android:layout_marginRight="103dp"
-        android:layout_toEndOf="@+id/textLongitude"
-        android:hint="Загрузка.."></TextView>
+<!--Структрироват поля по значимости
+    Вынести  повторки констант в dimen
+    Удалить лишние поля
+    Добавить поле высота и ее точность
+    Добавить проверки есть ли такая велична или нету
+    Переработать дизайн-->
 
 
-    <TextView
-        android:id="@+id/textCurrentTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignTop="@+id/textCurrentDate"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="30dp"
-        android:text="Время: "
-        android:textColor="@color/black" />
 
-
-    <!--Поля даты-->
-
-    <TextView
-        android:id="@+id/currentDate"
-        android:layout_width="230dp"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/textBearingAccuracy"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginLeft="88dp"
-        android:layout_marginTop="80dp"
-        android:layout_marginEnd="103dp"
-        android:layout_marginRight="71dp"
-        android:layout_toEndOf="@+id/textLongitude"
-        android:hint="Загрузка.."></TextView>
-
-    <TextView
-        android:id="@+id/textCurrentDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignTop="@+id/textBearingAccuracy"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="80dp"
-        android:text="Дата:"
-        android:textColor="@color/black" />
-
-    <!--Поля BearingAccuracy-->
-    <TextView
-        android:id="@+id/bearingAccuracy"
-        android:layout_width="230dp"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/azimut"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginLeft="88dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="103dp"
-        android:layout_marginRight="103dp"
-        android:layout_toEndOf="@+id/textLongitude"
-        android:hint="Загрузка.."></TextView>
-
-    <TextView
-        android:id="@+id/textBearingAccuracy"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignTop="@+id/textAzimut"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="30dp"
-        android:text="Точность:"
-        android:textColor="@color/black" />
-
-    <!--Поля Азимута-->
-    <TextView
-        android:id="@+id/azimut"
-        android:layout_width="230dp"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/latitude"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginLeft="88dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="103dp"
-        android:layout_marginRight="103dp"
-        android:layout_toEndOf="@+id/textLongitude"
-        android:hint="Загрузка.."></TextView>
-
-    <TextView
-        android:id="@+id/textAzimut"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignTop="@+id/textLatitude"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="30dp"
-        android:text="Азимут:"
-        android:textColor="@color/black" />
-
-    <!--Поля Широты-->
-    <TextView
-        android:id="@+id/latitude"
-        android:layout_width="230dp"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/longitude"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginLeft="88dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="103dp"
-        android:layout_marginRight="103dp"
-        android:layout_toEndOf="@+id/textLongitude"
-        android:hint="Загрузка.."></TextView>
-
-    <TextView
-        android:id="@+id/textLatitude"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignTop="@+id/textLongitude"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="30dp"
-        android:text="Широта:"
-        android:textColor="@color/black" />
 
     <!--Поля Долготы-->
-    <TextView
-        android:id="@+id/longitude"
-        android:layout_width="230dp"
+    <ImageView
+        android:id="@+id/imageLongitude"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginLeft="88dp"
-        android:layout_marginTop="80dp"
-        android:layout_marginEnd="103dp"
-        android:layout_marginRight="106dp"
-        android:layout_toEndOf="@+id/textLongitude"
-        android:hint="Загрузка.."></TextView>
+        android:layout_alignTop="@+id/textLongitude"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="-30dp"
+        app:srcCompat="@drawable/ic_baseline_gps_fixed_24" />
 
     <TextView
         android:id="@+id/textLongitude"
@@ -262,26 +37,271 @@
         android:text="Долгота:"
         android:textColor="@color/black" />
 
+    <TextView
+        android:id="@+id/longitude"
+        android:layout_width="230dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginLeft="88dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="103dp"
+        android:layout_marginRight="106dp"
+        android:layout_toEndOf="@+id/textLongitude"
+        android:hint="Загрузка.." />
+
+    <!--Поля Широты-->
+
+    <TextView
+        android:id="@+id/textLatitude"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/textLongitude"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="30dp"
+        android:text="Широта:"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/latitude"
+        android:layout_width="230dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/longitude"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginLeft="88dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="103dp"
+        android:layout_marginRight="103dp"
+        android:layout_toEndOf="@+id/textLongitude"
+        android:hint="Загрузка.." />
+
+
+    <!--Поля Азимута-->
+    <TextView
+        android:id="@+id/textAzimut"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/textLatitude"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="30dp"
+        android:text="Азимут:"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/azimut"
+        android:layout_width="230dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/latitude"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginLeft="88dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="103dp"
+        android:layout_marginRight="103dp"
+        android:layout_toEndOf="@+id/textLongitude"
+        android:hint="Загрузка.." />
+
+    <!--Поля BearingAccuracy-->
+    <TextView
+        android:id="@+id/textBearingAccuracy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/textAzimut"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="30dp"
+        android:text="Точность:"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/bearingAccuracy"
+        android:layout_width="230dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/azimut"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginLeft="88dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="103dp"
+        android:layout_marginRight="103dp"
+        android:layout_toEndOf="@+id/textLongitude"
+        android:hint="Загрузка.." />
+
+    <TextView
+        android:id="@+id/textAltitude"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/textBearingAccuracy"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="30dp"
+        android:text="Высота:"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/altitude"
+        android:layout_width="230dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/bearingAccuracy"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginLeft="88dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="103dp"
+        android:layout_marginRight="103dp"
+        android:layout_toEndOf="@+id/textLongitude"
+        android:hint="Загрузка.." />
+
+    <!--Изображение перед датой-->
     <ImageView
         android:id="@+id/imageTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_alignTop="@+id/textCurrentDate"
+        android:layout_alignParentStart="true"
         android:layout_marginStart="25dp"
         android:layout_marginTop="-30dp"
         app:srcCompat="@drawable/ic_baseline_access_time_24" />
 
-    <ImageView
-        android:id="@+id/imageLongitude"
+    <!--Поля даты-->
+    <TextView
+        android:id="@+id/textCurrentDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/textLongitude"
+        android:layout_alignTop="@+id/textAltitude"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="80dp"
+        android:text="Дата:"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/currentDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/textAltitude"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginLeft="88dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="103dp"
+        android:layout_marginRight="71dp"
+        android:layout_toEndOf="@+id/textLongitude"
+        android:hint="Загрузка.." />
+
+    <!-- Поля время -->
+    <TextView
+        android:id="@+id/textCurrentTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/textCurrentDate"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="30dp"
+        android:text="Время: "
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/currentTime"
+        android:layout_width="230dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/currentDate"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginLeft="88dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="103dp"
+        android:layout_marginRight="103dp"
+        android:layout_toEndOf="@+id/textLongitude"
+        android:hint="Загрузка.." />
+
+    <!--Изображение перед скоростью-->
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/textCurrentSpeed"
         android:layout_alignParentStart="true"
         android:layout_marginStart="25dp"
         android:layout_marginTop="-30dp"
-        app:srcCompat="@drawable/ic_baseline_gps_fixed_24" />
+        app:srcCompat="@drawable/ic_baseline_speed_24" />
 
+    <!-- Поля скорости -->
+    <TextView
+        android:id="@+id/textCurrentSpeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/textCurrentTime"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="-4dp"
+        android:layout_marginTop="80dp"
+        android:text="Скорость:"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/currentSpeed"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/currentTime"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginLeft="88dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="103dp"
+        android:layout_marginRight="102dp"
+        android:layout_toEndOf="@+id/textLongitude"
+        android:hint="Загрузка.." />
+
+
+    <!-- Поля точности скорости -->
+    <TextView
+        android:id="@+id/textAccuracySpeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/textCurrentSpeed"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="-4dp"
+        android:layout_marginTop="30dp"
+        android:text="Точность:"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/accuracySpeed"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/currentSpeed"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginLeft="88dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="103dp"
+        android:layout_marginRight="102dp"
+        android:layout_toEndOf="@+id/textLongitude"
+        android:hint="Загрузка.." />
+
+
+    <!--Изображение перед провйдером-->
     <ImageView
         android:id="@+id/imageProvider"
         android:layout_width="wrap_content"
@@ -293,15 +313,46 @@
         android:layout_marginTop="-30dp"
         app:srcCompat="@drawable/ic_baseline_wifi_protected_setup_24" />
 
-    <ImageView
-        android:id="@+id/imageView4"
+    <!--Поля провайдера-->
+
+    <TextView
+        android:id="@+id/textProvider"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_alignTop="@+id/textAccuracySpeed"
+        android:layout_alignParentLeft="true"
+
+        android:layout_marginStart="@dimen/padding_big"
+        android:layout_marginTop="80dp"
+
+        android:text="Провайдер:"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/provider"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/accuracySpeed"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="@dimen/padding_big"
+        android:layout_toEndOf="@+id/textLongitude"
+        android:hint="Загрузка.."
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+
+    <Button
+        android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_alignTop="@+id/textCurrentSpeed"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="-30dp"
-        app:srcCompat="@drawable/ic_baseline_speed_24" />
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="143dp"
+        android:layout_marginBottom="130dp"
+        android:text="Button" />
 
 
 </RelativeLayout>
