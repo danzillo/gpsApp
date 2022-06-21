@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
     }
 
-    // Start location updates
+    //Получаем prermisson, локацию
     private fun startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -79,23 +79,24 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    // Stop location updates
+    // Заканичваем обновлениее позициноирования
     private fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
-    // Stop receiving location update when activity not visible/foreground
+    // Заканчиваем обновление позиционирования когда не видим активити
     override fun onPause() {
         super.onPause()
         stopLocationUpdates()
     }
 
-    // Start receiving location update when activity  visible/foreground
+    // Обновление геолокации при видимости активити
     override fun onResume() {
         super.onResume()
         startLocationUpdates()
     }
 
+    // Доработать эту часть
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
