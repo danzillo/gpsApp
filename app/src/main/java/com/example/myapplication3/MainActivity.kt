@@ -20,92 +20,72 @@ import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
-    lateinit var locationRequest: LocationRequest
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationRequest: LocationRequest
+    private lateinit var locationCallback: LocationCallback
     lateinit var binding: ActivityMainBinding
-    lateinit var locationCallback: LocationCallback
-    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+                binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.button.setText("Получить координаты")
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        getCurrentLocation()
+        /*Check location*/
+         checkLocation()
 
     }
 
-    private fun getCurrentLocation() {
+    private fun checkLocation() {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        getLocationUpdates()
+    }
 
 
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 101
-            )
-            return
+
+    private fun getLocationUpdates() {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        locationRequest = LocationRequest()
+        locationRequest.interval = 5000
+        locationRequest.fastestInterval = 5000
+        locationRequest.smallestDisplacement = 170f //170 m = 0.1 mile
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY //according to your app
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult?) {
+                locationResult ?: return
+                if (locationResult.locations.isNotEmpty()) {
+                    val location =
+                        locationResult.lastLocation
+
+                    binding.coordinate.setText("Долгота: ${location.longitude} Широта: ${location.latitude}");
+                }
+                }
+            }
         }
-        startLocationUpdates()
 
+
+    // Start location updates
+    private fun startLocationUpdates() {
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            null /* Looper */
+        )
     }
 
+    // Stop location updates
+    private fun stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
 
-    //останавливаем обновление метсоположения
+    // Stop receiving location update when activity not visible/foreground
     override fun onPause() {
         super.onPause()
         stopLocationUpdates()
     }
 
-    private fun stopLocationUpdates() {
-        fusedLocationProviderClient.removeLocationUpdates(locationCallback)
-    }
-
-    //обновляем местопложение
-    private fun startLocationUpdates() {
-        val task: Task<Location> = fusedLocationProviderClient.lastLocation
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-
-            task.addOnSuccessListener {
-                if (it != null) {
-                    binding.coordinate.setText("Долгота: ${it.longitude} Широта: ${it.latitude}");
-
-
-                }
-                if (it == null) {
-                    binding.coordinate.setText("Ошибка: невозможно получить данные");
-
-                }
-            }
-                .addOnFailureListener {
-                    Toast.makeText(
-                        this, "Ошибка",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            return
-        }
-        fusedLocationProviderClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            null /* Looper */
-        )
-
-    }
-}
+    // Start receiving location update when activity  visible/foreground
+    override fun onResume() {
+        super.onResume()
+        startLocationUpdates()
+    }}
 
