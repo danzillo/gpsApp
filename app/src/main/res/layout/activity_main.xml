@@ -15,7 +15,7 @@
         android:layout_marginStart="30dp"
         android:layout_marginLeft="88dp"
         android:layout_marginTop="80dp"
-        android:layout_marginEnd="105dp"
+        android:layout_marginEnd="103dp"
         android:layout_marginRight="105dp"
         android:layout_toEndOf="@+id/textLongitude"
         android:hint="Загрузка.."></TextView>
