@@ -20,22 +20,43 @@ import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
+
+    private val locationRequest = LocationRequest()
+
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult?) {
+            locationResult ?: return
+            if (locationResult.locations.isNotEmpty()) {
+                val location =
+                    locationResult.lastLocation
+                binding.coordinate.text = "Долгота: ${location.longitude} Широта: ${location.latitude}"
+            } else {
+                binding.coordinate.text = "Ошибка получения данных"
+            }
+        }
+    }
+
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var locationRequest: LocationRequest
-    private lateinit var locationCallback: LocationCallback
     lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        /*Check location*/
-        getPermission()
+
+        // Формируем требования по точности местоположения
+        locationRequest.apply {
+            interval = 1000
+            fastestInterval = 1000
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+        // Получаем провайдер местоположения от комплекса сенсоров
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
     }
 
-    private fun getPermission(){
+    // Start location updates
+    private fun startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -46,37 +67,11 @@ class MainActivity : AppCompatActivity() {
         ) {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 101
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 101
             )
             return
         }
-        getLocationAndUpdate()
-    }
-    private fun getLocationAndUpdate() {
-        locationRequest = LocationRequest()
-        locationRequest.interval = 5000
-        locationRequest.fastestInterval = 5000
-        locationRequest.smallestDisplacement = 170f
-        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
 
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult?) {
-                locationResult ?: return
-                if (locationResult.locations.isNotEmpty()) {
-                    val location =
-                        locationResult.lastLocation
-                    binding.coordinate.setText("Долгота: ${location.longitude} Широта: ${location.latitude}");
-                }
-                else{
-                    binding.coordinate.setText("Ошибка получения данных");
-                }
-            }
-        }
-    }
-
-
-    // Start location updates
-    private fun startLocationUpdates() {
         fusedLocationClient.requestLocationUpdates(
             locationRequest,
             locationCallback,
@@ -99,6 +94,14 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         startLocationUpdates()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 }
 
