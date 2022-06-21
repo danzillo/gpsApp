@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getCurrentLocation() {
-        val task: Task<Location> = fusedLocationProviderClient.lastLocation
+
 
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -54,22 +54,9 @@ class MainActivity : AppCompatActivity() {
             )
             return
         }
+        startLocationUpdates()
 
-        task.addOnSuccessListener {
-            if (it != null) {
-                binding.coordinate.setText("Долгота: ${it.longitude} Широта: ${it.latitude}");
-
-            }
-            if (it == null) {  binding.coordinate.setText("Ошибка: невозможно получить данные");
-               // startLocationUpdates()
-            }
-        }
-            .addOnFailureListener {
-                Toast.makeText(this, "Ошибка",
-                    Toast.LENGTH_SHORT).show()
-            }
     }
-
 
 
     //останавливаем обновление метсоположения
@@ -82,27 +69,38 @@ class MainActivity : AppCompatActivity() {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback)
     }
 
-//обновляем местопложение
+    //обновляем местопложение
     private fun startLocationUpdates() {
+        val task: Task<Location> = fusedLocationProviderClient.lastLocation
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
 
-    if (ActivityCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED
-    ) {
-        // TODO: Consider calling
-        //    ActivityCompat#requestPermissions
-        // here to request the missing permissions, and then overriding
-        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-        //                                          int[] grantResults)
-        // to handle the case where the user grants the permission. See the documentation
-        // for ActivityCompat#requestPermissions for more details.
-        return
-    }
-    fusedLocationProviderClient.requestLocationUpdates(
+            task.addOnSuccessListener {
+                if (it != null) {
+                    binding.coordinate.setText("Долгота: ${it.longitude} Широта: ${it.latitude}");
+
+
+                }
+                if (it == null) {
+                    binding.coordinate.setText("Ошибка: невозможно получить данные");
+
+                }
+            }
+                .addOnFailureListener {
+                    Toast.makeText(
+                        this, "Ошибка",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            return
+        }
+        fusedLocationProviderClient.requestLocationUpdates(
             locationRequest,
             locationCallback,
             null /* Looper */
