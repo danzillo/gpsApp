@@ -6,6 +6,8 @@ import android.icu.text.DateFormat
 import android.icu.text.SimpleDateFormat
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.example.myapplication3.databinding.ActivityMainBinding
@@ -20,16 +22,25 @@ onRequestPermissionsResult доработка
 
 class MainActivity : AppCompatActivity() {
 
-    val WRITE_PERMISSION = 101
-    private val locationRequest = LocationRequest()
+    private var WRITE_PERMISSION = 101
 
+    private val locationRequest = LocationRequest()
+    private var buttonIdentity: Boolean = false
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult?) {
             locationResult ?: return
             if (locationResult.locations.isNotEmpty()) {
                 val location = locationResult.lastLocation
-                binding.longitude.text = "${location.longitude}°"
-                binding.latitude.text = "${location.latitude}°"
+                if(buttonIdentity){
+                    binding.longitude.text = "${location.longitude}°"
+                    binding.latitude.text = "${location.latitude}°"
+                }
+                else{
+                    binding.longitude.text = "${location.latitude}°"
+                    binding.latitude.text = "${location.longitude}°"
+                }
+//                binding.longitude.text = "${location.longitude}°"
+//                binding.latitude.text = "${location.latitude}°"
                 binding.azimut.text = "${location.bearing}°"
                 binding.bearingAccuracy.text = "${location.bearingAccuracyDegrees} м"
                 //поработать над высотой
@@ -60,6 +71,13 @@ class MainActivity : AppCompatActivity() {
         }
         // Получаем провайдер местоположения от комплекса сенсоров
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+
+        //Биндим кнопку для переключения режимов
+        binding.button.setOnClickListener {
+            buttonIdentity = !buttonIdentity
+            Log.e(toString.toString(buttonIdentity))
+        }
     }
 
     //Преобразуем системное время из location в дату
