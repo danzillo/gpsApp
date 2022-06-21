@@ -1,21 +1,16 @@
 package com.example.myapplication3
 
 import android.Manifest
-import android.app.AlertDialog
-import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
+import android.icu.text.DateFormat
+import android.icu.text.SimpleDateFormat
 import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
-import android.provider.Settings
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.example.myapplication3.databinding.ActivityMainBinding
 import com.google.android.gms.location.*
-import com.google.android.gms.tasks.Task
+import com.google.android.material.timepicker.TimeFormat
 import java.util.*
 
 
@@ -29,10 +24,19 @@ class MainActivity : AppCompatActivity() {
             if (locationResult.locations.isNotEmpty()) {
                 val location =
                     locationResult.lastLocation
-                binding.coordinate.text = "Долгота: ${location.longitude} Широта: ${location.latitude}"
-            } else {
-                binding.coordinate.text = "Ошибка получения данных"
+                binding.longitude.text = "${location.longitude}"
+                binding.latitude.text = "${location.latitude}"
+                binding.azimut.text = "${location.bearing}"
+                binding.azimut.text = "${location.bearingAccuracyDegrees}"
+                binding.currentDate.text = "${formatDate(location)}"
+                binding.currentTime.text = "${formatTime(location)}"
+                binding.currentSpeed.text = "${location.speed} м/c"
+                binding.accuracySpeed.text = "${location.speedAccuracyMetersPerSecond}"
+                binding.provider.text = "${location.provider}"
             }
+//            else {
+//                //binding.coordinate.text = "Ошибка получения данных"
+//            }
         }
     }
 
@@ -54,6 +58,20 @@ class MainActivity : AppCompatActivity() {
         // Получаем провайдер местоположения от комплекса сенсоров
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
     }
+
+    //Преобразуем системное время из location в дату
+    private fun formatDate(location: Location): String {
+        var formatDate: DateFormat = SimpleDateFormat("dd/MM/yyyy")
+        var formatTime: DateFormat = SimpleDateFormat("HH:mm:ss")
+        return formatDate.format(Date(location.getTime()))
+    }
+
+    //Преобразуем системное время из location во время
+    private fun formatTime(location: Location): String {
+        var formatTime: DateFormat = SimpleDateFormat("HH:mm:ss")
+        return formatTime.format(Date(location.getTime()))
+    }
+
 
     //Получаем prermisson, локацию
     private fun startLocationUpdates() {
