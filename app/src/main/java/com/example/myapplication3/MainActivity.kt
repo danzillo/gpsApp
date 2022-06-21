@@ -28,39 +28,51 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-                binding = ActivityMainBinding.inflate(layoutInflater)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         /*Check location*/
-         checkLocation()
-
+        getPermission()
     }
 
-    private fun checkLocation() {
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        getLocationUpdates()
+    private fun getPermission(){
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 101
+            )
+            return
+        }
+        getLocationAndUpdate()
     }
-
-
-
-    private fun getLocationUpdates() {
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+    private fun getLocationAndUpdate() {
         locationRequest = LocationRequest()
         locationRequest.interval = 5000
         locationRequest.fastestInterval = 5000
-        locationRequest.smallestDisplacement = 170f //170 m = 0.1 mile
-        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY //according to your app
+        locationRequest.smallestDisplacement = 170f
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
                 locationResult ?: return
                 if (locationResult.locations.isNotEmpty()) {
                     val location =
                         locationResult.lastLocation
-
                     binding.coordinate.setText("Долгота: ${location.longitude} Широта: ${location.latitude}");
                 }
+                else{
+                    binding.coordinate.setText("Ошибка получения данных");
                 }
             }
         }
+    }
 
 
     // Start location updates
@@ -87,5 +99,6 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         startLocationUpdates()
-    }}
+    }
+}
 
