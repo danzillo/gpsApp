@@ -10,12 +10,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.example.myapplication3.databinding.ActivityMainBinding
 import com.google.android.gms.location.*
-import com.google.android.material.timepicker.TimeFormat
 import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
 
+    val WRITE_PERMISSION = 101
     private val locationRequest = LocationRequest()
 
     private val locationCallback = object : LocationCallback() {
@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity() {
         ) {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 101
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), WRITE_PERMISSION
             )
             return
         }
