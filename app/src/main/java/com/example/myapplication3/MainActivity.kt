@@ -24,15 +24,15 @@ class MainActivity : AppCompatActivity() {
             if (locationResult.locations.isNotEmpty()) {
                 val location =
                     locationResult.lastLocation
-                binding.longitude.text = "${location.longitude}"
-                binding.latitude.text = "${location.latitude}"
-                binding.azimut.text = "${location.bearing}"
-                binding.azimut.text = "${location.bearingAccuracyDegrees}"
-                binding.currentDate.text = "${formatDate(location)}"
-                binding.currentTime.text = "${formatTime(location)}"
+                binding.longitude.text = "${location.longitude}°"
+                binding.latitude.text = "${location.latitude} м"
+                binding.azimut.text = "${location.bearing}°"
+                binding.bearingAccuracy.text = "${location.bearingAccuracyDegrees} м"
+                binding.currentDate.text = formatDate(location)
+                binding.currentTime.text = formatTime(location)
                 binding.currentSpeed.text = "${location.speed} м/c"
                 binding.accuracySpeed.text = "${location.speedAccuracyMetersPerSecond}"
-                binding.provider.text = "${location.provider}"
+//                binding.provider.text = "${location.provider}"
             }
 //            else {
 //                //binding.coordinate.text = "Ошибка получения данных"
@@ -61,19 +61,17 @@ class MainActivity : AppCompatActivity() {
 
     //Преобразуем системное время из location в дату
     private fun formatDate(location: Location): String {
-        var formatDate: DateFormat = SimpleDateFormat("dd/MM/yyyy")
-        var formatTime: DateFormat = SimpleDateFormat("HH:mm:ss")
-        return formatDate.format(Date(location.getTime()))
+        val formatDate: DateFormat = SimpleDateFormat("dd.MM.yyyy")
+        return formatDate.format(Date(location.time))
     }
 
-    //Преобразуем системное время из location во время
+    // Преобразуем системное время из location во время
     private fun formatTime(location: Location): String {
-        var formatTime: DateFormat = SimpleDateFormat("HH:mm:ss")
-        return formatTime.format(Date(location.getTime()))
+        val formatTime: DateFormat = SimpleDateFormat("HH:mm:ss")
+        return formatTime.format(Date(location.time))
     }
 
-
-    //Получаем prermisson, локацию
+    // Запрашиваем разрешения на определение местоположения (локацию)
     private fun startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(
                 this,
