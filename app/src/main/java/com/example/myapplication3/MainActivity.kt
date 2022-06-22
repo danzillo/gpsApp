@@ -8,11 +8,13 @@ import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.example.myapplication3.databinding.ActivityMainBinding
 import com.google.android.gms.location.*
 import java.util.*
+import kotlin.math.roundToInt
 
 /*
 TODO:
@@ -22,7 +24,7 @@ onRequestPermissionsResult доработка
 
 class MainActivity : AppCompatActivity() {
 
-    private var WRITE_PERMISSION = 101
+    private var GPS_PERMISSION_CODE = 101
 
     private val locationRequest = LocationRequest()
     private var buttonIdentity: Boolean = false
@@ -31,23 +33,21 @@ class MainActivity : AppCompatActivity() {
             locationResult ?: return
             if (locationResult.locations.isNotEmpty()) {
                 val location = locationResult.lastLocation
-                if(buttonIdentity){
+
+                if (buttonIdentity) {
                     binding.longitude.text = "${location.longitude}°"
                     binding.latitude.text = "${location.latitude}°"
+                } else {
+                    binding.longitude.text = longitudeDecDegToDegMinSec(location.longitude)
+                    binding.latitude.text = latitudeDecDegToDegMinSec(location.latitude)
                 }
-                else{
-                    binding.longitude.text = "${location.latitude}°"
-                    binding.latitude.text = "${location.longitude}°"
-                }
-//                binding.longitude.text = "${location.longitude}°"
-//                binding.latitude.text = "${location.latitude}°"
+
                 binding.azimut.text = "${location.bearing}°"
-                binding.bearingAccuracy.text = "${location.bearingAccuracyDegrees} м"
-                //поработать над высотой
-                binding.altitude.text = "${location.altitude}м"
+                binding.bearingAccuracy.text = "${location.bearingAccuracyDegrees}м"
+                binding.altitude.text = "${location.altitude.toInt()}м"
                 binding.currentDate.text = formatDate(location)
                 binding.currentTime.text = formatTime(location)
-                binding.currentSpeed.text = "${location.speed} м/c"
+                binding.currentSpeed.text = "${(location.speed * 100).toInt() / 100.0}м/c"
                 binding.accuracySpeed.text = "${location.speedAccuracyMetersPerSecond}"
                 binding.provider.text = location.provider
             }
@@ -73,14 +73,30 @@ class MainActivity : AppCompatActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
 
-        //Биндим кнопку для переключения режимов
+        // Бинд кнопкb для переключения режимов отображения долготы/широты
         binding.button.setOnClickListener {
             buttonIdentity = !buttonIdentity
-            Log.e(toString.toString(buttonIdentity))
         }
+
+        // При пуске спрашиваем разрешение на использование GPS
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), GPS_PERMISSION_CODE
+            )
+            return
+        }
+
     }
 
-    //Преобразуем системное время из location в дату
+    // Преобразуем системное время из location в дату
     private fun formatDate(location: Location): String {
         val formatDate: DateFormat = SimpleDateFormat("dd.MM.yyyy")
         return formatDate.format(Date(location.time))
@@ -92,23 +108,48 @@ class MainActivity : AppCompatActivity() {
         return formatTime.format(Date(location.time))
     }
 
-    // Запрашиваем разрешения на определение местоположения (локацию)
-    private fun startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), WRITE_PERMISSION
-            )
-            return
-        }
+    /*
+    Преобразует десятичные градусы
+    в градусы, минуты, секунды долготы и добавляет название полушария
+    */
+    private fun longitudeDecDegToDegMinSec(decDeg: Double): String {
+        val sphereName: String
+        val deg = decDeg.toInt()
+        val min = ((decDeg - deg) * 60).toInt()
+        val sec = ((decDeg - deg - (min.toDouble() / 60)) * 3600).toInt()
+        sphereName = if (deg > 180) "E" else "W"
+        return "$sphereName ${deg}° ${min}' ${sec}\""
+    }
 
+    /*
+    Преобразует десятичные градусы
+    в градусы, минуты, секунды долготы и добавляет название полушария
+    */
+    private fun latitudeDecDegToDegMinSec(decDeg: Double): String {
+        val sphereName: String
+        val deg = decDeg.toInt()
+        val min = ((decDeg - deg) * 60).toInt()
+        val sec = ((decDeg - deg - (min.toDouble() / 60)) * 3600).toInt()
+        sphereName = if (deg > 0) "N" else "S"
+        return "$sphereName ${deg}° ${min}' ${sec}\""
+    }
+
+    // Запрашиваем разрешения на определение местоположения (локацию)??
+    private fun startLocationUpdates() {
+//        if (ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.ACCESS_FINE_LOCATION
+//            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.ACCESS_COARSE_LOCATION
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            ActivityCompat.requestPermissions(
+//                this,
+//                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), GPS_PERMISSION_CODE
+//            )
+//            return
+//        }
         fusedLocationClient.requestLocationUpdates(
             locationRequest,
             locationCallback,
@@ -116,7 +157,7 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    // Заканичваем обновлениее позициноирования
+    // Заканчиваем обновление позиционирования
     private fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
@@ -133,13 +174,35 @@ class MainActivity : AppCompatActivity() {
         startLocationUpdates()
     }
 
-    // Доработать эту часть
+    //  Проверка получения/не получения разрешения на использование GPS
     override fun onRequestPermissionsResult(
         requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+        permissions: Array<String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            GPS_PERMISSION_CODE
+            -> {
+
+                if ((grantResults.isNotEmpty() &&
+                            grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                ) {
+                    Toast.makeText(
+                        this,
+                        "Разрешение на использование GPS получено!",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                } else {
+
+                    Toast.makeText(
+                        this,
+                        "Без разрешения использования GPS невозможна работа программы!",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                return
+            }
+        }
     }
 }
-
