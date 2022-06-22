@@ -104,15 +104,6 @@ class MainActivity : AppCompatActivity() {
         // Текст кнопки
         binding.button.setText("Переключить на DD координаты")
 
-//        // Бинд кнопки для переключения режимов отображения долготы/широты
-//        binding.button.setOnClickListener {
-//            isDecimalPosition = !isDecimalPosition
-//            if (isDecimalPosition) {
-//                binding.button.text = "Переключить на DMS координаты"
-//            } else binding.button.setText("Переключить на DD координаты")
-//
-//        }
-
     }
 
 
