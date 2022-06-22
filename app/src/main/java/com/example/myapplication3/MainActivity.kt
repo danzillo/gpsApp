@@ -7,14 +7,13 @@ import android.icu.text.SimpleDateFormat
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.example.myapplication3.databinding.ActivityMainBinding
 import com.google.android.gms.location.*
 import java.util.*
-
+//TODO перенос всех наработок в ViewModel+LiveData izuchenie
 
 // моментальное обновление данных геолокации
 class MainActivity : AppCompatActivity() {
@@ -38,31 +37,13 @@ class MainActivity : AppCompatActivity() {
                 val location = locationResult.lastLocation
                 lastLocation = location
 
-                Log.i(TAG, "onLocationResult: ${location.time}, ${location.longitude}, ${location.latitude}")
+                Log.i(
+                    TAG,
+                    "onLocationResult: ${location.time}, ${location.longitude}, ${location.latitude}"
+                )
 
                 // Выведем координату на экран
                 updateLocationText()
-
-                if (location.hasBearing()) binding.azimut.text =
-                    "${location.bearing}°" else binding.bearingAccuracy.text = "-"
-
-                if (location.hasBearingAccuracy()) binding.bearingAccuracy.text =
-                    "${location.bearingAccuracyDegrees}м" else binding.bearingAccuracy.text = "-"
-
-                if (location.hasAltitude()) binding.altitude.text =
-                    "${location.altitude.toInt()} м" else binding.altitude.text = "-"
-
-                binding.currentDate.text = formatDate(location)
-                binding.currentTime.text = formatTime(location)
-
-                if (location.hasSpeed()) binding.currentSpeed.text =
-                    "${(location.speed * 100).toInt() / 100.0} м/c" else binding.currentSpeed.text =
-                    "-"
-
-                if (location.hasAccuracy()) binding.accuracySpeed.text =
-                    "${location.speedAccuracyMetersPerSecond}" else binding.accuracySpeed.text = "-"
-
-                binding.provider.text = location.provider
             }
         }
     }
@@ -86,7 +67,9 @@ class MainActivity : AppCompatActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         // Восстанавливаем значение buttonState из bundle
-        isDecimalPosition = savedInstanceState?.getBoolean("buttonState") ?: false
+        isDecimalPosition = savedInstanceState?.getBoolean(STATE_LOCATION_FORMAT) ?: false
+
+        lastLocation = savedInstanceState?.getParcelable(STATE_LOCATION)
 
         // Обновить текст на экране
         updateLocationText()
@@ -97,6 +80,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Здесь весь текст локации
     private fun updateLocationText() {
         if (isDecimalPosition) {
             binding.button.text = "Переключить на DMS координаты"
@@ -113,6 +97,28 @@ class MainActivity : AppCompatActivity() {
             binding.longitude.text = longitudeDecDegToDegMinSec(lastLocation!!.longitude)
             binding.latitude.text = latitudeDecDegToDegMinSec(lastLocation!!.latitude)
         }
+
+        if (lastLocation!!.hasBearing()) binding.azimut.text =
+            "${lastLocation!!.bearing}°" else binding.bearingAccuracy.text = "-"
+
+        if (lastLocation!!.hasBearingAccuracy()) binding.bearingAccuracy.text =
+            "${lastLocation!!.bearingAccuracyDegrees} м" else binding.bearingAccuracy.text = "-"
+
+        if (lastLocation!!.hasAltitude()) binding.altitude.text =
+            "${lastLocation!!.altitude.toInt()} м" else binding.altitude.text = "-"
+
+        binding.currentDate.text = formatDate(lastLocation!!)
+        binding.currentTime.text = formatTime(lastLocation!!)
+
+        if (lastLocation!!.hasSpeed()) binding.currentSpeed.text =
+            "${(lastLocation!!.speed * 100).toInt() / 100.0} м/c" else binding.currentSpeed.text =
+            "-"
+
+        if (lastLocation!!.hasAccuracy()) binding.accuracySpeed.text =
+            "${lastLocation!!.speedAccuracyMetersPerSecond}" else binding.accuracySpeed.text = "-"
+
+        binding.provider.text = lastLocation!!.provider
+
 
         //TODO: Обновление остальных полей из location
 
