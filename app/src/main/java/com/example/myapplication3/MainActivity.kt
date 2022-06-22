@@ -7,6 +7,7 @@ import android.icu.text.SimpleDateFormat
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -19,10 +20,14 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
 
     private val TAG = "MainActivity"
-    private var GPS_PERMISSION_CODE = 101
+    private val GPS_PERMISSION_CODE = 101
+    private val STATE_LOCATION_FORMAT = "locationFormat"
+    private val STATE_LOCATION = "location"
+
+    private var isDecimalPosition: Boolean = false
+    private var lastLocation: Location? = null
 
     private val locationRequest = LocationRequest()
-    private var isDecimalPosition: Boolean = false
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult?) {
 
@@ -30,31 +35,13 @@ class MainActivity : AppCompatActivity() {
 
             if (locationResult.locations.isNotEmpty()) {
 
-
                 val location = locationResult.lastLocation
+                lastLocation = location
 
-                // Бинд кнопки для переключения режимов отображения долготы/широты
-                binding.button.setOnClickListener {
-                    isDecimalPosition = !isDecimalPosition
-                    if (isDecimalPosition) {
-                        binding.button.text = "Переключить на DMS координаты"
-                        binding.longitude.text = "${location.longitude}°"
-                        binding.latitude.text = "${location.latitude}°"
-                    } else {
-                        binding.button.text = "Переключить на DD координаты"
-                        binding.longitude.text = longitudeDecDegToDegMinSec(location.longitude)
-                        binding.latitude.text = latitudeDecDegToDegMinSec(location.latitude)
-                    }
-                }
+                Log.i(TAG, "onLocationResult: ${location.time}, ${location.longitude}, ${location.latitude}")
 
-                // Вариации отображения данных долготы/широты
-                if (isDecimalPosition) {
-                    binding.longitude.text = "${location.longitude}°"
-                    binding.latitude.text = "${location.latitude}°"
-                } else {
-                    binding.longitude.text = longitudeDecDegToDegMinSec(location.longitude)
-                    binding.latitude.text = latitudeDecDegToDegMinSec(location.latitude)
-                }
+                // Выведем координату на экран
+                updateLocationText()
 
                 if (location.hasBearing()) binding.azimut.text =
                     "${location.bearing}°" else binding.bearingAccuracy.text = "-"
@@ -63,13 +50,13 @@ class MainActivity : AppCompatActivity() {
                     "${location.bearingAccuracyDegrees}м" else binding.bearingAccuracy.text = "-"
 
                 if (location.hasAltitude()) binding.altitude.text =
-                    "${location.altitude.toInt()}м" else binding.altitude.text = "-"
+                    "${location.altitude.toInt()} м" else binding.altitude.text = "-"
 
                 binding.currentDate.text = formatDate(location)
                 binding.currentTime.text = formatTime(location)
 
                 if (location.hasSpeed()) binding.currentSpeed.text =
-                    "${(location.speed * 100).toInt() / 100.0}м/c" else binding.currentSpeed.text =
+                    "${(location.speed * 100).toInt() / 100.0} м/c" else binding.currentSpeed.text =
                     "-"
 
                 if (location.hasAccuracy()) binding.accuracySpeed.text =
@@ -101,11 +88,35 @@ class MainActivity : AppCompatActivity() {
         // Восстанавливаем значение buttonState из bundle
         isDecimalPosition = savedInstanceState?.getBoolean("buttonState") ?: false
 
-        // Текст кнопки
-        binding.button.setText("Переключить на DD координаты")
+        // Обновить текст на экране
+        updateLocationText()
 
+        binding.button.setOnClickListener {
+            isDecimalPosition = !isDecimalPosition
+            updateLocationText()
+        }
     }
 
+    private fun updateLocationText() {
+        if (isDecimalPosition) {
+            binding.button.text = "Переключить на DMS координаты"
+        } else {
+            binding.button.text = "Переключить на DD координаты"
+        }
+
+        lastLocation ?: return
+
+        if (isDecimalPosition) {
+            binding.longitude.text = "${lastLocation!!.longitude}°"
+            binding.latitude.text = "${lastLocation!!.latitude}°"
+        } else {
+            binding.longitude.text = longitudeDecDegToDegMinSec(lastLocation!!.longitude)
+            binding.latitude.text = latitudeDecDegToDegMinSec(lastLocation!!.latitude)
+        }
+
+        //TODO: Обновление остальных полей из location
+
+    }
 
     // Преобразуем системное время из location в дату
     private fun formatDate(location: Location): String {
@@ -236,7 +247,8 @@ class MainActivity : AppCompatActivity() {
     //сохраняем значение, определяющее способ отображения информации
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState.apply {
-            putBoolean("buttonState", isDecimalPosition)
+            putBoolean(STATE_LOCATION_FORMAT, isDecimalPosition)
+            putParcelable(STATE_LOCATION, lastLocation)
         })
     }
 }
