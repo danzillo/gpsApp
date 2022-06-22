@@ -15,6 +15,7 @@ import com.google.android.gms.location.*
 import java.util.*
 
 
+// моментальное обновление данных геолокации
 class MainActivity : AppCompatActivity() {
 
     private val TAG = "MainActivity"
@@ -28,7 +29,24 @@ class MainActivity : AppCompatActivity() {
             locationResult ?: return
 
             if (locationResult.locations.isNotEmpty()) {
+
+
                 val location = locationResult.lastLocation
+
+
+                // Бинд кнопки для переключения режимов отображения долготы/широты
+                binding.button.setOnClickListener {
+                    isDecimalPosition = !isDecimalPosition
+                    if (isDecimalPosition) {
+                        binding.button.text = "Переключить на DMS координаты"
+                        binding.longitude.text = "${location.longitude}°"
+                        binding.latitude.text = "${location.latitude}°"
+                    } else {
+                        binding.button.text = "Переключить на DD координаты"
+                        binding.longitude.text = longitudeDecDegToDegMinSec(location.longitude)
+                        binding.latitude.text = latitudeDecDegToDegMinSec(location.latitude)
+                    }
+                }
 
                 // Вариации отображения данных долготы/широты
                 if (isDecimalPosition) {
@@ -84,12 +102,20 @@ class MainActivity : AppCompatActivity() {
         // Восстанавливаем значение buttonState из bundle
         isDecimalPosition = savedInstanceState?.getBoolean("buttonState") ?: false
 
-        // Бинд кнопки для переключения режимов отображения долготы/широты
-        binding.button.setOnClickListener {
-            isDecimalPosition = !isDecimalPosition
-        }
+        // Текст кнопки
+        binding.button.setText("Переключить на DD координаты")
+
+//        // Бинд кнопки для переключения режимов отображения долготы/широты
+//        binding.button.setOnClickListener {
+//            isDecimalPosition = !isDecimalPosition
+//            if (isDecimalPosition) {
+//                binding.button.text = "Переключить на DMS координаты"
+//            } else binding.button.setText("Переключить на DD координаты")
+//
+//        }
 
     }
+
 
     // Преобразуем системное время из location в дату
     private fun formatDate(location: Location): String {
@@ -115,7 +141,11 @@ class MainActivity : AppCompatActivity() {
     */
     private fun latitudeDecDegToDegMinSec(decDeg: Double) = decDegToDegMinSec(decDeg, "N", "S")
 
-    private fun decDegToDegMinSec(decDeg: Double, positiveChar: String = "", negChar: String = "",): String {
+    private fun decDegToDegMinSec(
+        decDeg: Double,
+        positiveChar: String = "",
+        negChar: String = ""
+    ): String {
         val sphereName: String
         val deg = decDeg.toInt()
         val min = ((decDeg - deg) * 60).toInt()
@@ -184,7 +214,8 @@ class MainActivity : AppCompatActivity() {
                 Log.i(TAG, "onRequestPermissionsResult: GPS_PERMISSION_CODE")
 
                 if (grantResults.isNotEmpty() &&
-                            grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED
+                ) {
 
                     Toast.makeText(
                         this,
