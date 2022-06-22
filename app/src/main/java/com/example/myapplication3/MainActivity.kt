@@ -6,35 +6,30 @@ import android.icu.text.DateFormat
 import android.icu.text.SimpleDateFormat
 import android.location.Location
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.example.myapplication3.databinding.ActivityMainBinding
 import com.google.android.gms.location.*
 import java.util.*
-import kotlin.math.roundToInt
 
-/*
-TODO:
-Переключатель двух измерений
-onRequestPermissionsResult доработка
-*/
 
 class MainActivity : AppCompatActivity() {
 
     private var GPS_PERMISSION_CODE = 101
 
     private val locationRequest = LocationRequest()
-    private var buttonIdentity: Boolean = false
+    private var buttonState: Boolean = false
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult?) {
+
             locationResult ?: return
+
             if (locationResult.locations.isNotEmpty()) {
                 val location = locationResult.lastLocation
 
-                if (buttonIdentity) {
+                // Вариации отображения данных долготы/широты
+                if (buttonState) {
                     binding.longitude.text = "${location.longitude}°"
                     binding.latitude.text = "${location.latitude}°"
                 } else {
@@ -42,6 +37,7 @@ class MainActivity : AppCompatActivity() {
                     binding.latitude.text = latitudeDecDegToDegMinSec(location.latitude)
                 }
 
+                // Данные
                 binding.azimut.text = "${location.bearing}°"
                 binding.bearingAccuracy.text = "${location.bearingAccuracyDegrees}м"
                 binding.altitude.text = "${location.altitude.toInt()}м"
@@ -60,8 +56,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
 
         // Формируем требования по точности местоположения
         locationRequest.apply {
@@ -72,10 +70,12 @@ class MainActivity : AppCompatActivity() {
         // Получаем провайдер местоположения от комплекса сенсоров
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
+        // Восстанавливаем значение buttonState из bundle
+        buttonState = savedInstanceState?.getBoolean("buttonState") ?: false
 
-        // Бинд кнопкb для переключения режимов отображения долготы/широты
+        // Бинд кнопки для переключения режимов отображения долготы/широты
         binding.button.setOnClickListener {
-            buttonIdentity = !buttonIdentity
+            buttonState = !buttonState
         }
 
         // При пуске спрашиваем разрешение на использование GPS
@@ -204,5 +204,12 @@ class MainActivity : AppCompatActivity() {
                 return
             }
         }
+    }
+
+    //сохраняем значение, определяющее способ отображения информации
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState.apply {
+            putBoolean("buttonState", buttonState)
+        })
     }
 }
