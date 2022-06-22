@@ -33,7 +33,6 @@ class MainActivity : AppCompatActivity() {
 
                 val location = locationResult.lastLocation
 
-
                 // Бинд кнопки для переключения режимов отображения долготы/широты
                 binding.button.setOnClickListener {
                     isDecimalPosition = !isDecimalPosition
