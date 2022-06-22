@@ -37,14 +37,25 @@ class MainActivity : AppCompatActivity() {
                     binding.latitude.text = latitudeDecDegToDegMinSec(location.latitude)
                 }
 
-                // Данные
-                binding.azimut.text = "${location.bearing}°"
-                binding.bearingAccuracy.text = "${location.bearingAccuracyDegrees}м"
-                binding.altitude.text = "${location.altitude.toInt()}м"
+                if (location.hasBearing()) binding.azimut.text =
+                    "${location.bearing}°" else binding.bearingAccuracy.text = "-"
+
+                if (location.hasBearingAccuracy()) binding.bearingAccuracy.text =
+                    "${location.bearingAccuracyDegrees}м" else binding.bearingAccuracy.text = "-"
+
+                if (location.hasAltitude()) binding.altitude.text =
+                    "${location.altitude.toInt()}м" else binding.altitude.text = "-"
+
                 binding.currentDate.text = formatDate(location)
                 binding.currentTime.text = formatTime(location)
-                binding.currentSpeed.text = "${(location.speed * 100).toInt() / 100.0}м/c"
-                binding.accuracySpeed.text = "${location.speedAccuracyMetersPerSecond}"
+
+                if (location.hasSpeed()) binding.currentSpeed.text =
+                    "${(location.speed * 100).toInt() / 100.0}м/c" else binding.currentSpeed.text =
+                    "-"
+
+                if (location.hasAccuracy()) binding.accuracySpeed.text =
+                    "${location.speedAccuracyMetersPerSecond}" else binding.accuracySpeed.text = "-"
+
                 binding.provider.text = location.provider
             }
         }
