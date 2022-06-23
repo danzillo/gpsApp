@@ -11,9 +11,11 @@ import android.view.ViewManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication3.databinding.ActivityMainBinding
 import com.google.android.gms.location.*
+import java.security.acl.Owner
 import java.util.*
 
 // моментальное обновление данных геолокации
@@ -23,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
 
     private val GPS_PERMISSION_CODE = 101
+
     private val locationRequest = LocationRequest()
 
     private val locationCallback = object : LocationCallback() {
@@ -31,16 +34,20 @@ class MainActivity : AppCompatActivity() {
             locationResult ?: return
 
             if (locationResult.locations.isNotEmpty()) {
-
+//
                 val location = locationResult.lastLocation
-                viewModel.lastLocation = location
+                viewModel.getLastLoaction(location)
 
-                Log.i(
-                    TAG,
-                    "onLocationResult: ${location.time}, ${location.longitude}, ${location.latitude}"
-                )
-                // Выведем координату на экран
+                // Вывод координат на экран
                 updateLocationText()
+//                viewModel.lastLocation = location
+//
+//                Log.i(
+//                    TAG,
+//                    "onLocationResult: ${location.time}, ${location.longitude}, ${location.latitude}"
+//                )
+//                // Выведем координату на экран
+//                updateLocationText()
             }
         }
     }
@@ -74,14 +81,19 @@ class MainActivity : AppCompatActivity() {
         updateLocationText()
 
         binding.button.setOnClickListener {
-           viewModel.decimalOrNot()
+            viewModel.decimalOrNot()
             updateLocationText()
+        }
+
+        viewModel.lastLocation.observe(this) {
+        }
+        viewModel.isDecimalPosition.observe(this) {
         }
     }
 
     // Здесь весь текст локации
     private fun updateLocationText() {
-        if (viewModel.isDecimalPosition) {
+        if (viewModel.isDecimalPosition.value == true) {
             binding.button.text = "Переключить на DMS координаты"
         } else {
             binding.button.text = "Переключить на DD координаты"
@@ -89,49 +101,13 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.lastLocation ?: return
 
-        if (viewModel.isDecimalPosition) {
-            binding.longitude.text = "${viewModel.lastLocation!!.longitude}°"
-            binding.latitude.text = "${viewModel.lastLocation!!.latitude}°"
-        } else {
-            binding.longitude.text = longitudeDecDegToDegMinSec(viewModel.lastLocation!!.longitude)
-            binding.latitude.text = latitudeDecDegToDegMinSec(viewModel.lastLocation!!.latitude)
-        }
-
-        if (viewModel.lastLocation!!.hasBearing()) binding.azimut.text =
-            "${viewModel.lastLocation!!.bearing}°" else binding.bearingAccuracy.text = "-"
-
-        if (viewModel.lastLocation!!.hasBearingAccuracy()) binding.bearingAccuracy.text =
-            "${viewModel.lastLocation!!.bearingAccuracyDegrees} м" else binding.bearingAccuracy.text =
-            "-"
-
-        if (viewModel.lastLocation!!.hasAltitude()) binding.altitude.text =
-            "${viewModel.lastLocation!!.altitude.toInt()} м" else binding.altitude.text = "-"
-
-        binding.currentDate.text = formatDate(viewModel.lastLocation!!)
-        binding.currentTime.text = formatTime(viewModel.lastLocation!!)
-
-        if (viewModel.lastLocation!!.hasSpeed()) binding.currentSpeed.text =
-            "${(viewModel.lastLocation!!.speed * 100).toInt() / 100.0} м/c" else binding.currentSpeed.text =
-            "-"
-
-        if (viewModel.lastLocation!!.hasAccuracy()) binding.accuracySpeed.text =
-            "${viewModel.lastLocation!!.speedAccuracyMetersPerSecond}" else binding.accuracySpeed.text =
-            "-"
-
-        binding.provider.text = viewModel.lastLocation!!.provider
 
     }
 
-    // Преобразуем системное время из location в дату
-    private fun formatDate(location: Location): String {
-        val formatDate: DateFormat = SimpleDateFormat("dd.MM.yyyy")
+    // Преобразуем системное время из location в дату/время
+    private fun formatDate(location: Location, pattern: String): String {
+        val formatDate: DateFormat = SimpleDateFormat()
         return formatDate.format(Date(location.time))
-    }
-
-    // Преобразуем системное время из location во время
-    private fun formatTime(location: Location): String {
-        val formatTime: DateFormat = SimpleDateFormat("HH:mm:ss")
-        return formatTime.format(Date(location.time))
     }
 
     /*
