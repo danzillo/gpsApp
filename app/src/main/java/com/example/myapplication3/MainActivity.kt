@@ -7,26 +7,24 @@ import android.icu.text.SimpleDateFormat
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.view.ViewManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication3.databinding.ActivityMainBinding
 import com.google.android.gms.location.*
 import java.util.*
-//TODO перенос всех наработок в ViewModel+LiveData izuchenie
 
 // моментальное обновление данных геолокации
 class MainActivity : AppCompatActivity() {
 
+
     private val TAG = "MainActivity"
+
     private val GPS_PERMISSION_CODE = 101
-    private val STATE_LOCATION_FORMAT = "locationFormat"
-    private val STATE_LOCATION = "location"
-
-    private var isDecimalPosition: Boolean = false
-    private var lastLocation: Location? = null
-
     private val locationRequest = LocationRequest()
+
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult?) {
 
@@ -35,27 +33,33 @@ class MainActivity : AppCompatActivity() {
             if (locationResult.locations.isNotEmpty()) {
 
                 val location = locationResult.lastLocation
-                lastLocation = location
+                viewModel.lastLocation = location
 
                 Log.i(
                     TAG,
                     "onLocationResult: ${location.time}, ${location.longitude}, ${location.latitude}"
                 )
-
                 // Выведем координату на экран
                 updateLocationText()
             }
         }
     }
-
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    // Биндинг для получения доступа к элементам слоя activity_main.xml
     lateinit var binding: ActivityMainBinding
+
+    // Создаем экземпляр ViewModel
+    lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // binding.view
+        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         // Формируем требования по точности местоположения
         locationRequest.apply {
@@ -66,61 +70,55 @@ class MainActivity : AppCompatActivity() {
         // Получаем провайдер местоположения от комплекса сенсоров
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        // Восстанавливаем значение buttonState из bundle
-        isDecimalPosition = savedInstanceState?.getBoolean(STATE_LOCATION_FORMAT) ?: false
-
-        lastLocation = savedInstanceState?.getParcelable(STATE_LOCATION)
-
         // Обновить текст на экране
         updateLocationText()
 
         binding.button.setOnClickListener {
-            isDecimalPosition = !isDecimalPosition
+           viewModel.decimalOrNot()
             updateLocationText()
         }
     }
 
     // Здесь весь текст локации
     private fun updateLocationText() {
-        if (isDecimalPosition) {
+        if (viewModel.isDecimalPosition) {
             binding.button.text = "Переключить на DMS координаты"
         } else {
             binding.button.text = "Переключить на DD координаты"
         }
 
-        lastLocation ?: return
+        viewModel.lastLocation ?: return
 
-        if (isDecimalPosition) {
-            binding.longitude.text = "${lastLocation!!.longitude}°"
-            binding.latitude.text = "${lastLocation!!.latitude}°"
+        if (viewModel.isDecimalPosition) {
+            binding.longitude.text = "${viewModel.lastLocation!!.longitude}°"
+            binding.latitude.text = "${viewModel.lastLocation!!.latitude}°"
         } else {
-            binding.longitude.text = longitudeDecDegToDegMinSec(lastLocation!!.longitude)
-            binding.latitude.text = latitudeDecDegToDegMinSec(lastLocation!!.latitude)
+            binding.longitude.text = longitudeDecDegToDegMinSec(viewModel.lastLocation!!.longitude)
+            binding.latitude.text = latitudeDecDegToDegMinSec(viewModel.lastLocation!!.latitude)
         }
 
-        if (lastLocation!!.hasBearing()) binding.azimut.text =
-            "${lastLocation!!.bearing}°" else binding.bearingAccuracy.text = "-"
+        if (viewModel.lastLocation!!.hasBearing()) binding.azimut.text =
+            "${viewModel.lastLocation!!.bearing}°" else binding.bearingAccuracy.text = "-"
 
-        if (lastLocation!!.hasBearingAccuracy()) binding.bearingAccuracy.text =
-            "${lastLocation!!.bearingAccuracyDegrees} м" else binding.bearingAccuracy.text = "-"
-
-        if (lastLocation!!.hasAltitude()) binding.altitude.text =
-            "${lastLocation!!.altitude.toInt()} м" else binding.altitude.text = "-"
-
-        binding.currentDate.text = formatDate(lastLocation!!)
-        binding.currentTime.text = formatTime(lastLocation!!)
-
-        if (lastLocation!!.hasSpeed()) binding.currentSpeed.text =
-            "${(lastLocation!!.speed * 100).toInt() / 100.0} м/c" else binding.currentSpeed.text =
+        if (viewModel.lastLocation!!.hasBearingAccuracy()) binding.bearingAccuracy.text =
+            "${viewModel.lastLocation!!.bearingAccuracyDegrees} м" else binding.bearingAccuracy.text =
             "-"
 
-        if (lastLocation!!.hasAccuracy()) binding.accuracySpeed.text =
-            "${lastLocation!!.speedAccuracyMetersPerSecond}" else binding.accuracySpeed.text = "-"
+        if (viewModel.lastLocation!!.hasAltitude()) binding.altitude.text =
+            "${viewModel.lastLocation!!.altitude.toInt()} м" else binding.altitude.text = "-"
 
-        binding.provider.text = lastLocation!!.provider
+        binding.currentDate.text = formatDate(viewModel.lastLocation!!)
+        binding.currentTime.text = formatTime(viewModel.lastLocation!!)
 
+        if (viewModel.lastLocation!!.hasSpeed()) binding.currentSpeed.text =
+            "${(viewModel.lastLocation!!.speed * 100).toInt() / 100.0} м/c" else binding.currentSpeed.text =
+            "-"
 
-        //TODO: Обновление остальных полей из location
+        if (viewModel.lastLocation!!.hasAccuracy()) binding.accuracySpeed.text =
+            "${viewModel.lastLocation!!.speedAccuracyMetersPerSecond}" else binding.accuracySpeed.text =
+            "-"
+
+        binding.provider.text = viewModel.lastLocation!!.provider
 
     }
 
@@ -248,13 +246,5 @@ class MainActivity : AppCompatActivity() {
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults)
             }
         }
-    }
-
-    //сохраняем значение, определяющее способ отображения информации
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState.apply {
-            putBoolean(STATE_LOCATION_FORMAT, isDecimalPosition)
-            putParcelable(STATE_LOCATION, lastLocation)
-        })
     }
 }
