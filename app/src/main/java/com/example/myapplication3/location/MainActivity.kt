@@ -1,12 +1,10 @@
 package com.example.myapplication3.location
 
-import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication3.databinding.ActivityMainBinding
 
@@ -25,29 +23,16 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // binding.view
-        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED &&
+        viewModel = ViewModelProvider.of(this).get(MainViewModel::class.java)
+        // viewModel.startLocationUpdates(this)
 
-            ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
+        viewModel.lastLocation.observe(this) {
+            if (it != null) {
+                binding.longitude.text = it.provider.toString()
 
-            //Log.i(MainViewModel.TAG, "checkSelfPermission failed! Request …")
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), GPS_PERMISSION_CODE
-            )
-            return
-
+                Log.i(TAG, "${it.provider.toString()}")
+            }
         }
-        viewModel.startLocationUpdates(this)
-
     }
 
     // Останавливаем обновление геолокации

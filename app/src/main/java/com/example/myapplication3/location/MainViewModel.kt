@@ -34,6 +34,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private val locationRequest = LocationRequest()
+
     // Позволяет менять отображение GPS координат
     fun decimalOrNot() {
         _isDecimalPosition.value = !_isDecimalPosition.value!!
@@ -47,6 +48,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // Обновление локации
     fun startLocationUpdates(activity: Activity) {
 
         if (ActivityCompat.checkSelfPermission(
@@ -66,7 +68,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), GPS_PERMISSION_CODE
             )
             return
-
         }
 
         // Формируем требования по точности местоположения
@@ -118,49 +119,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val sec = ((decDeg - deg - (min.toDouble() / 60)) * 3600).toInt()
         sphereName = if (deg > 0) positiveChar else negChar
         return "$sphereName ${deg}° ${min}' ${sec}\""
-    }
-
-    // LiveData for each button
-    private fun updateLocationText() {
-        if (_isDecimalPosition.value == true) {
-            binding.button.text = "Переключить на DMS координаты"
-        } else {
-            binding.button.text = "Переключить на DD координаты"
-        }
-
-        viewModel.lastLocation ?: return
-
-        if (viewModel.isDecimalPosition) {
-            binding.longitude.text = "${viewModel.lastLocation!!.longitude}°"
-            binding.latitude.text = "${viewModel.lastLocation!!.latitude}°"
-        } else {
-            binding.longitude.text = longitudeDecDegToDegMinSec(viewModel.lastLocation!!.longitude)
-            binding.latitude.text = latitudeDecDegToDegMinSec(viewModel.lastLocation!!.latitude)
-        }
-
-        if (viewModel.lastLocation!!.hasBearing()) binding.azimut.text =
-            "${viewModel.lastLocation!!.bearing}°" else binding.bearingAccuracy.text = "-"
-
-        if (viewModel.lastLocation!!.hasBearingAccuracy()) binding.bearingAccuracy.text =
-            "${viewModel.lastLocation!!.bearingAccuracyDegrees} м" else binding.bearingAccuracy.text =
-            "-"
-
-        if (viewModel.lastLocation!!.hasAltitude()) binding.altitude.text =
-            "${viewModel.lastLocation!!.altitude.toInt()} м" else binding.altitude.text = "-"
-
-        binding.currentDate.text = formatDate(viewModel.lastLocation!!)
-        binding.currentTime.text = formatTime(viewModel.lastLocation!!)
-
-        if (viewModel.lastLocation!!.hasSpeed()) binding.currentSpeed.text =
-            "${(viewModel.lastLocation!!.speed * 100).toInt() / 100.0} м/c" else binding.currentSpeed.text =
-            "-"
-
-        if (viewModel.lastLocation!!.hasAccuracy()) binding.accuracySpeed.text =
-            "${viewModel.lastLocation!!.speedAccuracyMetersPerSecond}" else binding.accuracySpeed.text =
-            "-"
-
-        binding.provider.text = viewModel.lastLocation!!.provider
-
     }
 
     companion object {
