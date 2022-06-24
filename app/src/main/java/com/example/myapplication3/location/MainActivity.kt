@@ -31,6 +31,23 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.lastLocation.observe(this) { location ->
             if (location != null) {
+                binding.button.setOnClickListener {
+                    viewModel.decimalOrNot()
+                    viewModel.isDecimalPosition.observe(this) { decimalPosition ->
+                        if (decimalPosition) {
+                            binding.button.text = "Переключить на DMS координаты"
+                            binding.latitude.text = location.latitude.toString() + "°"
+                            binding.longitude.text = location.longitude.toString() + "°"
+                        } else {
+                            binding.button.text = "Переключить на DD координаты"
+                            binding.latitude.text =
+                                viewModel.latitudeDecDegToDegMinSec(location.latitude)
+                            binding.longitude.text =
+                                viewModel.latitudeDecDegToDegMinSec(location.longitude)
+                        }
+                    }
+                }
+
                 if (viewModel.isDecimalPosition.value == true) {
                     binding.latitude.text = location.latitude.toString() + "°"
                     binding.longitude.text = location.longitude.toString() + "°"
@@ -49,20 +66,15 @@ class MainActivity : AppCompatActivity() {
                 binding.provider.text = location.provider.toString()
             }
         }
+        //начальное отображение кнопок
+        if (viewModel.isDecimalPosition.value == true) {
+            binding.button.text = "Переключить на DMS координаты"
+        } else {
+            binding.button.text = "Переключить на DD координаты"
+        }
 
         // Переключение координат DD/DMS
-        binding.button.setOnClickListener {
-            viewModel.decimalOrNot()
-            viewModel.isDecimalPosition.observe(this) { decimalPosition ->
-                if (decimalPosition) {
-                    binding.button.text = "Переключить на DMS координаты"
-                } else {
-                    binding.button.text = "Переключить на DD координаты"
-                }
-            }
 
-            //  viewModel.updateLocationText()
-        }
     }
 
     // Останавливаем обновление геолокации
