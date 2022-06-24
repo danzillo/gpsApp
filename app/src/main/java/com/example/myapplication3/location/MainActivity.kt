@@ -66,15 +66,13 @@ class MainActivity : AppCompatActivity() {
                 binding.provider.text = location.provider.toString()
             }
         }
+
         //начальное отображение кнопок
         if (viewModel.isDecimalPosition.value == true) {
             binding.button.text = "Переключить на DMS координаты"
         } else {
             binding.button.text = "Переключить на DD координаты"
         }
-
-        // Переключение координат DD/DMS
-
     }
 
     // Останавливаем обновление геолокации
