@@ -31,7 +31,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val context = getApplication<Application>().applicationContext
 
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+     lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private val locationRequest = LocationRequest()
 

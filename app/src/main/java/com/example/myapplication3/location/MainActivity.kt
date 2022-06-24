@@ -23,16 +23,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel = ViewModelProvider.of(this).get(MainViewModel::class.java)
-        // viewModel.startLocationUpdates(this)
+        // Подключение ViewModel
+        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
-        viewModel.lastLocation.observe(this) {
-            if (it != null) {
-                binding.longitude.text = it.provider.toString()
+        viewModel.startLocationUpdates(this)
 
-                Log.i(TAG, "${it.provider.toString()}")
-            }
-        }
     }
 
     // Останавливаем обновление геолокации
