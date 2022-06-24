@@ -19,16 +19,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _lastLocation = MutableLiveData<Location?>(null)
     val lastLocation: LiveData<Location?> = _lastLocation
 
-    val latitude: LiveData<String> = lastLocation.map { location ->
-        return@map if (location != null) String.format("%1.4f", location.latitude) else "-"
-    }
-
     private val _isDecimalPosition = MutableLiveData(false)
     val isDecimalPosition: LiveData<Boolean> = _isDecimalPosition
 
     private val context = getApplication<Application>().applicationContext
 
-     lateinit var fusedLocationClient: FusedLocationProviderClient
+    lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private val locationRequest = LocationRequest()
 
@@ -90,7 +86,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // Преобразуем системное время из location в дату/время
-    private fun formatDate(location: Location, pattern: String): String {
+    fun formatDate(location: Location, pattern: String): String {
         val formatDate: DateFormat = SimpleDateFormat(pattern)
         return formatDate.format(Date(location.time))
     }
@@ -99,13 +95,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     Преобразует десятичные градусы
     в градусы, минуты, секунды долготы и добавляет название полушария
     */
-    private fun longitudeDecDegToDegMinSec(decDeg: Double) = decDegToDegMinSec(decDeg, "E", "W")
+    fun longitudeDecDegToDegMinSec(decDeg: Double) = decDegToDegMinSec(decDeg, "E", "W")
 
     /*
     Преобразует десятичные градусы
     в градусы, минуты, секунды долготы и добавляет название полушария
     */
-    private fun latitudeDecDegToDegMinSec(decDeg: Double) = decDegToDegMinSec(decDeg, "N", "S")
+    fun latitudeDecDegToDegMinSec(decDeg: Double) = decDegToDegMinSec(decDeg, "N", "S")
 
     private fun decDegToDegMinSec(
         decDeg: Double,

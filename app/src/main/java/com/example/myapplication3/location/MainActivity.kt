@@ -29,10 +29,39 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.startLocationUpdates(this)
 
+        viewModel.lastLocation.observe(this) { location ->
+            if (location != null) {
+                if (viewModel.isDecimalPosition.value == true) {
+                    binding.latitude.text = location.latitude.toString() + "°"
+                    binding.longitude.text = location.longitude.toString() + "°"
+                } else {
+                    binding.latitude.text = viewModel.latitudeDecDegToDegMinSec(location.latitude)
+                    binding.longitude.text = viewModel.latitudeDecDegToDegMinSec(location.longitude)
+                }
+                binding.azimut.text = location.bearing.toString() + "°"
+                binding.bearingAccuracy.text = location.bearingAccuracyDegrees.toString() + " м"
+                binding.altitude.text = location.altitude.toInt().toString() + " м"
+                binding.currentDate.text = viewModel.formatDate(location, "dd.MM.YYYY")
+                binding.currentTime.text = viewModel.formatDate(location, "HH:mm:ss")
+                binding.currentSpeed.text =
+                    ((location.speed * 100).toInt() / 100).toString() + " м/c"
+                binding.accuracySpeed.text = location.speedAccuracyMetersPerSecond.toString() + " м"
+                binding.provider.text = location.provider.toString()
+            }
+        }
+
         // Переключение координат DD/DMS
         binding.button.setOnClickListener {
             viewModel.decimalOrNot()
-           // viewModel.updateLocationText()
+            viewModel.isDecimalPosition.observe(this) { decimalPosition ->
+                if (decimalPosition) {
+                    binding.button.text = "Переключить на DMS координаты"
+                } else {
+                    binding.button.text = "Переключить на DD координаты"
+                }
+            }
+
+            //  viewModel.updateLocationText()
         }
     }
 
