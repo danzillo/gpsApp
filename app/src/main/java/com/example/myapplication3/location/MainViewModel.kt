@@ -22,15 +22,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _isDecimalPosition = MutableLiveData(false)
     val isDecimalPosition: LiveData<Boolean> = _isDecimalPosition
 
-    private val context = getApplication<Application>().applicationContext
-
-    lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private val locationRequest = LocationRequest()
 
-    // Позволяет менять отображение GPS координат
-    fun decimalOrNot() {
-        _isDecimalPosition.value = !_isDecimalPosition.value!!
+    // Меняет (инвертирует) режим отображения GPS координат
+    fun switchGpsFormat() {
+        _isDecimalPosition.value = _isDecimalPosition.value != true
     }
 
     private val locationCallback = object : LocationCallback() {
@@ -45,12 +43,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun startLocationUpdates(activity: Activity) {
 
         if (ActivityCompat.checkSelfPermission(
-                context,
+                activity,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED &&
 
             ActivityCompat.checkSelfPermission(
-                context,
+                activity,
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
@@ -70,7 +68,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity.application)
 
         Log.i(TAG, "checkSelfPermission succeed! requestLocationUpdates …")
         fusedLocationClient.requestLocationUpdates(

@@ -1,7 +1,7 @@
 package com.example.myapplication3.location
 
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.nfc.Tag
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -27,69 +27,25 @@ class MainActivity : AppCompatActivity() {
         // Подключение ViewModel
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
+        // Подключимся к получению координат
         viewModel.startLocationUpdates(this)
-
-        viewModel.lastLocation.observe(this) { location ->
-            if (location != null) {
-                binding.button.setOnClickListener {
-                    viewModel.decimalOrNot()
-                    viewModel.isDecimalPosition.observe(this) { decimalPosition ->
-                        if (decimalPosition) {
-                            binding.button.text = "Переключить на DMS координаты"
-                            binding.latitude.text = location.latitude.toString() + "°"
-                            binding.longitude.text = location.longitude.toString() + "°"
-                        } else {
-                            binding.button.text = "Переключить на DD координаты"
-                            binding.latitude.text =
-                                viewModel.latitudeDecDegToDegMinSec(location.latitude)
-                            binding.longitude.text =
-                                viewModel.latitudeDecDegToDegMinSec(location.longitude)
-                        }
-                    }
-                }
-
-                if (viewModel.isDecimalPosition.value == true) {
-                    binding.latitude.text = location.latitude.toString() + "°"
-                    binding.longitude.text = location.longitude.toString() + "°"
-                } else {
-                    binding.latitude.text = viewModel.latitudeDecDegToDegMinSec(location.latitude)
-                    binding.longitude.text = viewModel.latitudeDecDegToDegMinSec(location.longitude)
-                }
-                binding.azimut.text = location.bearing.toString() + "°"
-                binding.bearingAccuracy.text = location.bearingAccuracyDegrees.toString() + " м"
-                binding.altitude.text = location.altitude.toInt().toString() + " м"
-                binding.currentDate.text = viewModel.formatDate(location, "dd.MM.YYYY")
-                binding.currentTime.text = viewModel.formatDate(location, "HH:mm:ss")
-                binding.currentSpeed.text =
-                    ((location.speed * 100).toInt() / 100).toString() + " м/c"
-                binding.accuracySpeed.text = location.speedAccuracyMetersPerSecond.toString() + " м"
-                binding.provider.text = location.provider.toString()
-            }
+        viewModel.lastLocation.observe(this) {
+            updateLocationOnScreen()
         }
 
-        //начальное отображение кнопок
-        if (viewModel.isDecimalPosition.value == true) {
-            binding.button.text = "Переключить на DMS координаты"
-        } else {
-            binding.button.text = "Переключить на DD координаты"
+        // Назначим обработчик нажатия на кнопку
+        binding.button.setOnClickListener {
+            viewModel.switchGpsFormat()
+            updateLocationOnScreen()
         }
-    }
 
-    // Останавливаем обновление геолокации
-    override fun onPause() {
-        super.onPause()
-        Log.i(TAG, "onPause")
+        // Начальное отображение данных
+        updateLocationOnScreen()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         viewModel.stopLocationUpdates()
-    }
-
-    // Обновление геолокации при взаимодействии с активити
-    override fun onResume() {
-        super.onResume()
-        Log.i(TAG, "onResume")
     }
 
     //  Проверка получения/не получения разрешения на использование GPS
@@ -129,6 +85,34 @@ class MainActivity : AppCompatActivity() {
 
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults)
             }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    fun updateLocationOnScreen() {
+        val location = viewModel.lastLocation.value
+
+        if (location != null) {
+            if (viewModel.isDecimalPosition.value == true) {
+                binding.button.text = "Переключить на DMS координаты"
+                binding.latitude.text = location.latitude.toString() + "°"
+                binding.longitude.text = location.longitude.toString() + "°"
+            } else {
+                binding.button.text = "Переключить на DEC координаты"
+                binding.latitude.text = viewModel.latitudeDecDegToDegMinSec(location.latitude)
+                binding.longitude.text = viewModel.longitudeDecDegToDegMinSec(location.longitude)
+            }
+            binding.azimut.text = location.bearing.toString() + "°"
+            binding.bearingAccuracy.text = location.bearingAccuracyDegrees.toString() + " м"
+            binding.altitude.text = location.altitude.toInt().toString() + " м"
+            binding.currentDate.text = viewModel.formatDate(location, "dd.MM.YYYY")
+            binding.currentTime.text = viewModel.formatDate(location, "HH:mm:ss")
+            binding.currentSpeed.text =
+                ((location.speed * 100).toInt() / 100).toString() + " м/c"
+            binding.accuracySpeed.text = location.speedAccuracyMetersPerSecond.toString() + " м"
+            binding.provider.text = location.provider.toString()
+        } else {
+            //TODO: Заполнить экран прочерками
         }
     }
 
