@@ -1,13 +1,18 @@
 package com.example.myapplication3.location
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication3.databinding.ActivityMainBinding
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.lang.reflect.Type
 
 // моментальное обновление данных геолокации
 class MainActivity : AppCompatActivity() {
@@ -18,6 +23,10 @@ class MainActivity : AppCompatActivity() {
     // Создаем экземпляр ViewModel
     lateinit var viewModel: MainViewModel
 
+    // Создаем экземпляр для сохранения режима отображения
+    private lateinit var pref: SharedPreferences
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -27,7 +36,13 @@ class MainActivity : AppCompatActivity() {
         // Подключение ViewModel
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
+        // Загружаем данные при запуске программы
+        pref = getPreferences(MODE_PRIVATE)
         // Подключимся к получению координат
+        // startLocationOnScreen()
+//        loadData()
+//        Log.i(TAG, "load data ${loadData()}")
+//        binding.latitude.text = loadData()?.latitude.toString()
         viewModel.startLocationUpdates(this)
         viewModel.lastLocation.observe(this) {
             updateLocationOnScreen()
@@ -46,6 +61,8 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         viewModel.stopLocationUpdates()
+        saveData(viewModel.lastLocation.value)
+       // Log.i(TAG, "${saveData(viewModel.lastLocation.value)}")
     }
 
     //  Проверка получения/не получения разрешения на использование GPS
@@ -90,7 +107,9 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     fun updateLocationOnScreen() {
+
         val location = viewModel.lastLocation.value
+
 
         if (location != null) {
             if (viewModel.isDecimalPosition.value == true) {
@@ -132,8 +151,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Сохраняем и загружаем информацию в преференс
+    fun saveData(location: Location?) {
+
+        var editor = pref.edit()
+        val gson = Gson()
+        val json: String = gson.toJson(location)
+        editor.putString(LOCATION_PREFERENCE_KEY, json)
+        editor.apply()
+        Log.i(TAG, "saveData work and save ${json}")
+    }
+//
+//    private fun loadData(): Location? {
+//        val gson = Gson()
+//        val json = pref.getString(LOCATION_PREFERENCE_KEY, null)
+//        Type type = new TypeToken<ArrayList<Location?>>(){}.type
+//        val locaca = gson.fromJson(json,type)
+//        return gson.fromJson(json, Location::class.java)
+//    }
+
+
     companion object {
         private val TAG = MainActivity::class.simpleName
+        private const val LOCATION_PREFERENCE_KEY = "location"
         private const val GPS_PERMISSION_CODE = 101
     }
 }
