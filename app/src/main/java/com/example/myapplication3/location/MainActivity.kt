@@ -1,6 +1,7 @@
 package com.example.myapplication3.location
 
 import android.content.pm.PackageManager
+import android.nfc.Tag
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -28,6 +29,11 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.startLocationUpdates(this)
 
+        viewModel.lastLocation.observe(this,{ loaction->
+            if (loaction != null) {
+                binding.latitude.text = loaction.provider.toString()
+            }
+        })
     }
 
     // Останавливаем обновление геолокации
