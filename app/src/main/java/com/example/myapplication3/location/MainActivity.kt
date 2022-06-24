@@ -29,11 +29,11 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.startLocationUpdates(this)
 
-        viewModel.lastLocation.observe(this,{ loaction->
-            if (loaction != null) {
-                binding.latitude.text = loaction.provider.toString()
-            }
-        })
+        // Переключение координат DD/DMS
+        binding.button.setOnClickListener {
+            viewModel.decimalOrNot()
+           // viewModel.updateLocationText()
+        }
     }
 
     // Останавливаем обновление геолокации
