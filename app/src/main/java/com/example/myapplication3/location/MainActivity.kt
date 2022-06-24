@@ -112,7 +112,23 @@ class MainActivity : AppCompatActivity() {
             binding.accuracySpeed.text = location.speedAccuracyMetersPerSecond.toString() + " м"
             binding.provider.text = location.provider.toString()
         } else {
-            //TODO: Заполнить экран прочерками
+            if (viewModel.isDecimalPosition.value == true) {
+                binding.button.text = "Переключить на DMS координаты"
+                binding.latitude.text = "-"
+                binding.longitude.text = "-"
+            } else {
+                binding.button.text = "Переключить на DEC координаты"
+                binding.latitude.text = "-"
+                binding.longitude.text = "-"
+            }
+            binding.azimut.text = "-"
+            binding.bearingAccuracy.text = "-"
+            binding.altitude.text = "-"
+            binding.currentDate.text = "-"
+            binding.currentTime.text = "-"
+            binding.currentSpeed.text = "-"
+            binding.accuracySpeed.text = "-"
+            binding.provider.text = "-"
         }
     }
 
