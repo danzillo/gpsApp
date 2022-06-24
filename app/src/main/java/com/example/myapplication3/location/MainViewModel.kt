@@ -11,10 +11,7 @@ import android.text.BoringLayout
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.*
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.*
 import java.util.*
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -76,6 +73,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             fastestInterval = 1000
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
 
         Log.i(TAG, "checkSelfPermission succeed! requestLocationUpdates …")
         fusedLocationClient.requestLocationUpdates(
