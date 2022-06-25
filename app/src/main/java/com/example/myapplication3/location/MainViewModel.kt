@@ -3,16 +3,19 @@ package com.example.myapplication3.location
 import android.Manifest
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.content.pm.PackageManager
 import android.icu.text.DateFormat
 import android.icu.text.SimpleDateFormat
 import android.location.Location
-import android.text.BoringLayout
+import android.location.LocationManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.*
 import com.google.android.gms.location.*
 import java.util.*
+
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -21,6 +24,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _isDecimalPosition = MutableLiveData(false)
     val isDecimalPosition: LiveData<Boolean> = _isDecimalPosition
+
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
@@ -65,7 +69,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         locationRequest.apply {
             interval = 1000
             fastestInterval = 1000
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            priority = LocationRequest.PRIORITY_LOW_POWER
         }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity.application)
