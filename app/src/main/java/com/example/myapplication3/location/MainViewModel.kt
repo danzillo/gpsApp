@@ -23,7 +23,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val lastLocation: LiveData<Location?> = _lastLocation
 
     private val _isDecimalPosition = MutableLiveData(false)
-    val isDecimalPosition: LiveData<Boolean> = _isDecimalPosition
+    var isDecimalPosition: LiveData<Boolean> = _isDecimalPosition
 
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient

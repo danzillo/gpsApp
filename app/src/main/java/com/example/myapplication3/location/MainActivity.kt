@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication3.databinding.ActivityMainBinding
 
@@ -34,6 +36,8 @@ class MainActivity : AppCompatActivity() {
         // Загружаем данные при запуске программы
         pref = getPreferences(MODE_PRIVATE)
        // loadCoordinateTypeData()
+        if(loadCoordinateTypeData())
+            viewModel.switchGpsFormat()
 
         // Подключимся к получению координат
         viewModel.startLocationUpdates(this)
@@ -102,8 +106,7 @@ class MainActivity : AppCompatActivity() {
     fun updateLocationOnScreen() {
 
         val location = viewModel.lastLocation.value
-        if( loadCoordinateTypeData() == false)
-            viewModel.switchGpsFormat()
+
         //viewModel.isDecimalPosition.value = loadCoordinateTypeData()
 
         if (location != null) {
@@ -156,7 +159,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     //  Выгружаем данные из преференса для выбора режима отображения координат на дисплее
-     fun loadCoordinateTypeData(): Boolean {
+    private fun loadCoordinateTypeData(): Boolean {
         return pref.getBoolean(COORDINATE_DISPLAY_PREFERENCE_KEY, false)
     }
 
