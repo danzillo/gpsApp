@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         imHere = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
         if(imHere == null){
             locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0f, locationListener)
-            Log.i(TAG, "${imHere}")
+
         }
 
         // Назначим обработчик нажатия на кнопку
