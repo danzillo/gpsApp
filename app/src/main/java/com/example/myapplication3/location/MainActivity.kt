@@ -21,34 +21,14 @@ import com.google.android.gms.location.LocationRequest
 class MainActivity : AppCompatActivity() {
 
     // Биндинг для получения доступа к элементам слоя activity_main.xml
-    lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
 
     // Создаем экземпляр ViewModel
-    lateinit var viewModel: MainViewModel
+    private lateinit var viewModel: MainViewModel
 
     // Создаем экземпляр для сохранения режима отображения
     private lateinit var pref: SharedPreferences
     private lateinit var editor: SharedPreferences.Editor
-
-    //Location Manager
-    var imHere: Location? = null
-    var loca: Location? = null
-
-    //private var locationManager : LocationManager? = null
-
-    private val locationListener: LocationListener = object : LocationListener {
-        override fun onLocationChanged(location: Location) {
-            imHere = location
-            binding.provider.text = location.provider
-            //Log.i(TAG, "LocationLongitude: ${ location.provider}")
-        }
-
-        fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-        fun onProviderEnabled(provider: String) {}
-        fun onProviderDisabled(provider: String) {}
-    }
-
-    private val locationRequest = LocationRequest()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,11 +39,10 @@ class MainActivity : AppCompatActivity() {
         // Подключение ViewModel
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
-        // Загружаем данные при запуске программы
+        // Загружаем данные о формате координат при запуске программы
         pref = getPreferences(MODE_PRIVATE)
         editor = pref.edit()
 
-        // loadCoordinateTypeData()
         if (loadCoordinateTypeData() && viewModel.isDecimalPosition.value != true)
             viewModel.switchGpsFormat()
 
@@ -72,38 +51,14 @@ class MainActivity : AppCompatActivity() {
         viewModel.lastLocation.observe(this) {
             updateLocationOnScreen()
         }
-        var locationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
-        loca = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-        Log.i(TAG, "${loca}")
-        if (loca == null) {
 
-            locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER, 1L, 1f, locationListener
-            )
-            Log.i(TAG, "${locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)}")
-            // imHere = locationManager?.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-            binding.provider.text = loca?.getProvider()
-            binding.latitude.text = loca?.getLatitude().toString()
+        // Назначим обработчик нажатия на кнопку
+        binding.button.setOnClickListener {
+            viewModel.switchGpsFormat()
+            updateLocationOnScreen()
         }
 
-            // Назначим обработчик нажатия на кнопку
-            binding.button.setOnClickListener {
-                viewModel.switchGpsFormat()
-                updateLocationOnScreen()
-                //locationManager?.requestLocationUpdates(LocationManager.FUSED_PROVIDER, 0L, 0f, locationListener)
-            }
-
-//        // Начальное отображение данных
+        // Начальное отображение данных
         updateLocationOnScreen()
     }
 
@@ -200,7 +155,7 @@ class MainActivity : AppCompatActivity() {
             binding.currentTime.text = "-"
             binding.currentSpeed.text = "-"
             binding.accuracySpeed.text = "-"
-            // binding.provider.text = "-"
+            binding.provider.text = "-"
         }
     }
 
