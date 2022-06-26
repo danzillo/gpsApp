@@ -2,15 +2,14 @@ package com.example.myapplication3.location
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
@@ -32,14 +31,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var editor: SharedPreferences.Editor
 
     //Location Manager
-    var imHere : Location? = null
-    private var locationManager : LocationManager? = null
+    var imHere: Location? = null
+    var loca: Location? = null
+
+    //private var locationManager : LocationManager? = null
+
     private val locationListener: LocationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
             imHere = location
             binding.provider.text = location.provider
             //Log.i(TAG, "LocationLongitude: ${ location.provider}")
         }
+
         fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
         fun onProviderEnabled(provider: String) {}
         fun onProviderDisabled(provider: String) {}
@@ -60,8 +63,8 @@ class MainActivity : AppCompatActivity() {
         pref = getPreferences(MODE_PRIVATE)
         editor = pref.edit()
 
-       // loadCoordinateTypeData()
-        if(loadCoordinateTypeData() && viewModel.isDecimalPosition.value != true)
+        // loadCoordinateTypeData()
+        if (loadCoordinateTypeData() && viewModel.isDecimalPosition.value != true)
             viewModel.switchGpsFormat()
 
         // Подключимся к получению координат
@@ -69,8 +72,7 @@ class MainActivity : AppCompatActivity() {
         viewModel.lastLocation.observe(this) {
             updateLocationOnScreen()
         }
-
-
+        var locationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -79,37 +81,40 @@ class MainActivity : AppCompatActivity() {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return
         }
-        imHere = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-        if(imHere == null){
-            locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0f, locationListener)
+        loca = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        Log.i(TAG, "${loca}")
+        if (loca == null) {
 
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER, 1L, 1f, locationListener
+            )
+            Log.i(TAG, "${locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)}")
+            // imHere = locationManager?.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+            binding.provider.text = loca?.getProvider()
+            binding.latitude.text = loca?.getLatitude().toString()
         }
 
-        // Назначим обработчик нажатия на кнопку
-        binding.button.setOnClickListener {
-            viewModel.switchGpsFormat()
-            updateLocationOnScreen()
-            //locationManager?.requestLocationUpdates(LocationManager.FUSED_PROVIDER, 0L, 0f, locationListener)
-         }
+            // Назначим обработчик нажатия на кнопку
+            binding.button.setOnClickListener {
+                viewModel.switchGpsFormat()
+                updateLocationOnScreen()
+                //locationManager?.requestLocationUpdates(LocationManager.FUSED_PROVIDER, 0L, 0f, locationListener)
+            }
 
-        // Начальное отображение данных
+//        // Начальное отображение данных
         updateLocationOnScreen()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         viewModel.stopLocationUpdates()
-            saveCoordinateTypeData(viewModel.isDecimalPosition.value)
-        Log.i(TAG, "Destroy app, SharedPtrf:${loadCoordinateTypeData()} Button ${viewModel.isDecimalPosition.value}")
+        saveCoordinateTypeData(viewModel.isDecimalPosition.value)
+        Log.i(
+            TAG,
+            "Destroy app, SharedPtrf:${loadCoordinateTypeData()} Button ${viewModel.isDecimalPosition.value}"
+        )
     }
 
     //  Проверка получения/не получения разрешения на использование GPS
@@ -177,7 +182,7 @@ class MainActivity : AppCompatActivity() {
             binding.currentSpeed.text =
                 ((location.speed * 100).toInt() / 100).toString() + " м/c"
             binding.accuracySpeed.text = location.speedAccuracyMetersPerSecond.toString() + " м"
-           // binding.provider.text = location.provider.toString()
+            // binding.provider.text = location.provider.toString()
         } else {
             if (viewModel.isDecimalPosition.value == true) {
                 binding.button.text = "Переключить на DMS координаты"
@@ -195,7 +200,7 @@ class MainActivity : AppCompatActivity() {
             binding.currentTime.text = "-"
             binding.currentSpeed.text = "-"
             binding.accuracySpeed.text = "-"
-           // binding.provider.text = "-"
+            // binding.provider.text = "-"
         }
     }
 
@@ -220,6 +225,11 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-private fun LocationManager?.requestLocationUpdates(gpsProvider: String, l: Long, fl: Float, locationListener: LocationListener) {
+private fun LocationManager?.requestLocationUpdates(
+    gpsProvider: String,
+    l: Long,
+    fl: Float,
+    locationListener: LocationListener
+) {
 
 }
