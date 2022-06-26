@@ -14,11 +14,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication3.databinding.ActivityMainBinding
-import com.google.android.gms.location.LocationListener
+import android.location.LocationListener
 import com.google.android.gms.location.LocationRequest
 
 // моментальное обновление данных геолокации
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), LocationListener {
 
     // Биндинг для получения доступа к элементам слоя activity_main.xml
     lateinit var binding: ActivityMainBinding
@@ -36,17 +36,8 @@ class MainActivity : AppCompatActivity() {
 
     //private var locationManager : LocationManager? = null
 
-    private val locationListener: LocationListener = object : LocationListener {
-        override fun onLocationChanged(location: Location) {
-            imHere = location
-            binding.provider.text = location.provider
-            //Log.i(TAG, "LocationLongitude: ${ location.provider}")
-        }
 
-        fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-        fun onProviderEnabled(provider: String) {}
-        fun onProviderDisabled(provider: String) {}
-    }
+
 
     private val locationRequest = LocationRequest()
 
@@ -83,14 +74,19 @@ class MainActivity : AppCompatActivity() {
         ) {
             return
         }
-        loca = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-        Log.i(TAG, "${loca}")
+        locationManager.requestLocationUpdates(
+LocationManager.GPS_PROVIDER, 1L, 1f, this
+            )
+        //loca = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        Log.i(TAG, "${      locationManager.requestLocationUpdates(
+            LocationManager.GPS_PROVIDER, 1L, 1f, this
+        )}")
         if (loca == null) {
 
             locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER, 1L, 1f, locationListener
+                LocationManager.GPS_PROVIDER, 1L, 1f, this
             )
-            Log.i(TAG, "${locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)}")
+            Log.i(TAG, "${locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)?.provider}")
             // imHere = locationManager?.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
             binding.provider.text = loca?.getProvider()
             binding.latitude.text = loca?.getLatitude().toString()
@@ -223,13 +219,10 @@ class MainActivity : AppCompatActivity() {
         private const val COORDINATE_DISPLAY_PREFERENCE_KEY = "location"
         private const val GPS_PERMISSION_CODE = 101
     }
+
+    override fun onLocationChanged(location: Location) {
+        imHere = location
+        binding.provider.text = location.provider
+    }
 }
 
-private fun LocationManager?.requestLocationUpdates(
-    gpsProvider: String,
-    l: Long,
-    fl: Float,
-    locationListener: LocationListener
-) {
-
-}
