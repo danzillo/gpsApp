@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
 
     // Создаем экземпляр для сохранения режима отображения
     private lateinit var pref: SharedPreferences
+    private lateinit var editor: SharedPreferences.Editor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,8 +36,10 @@ class MainActivity : AppCompatActivity() {
 
         // Загружаем данные при запуске программы
         pref = getPreferences(MODE_PRIVATE)
+        editor = pref.edit()
+
        // loadCoordinateTypeData()
-        if(loadCoordinateTypeData())
+        if(loadCoordinateTypeData() && viewModel.isDecimalPosition.value != true)
             viewModel.switchGpsFormat()
 
         // Подключимся к получению координат
@@ -59,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         viewModel.stopLocationUpdates()
             saveCoordinateTypeData(viewModel.isDecimalPosition.value)
-        Log.i(TAG, "${loadCoordinateTypeData()}")
+        Log.i(TAG, "Destroy app, SharedPtrf:${loadCoordinateTypeData()} Button ${viewModel.isDecimalPosition.value}")
     }
 
     //  Проверка получения/не получения разрешения на использование GPS
@@ -151,7 +154,6 @@ class MainActivity : AppCompatActivity() {
 
     // Сохраняем и загружаем информацию в преференс
     private fun saveCoordinateTypeData(displayOfCoordiante: Boolean?) {
-        val editor = pref.edit()
         if (displayOfCoordiante != null) {
             editor.putBoolean(COORDINATE_DISPLAY_PREFERENCE_KEY, displayOfCoordiante)
         }
