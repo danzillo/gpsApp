@@ -9,6 +9,7 @@ import android.icu.text.DateFormat
 import android.icu.text.SimpleDateFormat
 import android.location.Location
 import android.location.LocationManager
+import android.os.Bundle
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat.getSystemService
@@ -24,7 +25,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _isDecimalPosition = MutableLiveData(false)
     var isDecimalPosition: LiveData<Boolean> = _isDecimalPosition
-
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 

@@ -1,16 +1,22 @@
 package com.example.myapplication3.location
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication3.databinding.ActivityMainBinding
+import com.google.android.gms.location.LocationListener
+import com.google.android.gms.location.LocationRequest
 
 // моментальное обновление данных геолокации
 class MainActivity : AppCompatActivity() {
@@ -24,6 +30,22 @@ class MainActivity : AppCompatActivity() {
     // Создаем экземпляр для сохранения режима отображения
     private lateinit var pref: SharedPreferences
     private lateinit var editor: SharedPreferences.Editor
+
+    //Location Manager
+    var imHere : Location? = null
+    private var locationManager : LocationManager? = null
+    private val locationListener: LocationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location) {
+            imHere = location
+            binding.provider.text = location.provider
+            //Log.i(TAG, "LocationLongitude: ${ location.provider}")
+        }
+        fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+        fun onProviderEnabled(provider: String) {}
+        fun onProviderDisabled(provider: String) {}
+    }
+
+    private val locationRequest = LocationRequest()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,11 +70,36 @@ class MainActivity : AppCompatActivity() {
             updateLocationOnScreen()
         }
 
+
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
+        imHere = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        if(imHere == null){
+            locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0f, locationListener)
+            Log.i(TAG, "${imHere}")
+        }
+
         // Назначим обработчик нажатия на кнопку
         binding.button.setOnClickListener {
             viewModel.switchGpsFormat()
             updateLocationOnScreen()
-        }
+            //locationManager?.requestLocationUpdates(LocationManager.FUSED_PROVIDER, 0L, 0f, locationListener)
+         }
 
         // Начальное отображение данных
         updateLocationOnScreen()
@@ -130,7 +177,7 @@ class MainActivity : AppCompatActivity() {
             binding.currentSpeed.text =
                 ((location.speed * 100).toInt() / 100).toString() + " м/c"
             binding.accuracySpeed.text = location.speedAccuracyMetersPerSecond.toString() + " м"
-            binding.provider.text = location.provider.toString()
+           // binding.provider.text = location.provider.toString()
         } else {
             if (viewModel.isDecimalPosition.value == true) {
                 binding.button.text = "Переключить на DMS координаты"
@@ -148,7 +195,7 @@ class MainActivity : AppCompatActivity() {
             binding.currentTime.text = "-"
             binding.currentSpeed.text = "-"
             binding.accuracySpeed.text = "-"
-            binding.provider.text = "-"
+           // binding.provider.text = "-"
         }
     }
 
@@ -171,4 +218,8 @@ class MainActivity : AppCompatActivity() {
         private const val COORDINATE_DISPLAY_PREFERENCE_KEY = "location"
         private const val GPS_PERMISSION_CODE = 101
     }
+}
+
+private fun LocationManager?.requestLocationUpdates(gpsProvider: String, l: Long, fl: Float, locationListener: LocationListener) {
+
 }
