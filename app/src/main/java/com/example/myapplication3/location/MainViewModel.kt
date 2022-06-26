@@ -118,6 +118,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return "$sphereName ${deg}° ${min}' ${sec}\""
     }
 
+
+
     companion object {
         private val TAG = MainViewModel::class.simpleName
         private const val GPS_PERMISSION_CODE = 101
