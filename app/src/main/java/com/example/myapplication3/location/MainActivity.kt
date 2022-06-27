@@ -1,7 +1,6 @@
 package com.example.myapplication3.location
 
 import android.annotation.SuppressLint
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -20,10 +19,6 @@ class MainActivity : AppCompatActivity() {
     // Создаем экземпляр ViewModel
     private lateinit var viewModel: MainViewModel
 
-    // Создаем экземпляр для сохранения режима отображения
-    private lateinit var pref: SharedPreferences
-    private lateinit var editor: SharedPreferences.Editor
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -31,13 +26,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // Подключение ViewModel
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
         // Загружаем данные о формате координат при запуске программы
-        pref = getPreferences(MODE_PRIVATE)
-        editor = pref.edit()
+        viewModel.pref = getPreferences(MODE_PRIVATE)
+        viewModel.editor =  viewModel.pref.edit()
 
-        if (loadCoordinateTypeData() && viewModel.isDecimalPosition.value != true)
+        if (viewModel.loadCoordinateTypeData() && viewModel.isDecimalPosition.value != true)
             viewModel.switchGpsFormat()
 
         // Подключимся к получению координат
@@ -59,10 +54,10 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         viewModel.stopLocationUpdates()
-        saveCoordinateTypeData(viewModel.isDecimalPosition.value)
+        viewModel.saveCoordinateTypeData(viewModel.isDecimalPosition.value)
         Log.i(
             TAG,
-            "Destroy app, SharedPtrf:${loadCoordinateTypeData()} Button ${viewModel.isDecimalPosition.value}"
+            "Destroy app, SharedPref:${viewModel.loadCoordinateTypeData()} Button ${viewModel.isDecimalPosition.value}"
         )
     }
 
@@ -151,22 +146,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Сохраняем информацию о выбранном режиме отображения данных
-    private fun saveCoordinateTypeData(displayOfCoordiante: Boolean?) {
-        if (displayOfCoordiante != null) {
-            editor.putBoolean(COORDINATE_DISPLAY_PREFERENCE_KEY, displayOfCoordiante)
-        }
-        editor.apply()
-    }
 
-    // Загружаем данные для выбора режима отображения координат на дисплее
-    private fun loadCoordinateTypeData(): Boolean {
-        return pref.getBoolean(COORDINATE_DISPLAY_PREFERENCE_KEY, false)
-    }
 
     companion object {
         private val TAG = MainActivity::class.simpleName
-        private const val COORDINATE_DISPLAY_PREFERENCE_KEY = "location"
         private const val GPS_PERMISSION_CODE = 101
     }
 }

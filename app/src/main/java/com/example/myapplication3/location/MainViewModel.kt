@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.icu.text.DateFormat
 import android.icu.text.SimpleDateFormat
@@ -19,6 +20,10 @@ import java.util.*
 
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
+
+    // Создаем экземпляр для сохранения режима отображения
+    lateinit var pref: SharedPreferences
+    lateinit var editor: SharedPreferences.Editor
 
     private val _lastLocation = MutableLiveData<Location?>(null)
     val lastLocation: LiveData<Location?> = _lastLocation
@@ -118,8 +123,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return "$sphereName ${deg}° ${min}' ${sec}\""
     }
 
+    // Сохраняем информацию о выбранном режиме отображения данных
+    fun saveCoordinateTypeData(displayOfCoordiante: Boolean?) {
+        if (displayOfCoordiante != null) {
+            editor.putBoolean(COORDINATE_DISPLAY_PREFERENCE_KEY, displayOfCoordiante)
+        }
+        editor.apply()
+    }
+
+    // Загружаем данные для выбора режима отображения координат на дисплее
+    fun loadCoordinateTypeData(): Boolean {
+        return pref.getBoolean(COORDINATE_DISPLAY_PREFERENCE_KEY, false)
+    }
+
     companion object {
         private val TAG = MainViewModel::class.simpleName
         private const val GPS_PERMISSION_CODE = 101
+        private const val COORDINATE_DISPLAY_PREFERENCE_KEY = "location"
     }
 }
