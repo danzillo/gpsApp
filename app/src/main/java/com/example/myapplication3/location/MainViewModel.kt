@@ -170,7 +170,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     2
                 )).pow(0.5) /
                         (sinLatitude * sinLatitude2 + cosLatitude * cosLatitude2 * cosLongitudeSubtraction)
-            ) * 6_378_137
+            ) * 6_371_009
         )
         // TODO: посмотреть подробнее про радиус для WGS-84
     }
