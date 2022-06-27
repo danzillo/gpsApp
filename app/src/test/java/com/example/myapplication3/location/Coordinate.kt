@@ -9,8 +9,8 @@ class Coordinate(private var longitude: Double, private var latitude: Double) {
     fun getLat(): Double {
         return latitude
     }
-
 }
+
 val axis = mutableListOf<Coordinate>(
     Coordinate(84.92880858269907662, 56.45087313041989319),
     Coordinate(84.92908405256977744, 56.45069672618978984),
