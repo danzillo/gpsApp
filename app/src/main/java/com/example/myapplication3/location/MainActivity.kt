@@ -1,21 +1,15 @@
 package com.example.myapplication3.location
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication3.databinding.ActivityMainBinding
-import com.google.android.gms.location.LocationListener
-import com.google.android.gms.location.LocationRequest
+
 
 // моментальное обновление данных геолокации
 class MainActivity : AppCompatActivity() {
@@ -117,8 +111,6 @@ class MainActivity : AppCompatActivity() {
 
         val location = viewModel.lastLocation.value
 
-        //viewModel.isDecimalPosition.value = loadCoordinateTypeData()
-
         if (location != null) {
             if (viewModel.isDecimalPosition.value == true) {
                 binding.button.text = "Переключить на DMS координаты"
@@ -159,7 +151,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Сохраняем и загружаем информацию в преференс
+    // Сохраняем информацию о выбранном режиме отображения данных
     private fun saveCoordinateTypeData(displayOfCoordiante: Boolean?) {
         if (displayOfCoordiante != null) {
             editor.putBoolean(COORDINATE_DISPLAY_PREFERENCE_KEY, displayOfCoordiante)
@@ -167,24 +159,14 @@ class MainActivity : AppCompatActivity() {
         editor.apply()
     }
 
-    //  Выгружаем данные из преференса для выбора режима отображения координат на дисплее
+    // Загружаем данные для выбора режима отображения координат на дисплее
     private fun loadCoordinateTypeData(): Boolean {
         return pref.getBoolean(COORDINATE_DISPLAY_PREFERENCE_KEY, false)
     }
-
 
     companion object {
         private val TAG = MainActivity::class.simpleName
         private const val COORDINATE_DISPLAY_PREFERENCE_KEY = "location"
         private const val GPS_PERMISSION_CODE = 101
     }
-}
-
-private fun LocationManager?.requestLocationUpdates(
-    gpsProvider: String,
-    l: Long,
-    fl: Float,
-    locationListener: LocationListener
-) {
-
 }
