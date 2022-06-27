@@ -8,6 +8,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication3.databinding.ActivityMainBinding
+import java.lang.Math.asin
+import java.lang.Math.sin
 
 
 // моментальное обновление данных геолокации
@@ -30,7 +32,7 @@ class MainActivity : AppCompatActivity() {
 
         // Загружаем данные о формате координат при запуске программы
         viewModel.pref = getPreferences(MODE_PRIVATE)
-        viewModel.editor =  viewModel.pref.edit()
+        viewModel.editor = viewModel.pref.edit()
 
         if (viewModel.loadCoordinateTypeData() && viewModel.isDecimalPosition.value != true)
             viewModel.switchGpsFormat()
@@ -145,8 +147,6 @@ class MainActivity : AppCompatActivity() {
             binding.provider.text = "-"
         }
     }
-
-
 
     companion object {
         private val TAG = MainActivity::class.simpleName
