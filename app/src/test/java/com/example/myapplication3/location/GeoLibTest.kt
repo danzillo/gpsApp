@@ -42,15 +42,10 @@ internal class GeoLibTest {
         var nextSectionRoadLength = 0.0
         var previousSectionRoadLength = 0.0
 
-        var lengthToColumn2: Double = 0.0
-
         var projection = 0.0
 
         val lastCoordinateIndex = axis.lastIndex
 
-        var p = 0.0
-        var ploshyad = 0.0
-        var height = 0.0
         // Проходимся по всем вершинам
         for (counter in 0 until lastCoordinateIndex - 1) {
 
