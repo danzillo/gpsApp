@@ -1,15 +1,9 @@
 package com.example.myapplication3.location
 
-class Coordinate(private var longitude: Double, private var latitude: Double) {
-
-    fun getLong(): Double {
-        return longitude
-    }
-
-    fun getLat(): Double {
-        return latitude
-    }
-}
+class Coordinate(
+    var longitude: Double,
+    var latitude: Double
+)
 
 val distanceMarks = mutableListOf<Coordinate>(
     Coordinate(84.9398207016564, 56.4471399261583), // 1 - ЛЭП (0+804; 1+000)

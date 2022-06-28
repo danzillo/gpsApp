@@ -4,7 +4,7 @@ import android.app.Application
 import org.junit.Assert
 import org.junit.Test
 import net.sf.geographiclib.*
-import kotlin.math.abs
+import org.junit.Assert.assertEquals
 import kotlin.math.cos
 
 internal class MainViewModelTest {
@@ -20,10 +20,10 @@ internal class MainViewModelTest {
         while (counter < lastCoordinateIndex) {
             lengthOfRoad +=
                 viewModelTest.lengthBetweenCoordinate(
-                    axis[counter].getLong(),
-                    axis[counter + 1].getLong(),
-                    axis[counter].getLat(),
-                    axis[counter + 1].getLat()
+                    axis[counter].longitude,
+                    axis[counter + 1].longitude,
+                    axis[counter].latitude,
+                    axis[counter + 1].latitude
                 )
             counter += 1
         }
@@ -39,14 +39,14 @@ internal class MainViewModelTest {
         while (counter < lastCoordinateIndex) {
             lengthOfRoad +=
                 Geodesic.WGS84.Inverse(
-                    axis[counter].getLat(),
-                    axis[counter].getLong(),
-                    axis[counter + 1].getLat(),
-                    axis[counter + 1].getLong()
+                    axis[counter].latitude,
+                    axis[counter].longitude,
+                    axis[counter + 1].latitude,
+                    axis[counter + 1].longitude
                 ).s12
             counter += 1
         }
-        Assert.assertEquals(3625.184, lengthOfRoad, 0.01)
+        assertEquals(3625.184, lengthOfRoad, 0.01)
     }
 
 
@@ -60,16 +60,16 @@ internal class MainViewModelTest {
         var counter2 = 0
         var saveCounter = 0
 
-
+        // Проходимся по всем вершинам
         while (counter < lastCoordinateIndex) {
 
-            // Находим расстояние до столба
+            // Находим расстояние от вершины до столба
             lengthToStolb =
                 Geodesic.WGS84.Inverse(
-                    axis[counter].getLat(),
-                    axis[counter].getLong(),
-                    distanceMarks[0].getLat(),
-                    distanceMarks[0].getLong()
+                    axis[counter].latitude,
+                    axis[counter].longitude,
+                    distanceMarks[0].latitude,
+                    distanceMarks[0].longitude
                 ).s12
 
             // Если найденное расстояние меньше того, что было, то сохраняем его
@@ -77,10 +77,10 @@ internal class MainViewModelTest {
             if (lengthToStolb < minLengthToStolb) {
                 minLengthToStolb = lengthToStolb
                 lengthOfRoad = Geodesic.WGS84.Inverse(
-                    axis[counter].getLat(),
-                    axis[counter].getLong(),
-                    axis[counter + 1].getLat(),
-                    axis[counter + 1].getLong()
+                    axis[counter].latitude,
+                    axis[counter].longitude,
+                    axis[counter + 1].latitude,
+                    axis[counter + 1].longitude
                 ).s12
                 // Сохраняем счетчик, чтобы потом найти общую длину дороги до столба
                 saveCounter = counter
@@ -89,24 +89,28 @@ internal class MainViewModelTest {
             counter += 1
         }
 
-            /*Зная длину до столба, длину участка дороги между точками
-            можно найти cos, косинус * | длДоСтолба | = длине проекции длДоСтолба
-            на длину дороги*/
+        /* Зная длину до столба, длину участка дороги между точками
+           можно найти cos, косинус * | длДоСтолба | = длине проекции длДоСтолба
+           на длину дороги*/
         val projection = minLengthToStolb * cos(lengthOfRoad / minLengthToStolb)
         lengthOfRoad = 0.0
 
         while (counter2 < saveCounter) {
             lengthOfRoad +=
                 Geodesic.WGS84.Inverse(
-                    axis[counter2].getLat(),
-                    axis[counter2].getLong(),
-                    axis[counter2 + 1].getLat(),
-                    axis[counter2 + 1].getLong()
+                    axis[counter2].latitude,
+                    axis[counter2].longitude,
+                    axis[counter2 + 1].latitude,
+                    axis[counter2 + 1].longitude
                 ).s12
             counter2 += 1
         }
 
-        Assert.assertEquals(90, projection + lengthOfRoad)
+        println("lengthOfRoad = $lengthOfRoad")
+        println("projection = $projection")
+        println("(projection + lengthOfRoad) = ${projection + lengthOfRoad}")
+
+        assertEquals(90, projection + lengthOfRoad)
     }
 
 }
