@@ -4,6 +4,7 @@ import org.junit.Test
 import net.sf.geographiclib.*
 import org.junit.Assert.assertEquals
 import kotlin.math.cos
+import kotlin.math.pow
 
 internal class GeoLibTest {
 
@@ -94,9 +95,14 @@ internal class GeoLibTest {
                 minLengthToColumn * cos(nextSectionRoadLength / minLengthToColumn)
             else minLengthToColumn * cos(previousSectionRoadLength / minLengthToColumn)
 
+        println(" AC minLength = $minLengthToColumn")
+        println(" AB lengthOfRoad = $previousSectionRoadLength")
+        println(" AD= $projection" )
+        //println((projection*previousSectionRoadLength) )
         println("lengthOfRoad = $lengthOfRoadToColumnVertex")
         println("projection = $projection")
         println("(projection + lengthOfRoad) = ${projection + lengthOfRoadToColumnVertex}")
+
 
         assertEquals(90, projection + lengthOfRoadToColumnVertex)
     }
