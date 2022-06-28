@@ -29,10 +29,15 @@ internal class GeoLibTest {
 
     @Test
     fun geoLibCrossPoint() {
-        var lengthToColumn: Double = 0.0
+        // Для сохранения длин до столба
+        var lengthToColumn = 0.0
         var minLengthToColumn: Double = Double.MAX_VALUE
+        var nextLengthToColumn = 0.0
+        var previousLengthToColumn = 0.0
 
+        // Для сохранения длин отрезков между вершинами
         var totalRoadLength = 0.0
+        var currentRoadLength = 0.0
         var lengthOfRoadToColumnVertex = 0.0
         var nextSectionRoadLength = 0.0
         var previousSectionRoadLength = 0.0
@@ -43,6 +48,9 @@ internal class GeoLibTest {
 
         val lastCoordinateIndex = axis.lastIndex
 
+        var p = 0.0
+        var ploshyad = 0.0
+        var height = 0.0
         // Проходимся по всем вершинам
         for (counter in 0 until lastCoordinateIndex - 1) {
 
@@ -56,36 +64,44 @@ internal class GeoLibTest {
                 ).s12
 
             // Считаем длину суммарную длину дороги между вершинами
-            totalRoadLength += Geodesic.WGS84.Inverse(
+            currentRoadLength = Geodesic.WGS84.Inverse(
                 axis[counter].latitude,
                 axis[counter].longitude,
                 axis[counter + 1].latitude,
                 axis[counter + 1].longitude
             ).s12
+            totalRoadLength += currentRoadLength
 
             /* Если найденное расстояние меньше того, что было, то сохраняем его с длиной
                 участков дороги (от данной вершины до следующей и от данной вершины до предыдущей) */
             if (lengthToColumn < minLengthToColumn) {
                 minLengthToColumn = lengthToColumn
-                nextSectionRoadLength = Geodesic.WGS84.Inverse(
-                    axis[counter].latitude,
-                    axis[counter].longitude,
+
+                // Длина текущего отрезка дороги
+                nextLengthToColumn = Geodesic.WGS84.Inverse(
                     axis[counter + 1].latitude,
-                    axis[counter + 1].longitude
+                    axis[counter + 1].longitude,
+                    distanceMarks[0].latitude,
+                    distanceMarks[0].longitude
                 ).s12
 
+                // Длина до столба от следующей вершины
+                nextSectionRoadLength = currentRoadLength
+
                 if (counter > 0) {
+                    // Длина предыдущего отрезка
                     previousSectionRoadLength = Geodesic.WGS84.Inverse(
                         axis[counter].latitude,
                         axis[counter].longitude,
                         axis[counter - 1].latitude,
                         axis[counter - 1].longitude
                     ).s12
+
                     // Длина до столба от предыдущей вершины
-                    lengthToColumn2 =
+                    previousLengthToColumn =
                         Geodesic.WGS84.Inverse(
-                            axis[counter-1].latitude,
-                            axis[counter-1].longitude,
+                            axis[counter - 1].latitude,
+                            axis[counter - 1].longitude,
                             distanceMarks[0].latitude,
                             distanceMarks[0].longitude
                         ).s12
@@ -94,28 +110,49 @@ internal class GeoLibTest {
                 lengthOfRoadToColumnVertex = totalRoadLength - nextSectionRoadLength
             }
         }
-        val p = (lengthToColumn2+minLengthToColumn+previousSectionRoadLength)/2
-        val ploshyad = (p*(p-lengthToColumn2)*(p-minLengthToColumn)*(p-previousSectionRoadLength)).pow(0.5)
-        val hier = 2*ploshyad/previousSectionRoadLength
+
 
         /* Зная длину до столба, длину участка дороги между точками
            можно найти cos.
            косинус * | длДоСтолба | = длине проекции */
-        projection =
-            if (minLengthToColumn * cos(nextSectionRoadLength / minLengthToColumn) > 0.0
-                && minLengthToColumn * cos(previousSectionRoadLength / minLengthToColumn) != 0.0
+        if (cos(nextSectionRoadLength / minLengthToColumn) > 0.0
+            && minLengthToColumn * cos(previousSectionRoadLength / minLengthToColumn) != 0.0
+        ) {
+            projection = findSquare(
+                nextLengthToColumn,
+                minLengthToColumn,
+                nextSectionRoadLength,
+                lengthOfRoadToColumnVertex
             )
-                minLengthToColumn * cos(nextSectionRoadLength / minLengthToColumn)
-            else minLengthToColumn * cos(previousSectionRoadLength / minLengthToColumn)
+        } else {
+            projection = findSquare(
+                previousLengthToColumn,
+                minLengthToColumn,
+                previousSectionRoadLength,
+                lengthOfRoadToColumnVertex
+            )
+        }
 
         println(" AC minLength = $minLengthToColumn")
         println(" AB lengthOfRoad = $previousSectionRoadLength")
-        println( (minLengthToColumn.pow(2) - hier.pow(2)).pow(0.5))
         println("lengthOfRoad = $lengthOfRoadToColumnVertex")
         println("projection = $projection")
-        println("(projection + lengthOfRoad) = ${ lengthOfRoadToColumnVertex - (minLengthToColumn.pow(2) - hier.pow(2)).pow(0.5)}")
 
 
-        assertEquals(90, projection + lengthOfRoadToColumnVertex)
+        assertEquals(90, projection)
     }
+
+    // Функция для нахождения длины проекции
+    private fun findSquare(
+        length: Double,
+        lengthMin: Double,
+        lengthRoad: Double,
+        lengthOfRoadToColumnVertex: Double
+    ): Double {
+        val p = (length + lengthMin + lengthRoad) / 2
+        val square = (p * (p - length) * (p - lengthMin) * (p - lengthRoad)).pow(0.5)
+        val height = 2 * square / lengthRoad
+        return lengthOfRoadToColumnVertex - (lengthMin.pow(2) - height.pow(2)).pow(0.5)
+    }
+
 }
