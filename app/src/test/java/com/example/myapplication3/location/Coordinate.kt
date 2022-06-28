@@ -5,13 +5,13 @@ class Coordinate(
     var latitude: Double
 )
 
-val distanceMarks = mutableListOf<Coordinate>(
+val distanceMarks = mutableListOf(
     Coordinate(84.9398207016564, 56.4471399261583), // 1 - ЛЭП (0+804; 1+000)
     Coordinate(84.9547917282365, 56.4429847327726), // 2 - дерево (1+1068; 2+000)
     Coordinate(84.9579233722567, 56.4330278731898)  // 3 - начало дач (2+1133; 3+000)
 )
 
-val axis = mutableListOf<Coordinate>(
+val axis = mutableListOf(
     Coordinate(84.92880858269907662, 56.45087313041989319),
     Coordinate(84.92908405256977744, 56.45069672618978984),
     Coordinate(84.92932016960176611, 56.45053240370440761),
