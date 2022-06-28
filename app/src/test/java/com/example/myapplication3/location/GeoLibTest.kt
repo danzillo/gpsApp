@@ -29,13 +29,15 @@ internal class GeoLibTest {
 
     @Test
     fun geoLibCrossPoint() {
-        var lengthToColumn: Double
+        var lengthToColumn: Double = 0.0
         var minLengthToColumn: Double = Double.MAX_VALUE
 
         var totalRoadLength = 0.0
         var lengthOfRoadToColumnVertex = 0.0
         var nextSectionRoadLength = 0.0
         var previousSectionRoadLength = 0.0
+
+        var lengthToColumn2: Double = 0.0
 
         var projection = 0.0
 
@@ -72,18 +74,29 @@ internal class GeoLibTest {
                     axis[counter + 1].longitude
                 ).s12
 
-                if (counter > 0)
+                if (counter > 0) {
                     previousSectionRoadLength = Geodesic.WGS84.Inverse(
                         axis[counter].latitude,
                         axis[counter].longitude,
                         axis[counter - 1].latitude,
                         axis[counter - 1].longitude
                     ).s12
-
+                    // Длина до столба от предыдущей вершины
+                    lengthToColumn2 =
+                        Geodesic.WGS84.Inverse(
+                            axis[counter-1].latitude,
+                            axis[counter-1].longitude,
+                            distanceMarks[0].latitude,
+                            distanceMarks[0].longitude
+                        ).s12
+                }
                 // Записываем длину дороги до вершины около столба
                 lengthOfRoadToColumnVertex = totalRoadLength - nextSectionRoadLength
             }
         }
+        val p = (lengthToColumn2+minLengthToColumn+previousSectionRoadLength)/2
+        val ploshyad = (p*(p-lengthToColumn2)*(p-minLengthToColumn)*(p-previousSectionRoadLength)).pow(0.5)
+        val hier = 2*ploshyad/previousSectionRoadLength
 
         /* Зная длину до столба, длину участка дороги между точками
            можно найти cos.
@@ -97,11 +110,10 @@ internal class GeoLibTest {
 
         println(" AC minLength = $minLengthToColumn")
         println(" AB lengthOfRoad = $previousSectionRoadLength")
-        println(" AD= $projection" )
-        //println((projection*previousSectionRoadLength) )
+        println( (minLengthToColumn.pow(2) - hier.pow(2)).pow(0.5))
         println("lengthOfRoad = $lengthOfRoadToColumnVertex")
         println("projection = $projection")
-        println("(projection + lengthOfRoad) = ${projection + lengthOfRoadToColumnVertex}")
+        println("(projection + lengthOfRoad) = ${ lengthOfRoadToColumnVertex - (minLengthToColumn.pow(2) - hier.pow(2)).pow(0.5)}")
 
 
         assertEquals(90, projection + lengthOfRoadToColumnVertex)
