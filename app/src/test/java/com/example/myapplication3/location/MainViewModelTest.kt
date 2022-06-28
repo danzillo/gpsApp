@@ -4,6 +4,8 @@ import android.app.Application
 import org.junit.Assert
 import org.junit.Test
 import net.sf.geographiclib.*
+import kotlin.math.abs
+import kotlin.math.cos
 
 internal class MainViewModelTest {
 
@@ -46,4 +48,65 @@ internal class MainViewModelTest {
         }
         Assert.assertEquals(3625.184, lengthOfRoad, 0.01)
     }
+
+
+    @Test
+    fun geoLibCrossPoint() {
+        var lengthToStolb: Double = Double.MAX_VALUE
+        var lengthOfRoad: Double = 0.0
+        var minLengthToStolb: Double = Double.MAX_VALUE
+        val lastCoordinateIndex = axis.lastIndex
+        var counter = 0
+        var counter2 = 0
+        var saveCounter = 0
+
+
+        while (counter < lastCoordinateIndex) {
+
+            // Находим расстояние до столба
+            lengthToStolb =
+                Geodesic.WGS84.Inverse(
+                    axis[counter].getLat(),
+                    axis[counter].getLong(),
+                    distanceMarks[0].getLat(),
+                    distanceMarks[0].getLong()
+                ).s12
+
+            // Если найденное расстояние меньше того, что было, то сохраняем его
+            // и длину дороги между точками
+            if (lengthToStolb < minLengthToStolb) {
+                minLengthToStolb = lengthToStolb
+                lengthOfRoad = Geodesic.WGS84.Inverse(
+                    axis[counter].getLat(),
+                    axis[counter].getLong(),
+                    axis[counter + 1].getLat(),
+                    axis[counter + 1].getLong()
+                ).s12
+                // Сохраняем счетчик, чтобы потом найти общую длину дороги до столба
+                saveCounter = counter
+            }
+
+            counter += 1
+        }
+
+            /*Зная длину до столба, длину участка дороги между точками
+            можно найти cos, косинус * | длДоСтолба | = длине проекции длДоСтолба
+            на длину дороги*/
+        val projection = minLengthToStolb * cos(lengthOfRoad / minLengthToStolb)
+        lengthOfRoad = 0.0
+
+        while (counter2 < saveCounter) {
+            lengthOfRoad +=
+                Geodesic.WGS84.Inverse(
+                    axis[counter2].getLat(),
+                    axis[counter2].getLong(),
+                    axis[counter2 + 1].getLat(),
+                    axis[counter2 + 1].getLong()
+                ).s12
+            counter2 += 1
+        }
+
+        Assert.assertEquals(90, projection + lengthOfRoad)
+    }
+
 }
