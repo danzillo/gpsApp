@@ -143,7 +143,7 @@ internal class GeoLibTest {
         println("Расстояние от второй вершины (сзади)= $previousLengthToColumn м")
         println("Длина предыдущего отрезка дороги = $previousSectionRoadLength м")
         println("Длина следующего отрезка дороги = $nextSectionRoadLength м")
-        println("Длина дороги до вершины = $lengthOfRoadToColumnVertex м")
+        println("Длина дороги до вершины = $lengthOfRoadToColumnVertex м\n")
     }
 
     // Функция для нахождения длины проекции
