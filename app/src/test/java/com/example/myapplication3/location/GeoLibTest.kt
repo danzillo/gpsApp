@@ -3,12 +3,12 @@ package com.example.myapplication3.location
 import org.junit.Test
 import net.sf.geographiclib.*
 import org.junit.Assert.assertEquals
-import kotlin.math.cos
+import kotlin.math.abs
 import kotlin.math.pow
 
 internal class GeoLibTest {
 
-    // Тестирование с помощью библиотеки
+    // Тестирование общего расстояния с помощью библиотеки
     @Test
     fun geoLibLength() {
         var lengthOfRoad = 0.0
@@ -29,30 +29,32 @@ internal class GeoLibTest {
 
     @Test
     fun testGeoLibPoints() {
-        geoLibCrossPoint(axis, distanceMarks, 0)
-        geoLibCrossPoint(axis, distanceMarks, 1)
-        geoLibCrossPoint(axis, distanceMarks, 2)
+        geoLibKilometersCalc(axis, distanceMarks, 0)
+        geoLibKilometersCalc(axis, distanceMarks, 1)
+        geoLibKilometersCalc(axis, distanceMarks, 2)
     }
 
     // Для поиска расстояния от начала координат до проекции столбов
-    fun geoLibCrossPoint(
+    // получает координаты дороги и конкретный километровый столб
+    fun geoLibKilometersCalc(
         axis: MutableList<Coordinate>,
         distanceMarks: MutableList<Coordinate>,
         x: Int
     ) {
-        // Для сохранения длин до столба
+        // Для сохранения расстояний до столба
         var lengthToColumn: Double
         var minLengthToColumn: Double = Double.MAX_VALUE
         var nextLengthToColumn = 0.0
         var previousLengthToColumn = 0.0
 
         // Для сохранения длин отрезков между вершинами
+        val offset: Int
+        val totalLengthOfRoadToColumn: Double
         var totalRoadLength = 0.0
         var currentRoadLength: Double
         var lengthOfRoadToColumnVertex = 0.0
         var nextSectionRoadLength = 0.0
         var previousSectionRoadLength = 0.0
-        val cosine: Double
 
         val projection: Double
 
@@ -118,36 +120,58 @@ internal class GeoLibTest {
             }
         }
 
-        cosine = ((minLengthToColumn.pow(2) + nextSectionRoadLength.pow(2) - nextLengthToColumn.pow(
-            2)) / 2 * minLengthToColumn * nextSectionRoadLength)
+        val cosine: Double =
+            ((minLengthToColumn.pow(2) + nextSectionRoadLength.pow(2) - nextLengthToColumn.pow(
+                2
+            )) / 2 * minLengthToColumn * nextSectionRoadLength)
 
         if (cosine > 0.0) {
-            projection = findSquare(
+            projection = findProjectionLength(
+                minLengthToColumn,
+                findOffset(
+                    previousLengthToColumn,
+                    minLengthToColumn,
+                    previousSectionRoadLength,
+                )
+            )
+            totalLengthOfRoadToColumn = lengthOfRoadToColumnVertex + projection
+            offset = findOffset(
                 nextLengthToColumn,
                 minLengthToColumn,
-                nextSectionRoadLength
-            )
-            println("Длина до проекции = ${lengthOfRoadToColumnVertex + projection} м")
+                nextSectionRoadLength,
+            ).toInt()
 
         } else {
-            projection = findSquare(
-                previousLengthToColumn,
+            projection = findProjectionLength(
                 minLengthToColumn,
-                previousSectionRoadLength,
+                findOffset(
+                    previousLengthToColumn,
+                    minLengthToColumn,
+                    previousSectionRoadLength,
+                )
             )
-            println("Длина до проекции = ${lengthOfRoadToColumnVertex - projection} м")
+            totalLengthOfRoadToColumn = lengthOfRoadToColumnVertex - projection
+            offset = findOffset(
+                nextLengthToColumn,
+                minLengthToColumn,
+                nextSectionRoadLength,
+            ).toInt()
         }
 
-        println("Минимальное расстояние до столба = $minLengthToColumn м")
-        println("Расстояние от второй вершины = $nextLengthToColumn м")
-        println("Расстояние от второй вершины (сзади)= $previousLengthToColumn м")
-        println("Длина предыдущего отрезка дороги = $previousSectionRoadLength м")
-        println("Длина следующего отрезка дороги = $nextSectionRoadLength м")
-        println("Длина дороги до вершины = $lengthOfRoadToColumnVertex м\n")
+        println(
+            "КМ+М: ${convertMeterToKilometer(totalLengthOfRoadToColumn)} +" +
+                    " ${
+                        abs(
+                            (convertMeterToKilometer(totalLengthOfRoadToColumn)) * 1000 -
+                                    (totalLengthOfRoadToColumn.toInt())
+                        )
+                    } " +
+                    "\nOffset: $offset\n"
+        )
     }
 
-    // Функция для нахождения длины проекции
-    private fun findSquare(
+    // Функция для нахождения смещения от дороги
+    private fun findOffset(
         length: Double,
         lengthMin: Double,
         lengthRoad: Double,
@@ -155,8 +179,19 @@ internal class GeoLibTest {
         ): Double {
         val p = (length + lengthMin + lengthRoad) / 2
         val square = (p * (p - length) * (p - lengthMin) * (p - lengthRoad)).pow(0.5)
-        val height = 2 * square / lengthRoad
+        return 2 * square / lengthRoad
+    }
+
+    // Функция для нахождения длины проекции
+    private fun findProjectionLength(
+        lengthMin: Double,
+        height: Double,
+    ): Double {
         return (lengthMin.pow(2) - height.pow(2)).pow(0.5)
+    }
+
+    private fun convertMeterToKilometer(meters: Double): Int {
+        return (meters / 1000).toInt()
     }
 
 }
