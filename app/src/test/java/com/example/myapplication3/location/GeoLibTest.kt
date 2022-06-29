@@ -11,7 +11,7 @@ internal class GeoLibTest {
     // Тестирование с помощью библиотеки
     @Test
     fun geoLibLength() {
-        var lengthOfRoad: Double = 0.0
+        var lengthOfRoad = 0.0
         val lastCoordinateIndex = axis.lastIndex
         var counter = 0
         while (counter < lastCoordinateIndex) {
@@ -28,21 +28,32 @@ internal class GeoLibTest {
     }
 
     @Test
-    fun geoLibCrossPoint() {
+    fun testGeoLibPoints() {
+        geoLibCrossPoint(axis, distanceMarks, 0)
+        geoLibCrossPoint(axis, distanceMarks, 1)
+        geoLibCrossPoint(axis, distanceMarks, 2)
+    }
+
+
+    fun geoLibCrossPoint(
+        axis: MutableList<Coordinate>,
+        distanceMarks: MutableList<Coordinate>,
+        x: Int
+    ) {
         // Для сохранения длин до столба
-        var lengthToColumn = 0.0
+        var lengthToColumn: Double
         var minLengthToColumn: Double = Double.MAX_VALUE
         var nextLengthToColumn = 0.0
         var previousLengthToColumn = 0.0
 
         // Для сохранения длин отрезков между вершинами
         var totalRoadLength = 0.0
-        var currentRoadLength = 0.0
+        var currentRoadLength: Double
         var lengthOfRoadToColumnVertex = 0.0
         var nextSectionRoadLength = 0.0
         var previousSectionRoadLength = 0.0
 
-        var projection = 0.0
+        val projection: Double
 
         val lastCoordinateIndex = axis.lastIndex
 
@@ -54,8 +65,8 @@ internal class GeoLibTest {
                 Geodesic.WGS84.Inverse(
                     axis[counter].latitude,
                     axis[counter].longitude,
-                    distanceMarks[0].latitude,
-                    distanceMarks[0].longitude
+                    distanceMarks[x].latitude,
+                    distanceMarks[x].longitude
                 ).s12
 
             // Считаем длину суммарную длину дороги между вершинами
@@ -76,8 +87,8 @@ internal class GeoLibTest {
                 nextLengthToColumn = Geodesic.WGS84.Inverse(
                     axis[counter + 1].latitude,
                     axis[counter + 1].longitude,
-                    distanceMarks[0].latitude,
-                    distanceMarks[0].longitude
+                    distanceMarks[x].latitude,
+                    distanceMarks[x].longitude
                 ).s12
 
                 // Длина до столба от следующей вершины
@@ -97,8 +108,8 @@ internal class GeoLibTest {
                         Geodesic.WGS84.Inverse(
                             axis[counter - 1].latitude,
                             axis[counter - 1].longitude,
-                            distanceMarks[0].latitude,
-                            distanceMarks[0].longitude
+                            distanceMarks[x].latitude,
+                            distanceMarks[x].longitude
                         ).s12
                 }
                 // Записываем длину дороги до вершины около столба
@@ -106,10 +117,6 @@ internal class GeoLibTest {
             }
         }
 
-
-        /* Зная длину до столба, длину участка дороги между точками
-           можно найти cos.
-           косинус * | длДоСтолба | = длине проекции */
         if (cos(nextSectionRoadLength / minLengthToColumn) > 0.0
             && minLengthToColumn * cos(previousSectionRoadLength / minLengthToColumn) != 0.0
         ) {
@@ -118,7 +125,7 @@ internal class GeoLibTest {
                 minLengthToColumn,
                 nextSectionRoadLength
             )
-            println("lengthOfRoad = ${lengthOfRoadToColumnVertex + projection}")
+            println("Длина до проекции = ${lengthOfRoadToColumnVertex + projection} м")
 
         } else {
             projection = findSquare(
@@ -126,15 +133,16 @@ internal class GeoLibTest {
                 minLengthToColumn,
                 previousSectionRoadLength,
             )
-            println("lengthOfRoad = ${lengthOfRoadToColumnVertex - projection}")
+            println("Длина до проекции = ${lengthOfRoadToColumnVertex - projection} м")
         }
 
-        println(" AC minLength = $minLengthToColumn")
-        println(" AB lengthOfRoad = $previousSectionRoadLength")
-        println("lengthOfRoad = $lengthOfRoadToColumnVertex")
-        println("projection = $projection")
+        println("Минимальное расстояние до столба = $minLengthToColumn м")
+        println("Длина предыдущего отрезка дороги = $previousSectionRoadLength м")
+        println("Длина следующего отрезка дороги = $nextSectionRoadLength м")
+        println("Длина дороги до вершины = $lengthOfRoadToColumnVertex м")
+        println("Длина проекции = $projection м\n")
 
-       // assertEquals(90, projection)
+        // assertEquals(90, projection)
     }
 
     // Функция для нахождения длины проекции
@@ -143,11 +151,11 @@ internal class GeoLibTest {
         lengthMin: Double,
         lengthRoad: Double,
 
-    ): Double {
+        ): Double {
         val p = (length + lengthMin + lengthRoad) / 2
         val square = (p * (p - length) * (p - lengthMin) * (p - lengthRoad)).pow(0.5)
         val height = 2 * square / lengthRoad
-        return  (lengthMin.pow(2) - height.pow(2)).pow(0.5)
+        return (lengthMin.pow(2) - height.pow(2)).pow(0.5)
     }
 
 }
