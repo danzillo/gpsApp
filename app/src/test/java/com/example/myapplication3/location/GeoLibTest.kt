@@ -32,6 +32,8 @@ internal class GeoLibTest {
         geoLibKilometersCalc(axis, distanceMarks, 0)
         geoLibKilometersCalc(axis, distanceMarks, 1)
         geoLibKilometersCalc(axis, distanceMarks, 2)
+        geoLibKilometersCalc(axis, distanceMarks, 3)
+        geoLibKilometersCalc(axis, distanceMarks, 4)
     }
 
     // Для поиска расстояния от начала координат до проекции столбов
