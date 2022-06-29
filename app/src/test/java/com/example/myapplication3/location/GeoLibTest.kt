@@ -48,8 +48,8 @@ internal class GeoLibTest {
         var previousLengthToColumn = 0.0
 
         // Для сохранения длин отрезков между вершинами
-        val offset: Int
-        val totalLengthOfRoadToColumn: Double
+        var offset = 0
+        var totalLengthOfRoadToColumn = 0.0
         var totalRoadLength = 0.0
         var currentRoadLength: Double
         var lengthOfRoadToColumnVertex = 0.0
@@ -125,7 +125,7 @@ internal class GeoLibTest {
                 2
             )) / 2 * minLengthToColumn * nextSectionRoadLength)
 
-        if (cosine > 0.0) {
+        if (cosine >= 0.0 && nextSectionRoadLength != 0.0) {
             projection = findProjectionLength(
                 minLengthToColumn,
                 findOffset(
@@ -141,7 +141,7 @@ internal class GeoLibTest {
                 nextSectionRoadLength,
             ).toInt()
 
-        } else {
+        } else if (cosine < 0.0 && previousSectionRoadLength != 0.0) {
             projection = findProjectionLength(
                 minLengthToColumn,
                 findOffset(
@@ -156,7 +156,7 @@ internal class GeoLibTest {
                 minLengthToColumn,
                 nextSectionRoadLength,
             ).toInt()
-        }
+        } else println("Невозможно рассчитать КМ+М для данного столба.")
 
         println(
             "КМ+М: ${convertMeterToKilometer(totalLengthOfRoadToColumn)} +" +
