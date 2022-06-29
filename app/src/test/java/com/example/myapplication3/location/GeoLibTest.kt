@@ -34,7 +34,7 @@ internal class GeoLibTest {
         geoLibCrossPoint(axis, distanceMarks, 2)
     }
 
-
+    // Для поиска расстояния от начала координат до проекции столбов
     fun geoLibCrossPoint(
         axis: MutableList<Coordinate>,
         distanceMarks: MutableList<Coordinate>,
@@ -52,6 +52,7 @@ internal class GeoLibTest {
         var lengthOfRoadToColumnVertex = 0.0
         var nextSectionRoadLength = 0.0
         var previousSectionRoadLength = 0.0
+        val cosine: Double
 
         val projection: Double
 
@@ -117,9 +118,10 @@ internal class GeoLibTest {
             }
         }
 
-        if (cos(nextSectionRoadLength / minLengthToColumn) > 0.0
-            && minLengthToColumn * cos(previousSectionRoadLength / minLengthToColumn) != 0.0
-        ) {
+        cosine = ((minLengthToColumn.pow(2) + nextSectionRoadLength.pow(2) - nextLengthToColumn.pow(
+            2)) / 2 * minLengthToColumn * nextSectionRoadLength)
+
+        if (cosine > 0.0) {
             projection = findSquare(
                 nextLengthToColumn,
                 minLengthToColumn,
@@ -137,12 +139,11 @@ internal class GeoLibTest {
         }
 
         println("Минимальное расстояние до столба = $minLengthToColumn м")
+        println("Расстояние от второй вершины = $nextLengthToColumn м")
+        println("Расстояние от второй вершины (сзади)= $previousLengthToColumn м")
         println("Длина предыдущего отрезка дороги = $previousSectionRoadLength м")
         println("Длина следующего отрезка дороги = $nextSectionRoadLength м")
         println("Длина дороги до вершины = $lengthOfRoadToColumnVertex м")
-        println("Длина проекции = $projection м\n")
-
-        // assertEquals(90, projection)
     }
 
     // Функция для нахождения длины проекции
