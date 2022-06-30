@@ -3,6 +3,7 @@ package com.example.myapplication3.location
 import org.junit.Test
 import net.sf.geographiclib.*
 import kotlin.math.abs
+import kotlin.math.asin
 import kotlin.math.pow
 
 internal class GeoCalcTest {
@@ -15,6 +16,8 @@ internal class GeoCalcTest {
     fun testGeoLibPoints() {
         geoLibCalc(axis, distanceMarks)
         println(totalLength)
+        println(columnProjection.get(0).latitude)
+
     }
 
 
@@ -31,6 +34,8 @@ internal class GeoCalcTest {
         var previousLengthToColumn: Double
         var offset: Double
         var projection: Double
+        var columnProjectionLat: Double
+        var columnProjectionLong: Double
 
         // Для сохранения длин отрезков между вершинами
         var totalLengthOfRoadToColumn: Double
@@ -39,12 +44,13 @@ internal class GeoCalcTest {
         var lengthOfRoadToColumnVertex: Double
         var nextSectionRoadLength: Double
         var previousSectionRoadLength: Double
+        var azimut: Double
 
         // Последние индексы вершин и столбов
         val lastVertexIndex = axis.lastIndex
         val lastColumnIndex = distanceMarks.lastIndex
 
-        // Проходимся по всем вершинам
+        // Проходимся по всем столбам
         for (columnCounter in 0 until lastColumnIndex - 1) {
             // Для сохранения расстояний до столба
             minLengthToColumn = Double.MAX_VALUE
@@ -59,6 +65,8 @@ internal class GeoCalcTest {
             lengthOfRoadToColumnVertex = 0.0
             nextSectionRoadLength = 0.0
             previousSectionRoadLength = 0.0
+
+            // Проходимся по всем вершинам
             for (vertexCounter in 0 until lastVertexIndex) {
 
                 // Находим расстояние от каждой вершины до столба
@@ -70,7 +78,7 @@ internal class GeoCalcTest {
                         distanceMarks[columnCounter].longitude
                     ).s12
 
-                // Считаем длину суммарную длину дороги между вершинами
+                // Считаем длину дороги между соседними вершинами
                 currentRoadLength = Geodesic.WGS84.Inverse(
                     axis[vertexCounter].latitude,
                     axis[vertexCounter].longitude,
@@ -78,6 +86,15 @@ internal class GeoCalcTest {
                     axis[vertexCounter + 1].longitude
                 ).s12
 
+                // Считаем азимут между соседними вершинами
+                azimut = Geodesic.WGS84.Inverse(
+                    axis[vertexCounter].latitude,
+                    axis[vertexCounter].longitude,
+                    axis[vertexCounter + 1].latitude,
+                    axis[vertexCounter + 1].longitude
+                ).azi1
+
+                axisSegment.add(AxisSegment(vertexCounter, currentRoadLength, azimut))
                 // Считаем общее расстояние дороги
                 totalRoadLength += currentRoadLength
 
@@ -191,6 +208,28 @@ internal class GeoCalcTest {
                             )
                         } " +
                         "\nOffset: ${offset.toInt()}\n"
+            )
+            columnProjectionLat = Geodesic.WGS84.Direct(
+                distanceMarks[1].latitude,
+                distanceMarks[1].longitude,
+                asin(projection / minLengthToColumn),
+                offset
+            ).lat2
+
+            columnProjectionLong = Geodesic.WGS84.Direct(
+                distanceMarks[1].latitude,
+                distanceMarks[1].longitude,
+                asin(projection / minLengthToColumn),
+                offset
+            ).lon2
+
+            columnProjection.add(
+                Column(
+                    columnCounter,
+                    columnProjectionLong,
+                    columnProjectionLat,
+                    offset
+                )
             )
         }
     }
