@@ -3,7 +3,6 @@ package com.example.myapplication3.location
 import org.junit.Test
 import net.sf.geographiclib.*
 import kotlin.math.abs
-import kotlin.math.asin
 import kotlin.math.pow
 
 internal class GeoCalcTest {
@@ -16,8 +15,7 @@ internal class GeoCalcTest {
 
     // Для поиска расстояния от начала координат до проекции столбов
     // получает координаты дороги и конкретный километровый столб
-
-    fun geoLibCalc(
+    private fun geoLibCalc(
         axis: MutableList<Coordinate>,
         distanceMarks: MutableList<Coordinate>
     ) {

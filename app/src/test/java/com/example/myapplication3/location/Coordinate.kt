@@ -1,5 +1,7 @@
 package com.example.myapplication3.location
 
+import android.renderscript.Double4
+
 class Coordinate(
     var longitude: Double,
     var latitude: Double
@@ -108,3 +110,21 @@ val axis = mutableListOf(
     Coordinate(84.959451326407887, 56.42803768381803309),
     Coordinate(84.95967869836461261, 56.42771851401826666)
 )
+
+class Column(
+    var columnNumber: Int,
+    var longitude: Double,
+    var latitude: Double,
+    var offset: Double
+)
+
+// Хранит информацию о пересечении проекции столба с дорогой
+val columnProjection = mutableListOf<Column>()
+
+class AxisSegment(
+    var axisNumber: Int,
+    var length: Double,
+    var azimut: Double
+)
+
+val axisSegment = mutableListOf<AxisSegment>()
