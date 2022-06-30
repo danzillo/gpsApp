@@ -30,7 +30,7 @@ internal class GeoLibTest {
         assertEquals(3625.184, counter, 0.01)
     }
 
-    @Test
+/*    @Test
     fun testGeoLibPoints() {
         geoLibKilometersCalc(axis, distanceMarks, 0)
 //        geoLibKilometersCalc(axis, distanceMarks, 1)
@@ -154,8 +154,8 @@ internal class GeoLibTest {
             ).s12
             totalRoadLength += currentRoadLength
 
-            /* Если найденное расстояние меньше того, что было, то сохраняем его с длиной
-                участков дороги (от данной вершины до следующей и от данной вершины до предыдущей) */
+            *//* Если найденное расстояние меньше того, что было, то сохраняем его с длиной
+                участков дороги (от данной вершины до следующей и от данной вершины до предыдущей) *//*
             if (lengthToColumn < minLengthToColumn) {
 
                 // Сохранение текущего состояния
@@ -283,7 +283,7 @@ internal class GeoLibTest {
 
     private fun convertMeterToKilometer(meters: Double): Int {
         return (meters / 1000).toInt()
-    }
+    }*/
 
 }
 
