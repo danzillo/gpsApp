@@ -10,7 +10,7 @@ internal class GeoCalcTest {
 
     @Test
     fun testGeoLibPoints() {
-    geoLibCalc(axis, distanceMarks)
+        geoLibCalc(axis, distanceMarks)
     }
 
 
@@ -23,19 +23,19 @@ internal class GeoCalcTest {
     ) {
         // Для сохранения расстояний до столба
         var lengthToColumn: Double
-        var minLengthToColumn: Double = Double.MAX_VALUE
-        var nextLengthToColumn = 0.0
-        var previousLengthToColumn = 0.0
-        var offset = 0.0
-        var projection = 0.0
+        var minLengthToColumn: Double
+        var nextLengthToColumn: Double
+        var previousLengthToColumn: Double
+        var offset: Double
+        var projection: Double
 
         // Для сохранения длин отрезков между вершинами
-        var totalLengthOfRoadToColumn = 0.0
-        var totalRoadLength = 0.0
+        var totalLengthOfRoadToColumn: Double
+        var totalRoadLength: Double
         var currentRoadLength: Double
-        var lengthOfRoadToColumnVertex = 0.0
-        var nextSectionRoadLength = 0.0
-        var previousSectionRoadLength = 0.0
+        var lengthOfRoadToColumnVertex: Double
+        var nextSectionRoadLength: Double
+        var previousSectionRoadLength: Double
 
         // Последние индексы вершин и столбов
         val lastVertexIndex = axis.lastIndex
