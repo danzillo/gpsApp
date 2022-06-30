@@ -14,18 +14,20 @@ internal class GeoLibTest {
     fun geoLibLength() {
         var lengthOfRoad = 0.0
         val lastCoordinateIndex = axis.lastIndex
-        var counter = 0
-        while (counter < lastCoordinateIndex) {
-            lengthOfRoad +=
-                Geodesic.WGS84.Inverse(
-                    axis[counter].latitude,
-                    axis[counter].longitude,
-                    axis[counter + 1].latitude,
-                    axis[counter + 1].longitude
-                ).s12
-            counter += 1
+        var counter = 0.0
+        for (vertexCounter in 0 until lastCoordinateIndex - 1) {
+
+            // Считаем длину суммарную длину дороги между вершинами
+            counter = Geodesic.WGS84.Inverse(
+                axis[vertexCounter].latitude,
+                axis[vertexCounter].longitude,
+                axis[vertexCounter + 1].latitude,
+                axis[vertexCounter + 1].longitude
+            ).s12
+
+            // Считаем общее расстояние дороги
         }
-        assertEquals(3625.184, lengthOfRoad, 0.01)
+        assertEquals(3625.184, counter, 0.01)
     }
 
     @Test

@@ -8,8 +8,13 @@ import kotlin.math.pow
 internal class GeoCalcTest {
 
     @Test
+    fun testGeoLibPoints2() {
+    }
+
+    @Test
     fun testGeoLibPoints() {
         geoLibCalc(axis, distanceMarks)
+        println(totalLength)
     }
 
 
@@ -54,7 +59,7 @@ internal class GeoCalcTest {
             lengthOfRoadToColumnVertex = 0.0
             nextSectionRoadLength = 0.0
             previousSectionRoadLength = 0.0
-            for (vertexCounter in 0 until lastVertexIndex - 1) {
+            for (vertexCounter in 0 until lastVertexIndex) {
 
                 // Находим расстояние от каждой вершины до столба
                 lengthToColumn =
@@ -75,6 +80,9 @@ internal class GeoCalcTest {
 
                 // Считаем общее расстояние дороги
                 totalRoadLength += currentRoadLength
+
+                // Записываем расстояние полной дороги в отдельную переменную
+                totalLength = totalRoadLength
 
                 /* Если найденное расстояние меньше того, что было, то сохраняем его, а также
                  расстояние от прошлой/следующей вершины и длину участков дороги
@@ -118,6 +126,7 @@ internal class GeoCalcTest {
                     // Записываем длину дороги до вершины около столба
                     lengthOfRoadToColumnVertex = totalRoadLength - nextSectionRoadLength
                 }
+                totalLength = totalRoadLength
             }
 
             // Косинус угла между столбом и вершиной дороги для определения того,
@@ -184,11 +193,10 @@ internal class GeoCalcTest {
                         "\nOffset: ${offset.toInt()}\n"
             )
         }
-
-
     }
 
-    // Функция для нахождения смещения от дороги
+    // Функция для нахождения смещения столба от дороги путем нахождения площади треугольника
+    // в котором находится столб и 2 вершины дорожной оси
     private fun findOffset(
         length: Double,
         lengthMin: Double,
@@ -199,7 +207,7 @@ internal class GeoCalcTest {
         return 2 * square / lengthRoad
     }
 
-    // Функция для нахождения длины проекции
+    // Функция для нахождения длины проекции столба на дорогу
     private fun findProjectionLength(
         lengthMin: Double,
         height: Double,
@@ -211,40 +219,3 @@ internal class GeoCalcTest {
         return (meters / 1000).toInt()
     }
 }
-/*       println(
-            "Высота: ${
-                findOffset(
-                    previousLengthToColumn,
-                    minLengthToColumn,
-                    previousSectionRoadLength,
-                )
-            }"
-        )
-        println(
-            "КМ+М: ${convertMeterToKilometer(totalLengthOfRoadToColumn)} +" +
-                    " ${
-                        abs(
-                            (convertMeterToKilometer(totalLengthOfRoadToColumn)) * 1000 -
-                                    (totalLengthOfRoadToColumn.toInt())
-                        )
-                    } " +
-                    "\nOffset: $offset\n"
-        )
-        println(
-            " ${
-                Geodesic.WGS84.Direct(
-                    distanceMarks[1].latitude,
-                    distanceMarks[1].longitude,
-                    asin(projection / minLengthToColumn),
-                    offset
-                ).lat2
-            }\n " +
-                    "${
-                        Geodesic.WGS84.Direct(
-                            distanceMarks[1].latitude,
-                            distanceMarks[1].longitude,
-                            asin(projection / minLengthToColumn),
-                            offset
-                        ).lon2
-                    } "
-        )*/

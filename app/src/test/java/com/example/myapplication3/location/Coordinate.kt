@@ -8,7 +8,7 @@ class Coordinate(
 )
 
 // Здесь будем хранить общую длину дороги
-val totalLength: Double = 0.0
+var totalLength: Double = 0.0
 
 // Для хранения координат столбов
 val distanceMarks = mutableListOf(
@@ -127,4 +127,5 @@ class AxisSegment(
     var azimut: Double
 )
 
+// Для хранения длин сегментов и их направлений
 val axisSegment = mutableListOf<AxisSegment>()
