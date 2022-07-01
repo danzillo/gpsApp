@@ -1,7 +1,5 @@
 package com.example.myapplication3.location
 
-import android.renderscript.Double4
-
 class Coordinate(
     var longitude: Double,
     var latitude: Double
@@ -18,6 +16,20 @@ val distanceMarks = mutableListOf(
     Coordinate(84.92216, 56.45347),
     Coordinate(84.95483, 56.45035)
 )
+
+// Для хранения своих координат
+val myPosition = mutableListOf(
+    Coordinate(84.95483404200479, 56.44270512152631)
+)
+
+// Сохраняет ближайшие к пользователю вершины
+var closestCoordinates = mutableListOf<Coordinate>(
+)
+
+// Сохраняет ближайшие к пользователю вершины
+var closestCoordinatesForCol = mutableListOf<Column>(
+)
+
 
 // Для хранения координат вершин дороги
 val axis = mutableListOf(
@@ -116,7 +128,15 @@ class Column(
 )
 
 // Хранит информацию о пересечении проекции столба с дорогой
-val columnProjection = mutableListOf<Column>()
+val column = mutableListOf<Column>()
+
+
+
+class ColumnNum(
+    var columnNumber: Int,
+    var vertexNum: Int
+)
+
 
 class AxisSegment(
     var axisNumber: Int,
@@ -126,3 +146,4 @@ class AxisSegment(
 
 // Для хранения длин сегментов и их направлений
 val axisSegment = mutableListOf<AxisSegment>()
+

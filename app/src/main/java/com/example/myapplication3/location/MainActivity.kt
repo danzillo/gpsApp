@@ -126,6 +126,7 @@ class MainActivity : AppCompatActivity() {
             binding.currentSpeed.text =
                 ((location.speed * 100).toInt() / 100).toString() + " м/c"
             binding.accuracySpeed.text = location.speedAccuracyMetersPerSecond.toString() + " м"
+            binding.provider.text = location.accuracy.toString()
             // binding.provider.text = location.provider.toString()
         } else {
             if (viewModel.isDecimalPosition.value == true) {
