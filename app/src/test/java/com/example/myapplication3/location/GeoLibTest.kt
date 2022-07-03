@@ -291,7 +291,7 @@ internal class GeoLibTest {
                 column[columnCounter]?.latitude!!,
                 column[columnCounter]?.longitude!!
             ).s12
-            if (minLength < currentLength) {
+            if (minLength > currentLength) {
                 minLength = currentLength
                 firstColumn = columnCounter
                 secondColumn = if (columnCounter < column.size && prevLength > Geodesic.WGS84.Inverse(
