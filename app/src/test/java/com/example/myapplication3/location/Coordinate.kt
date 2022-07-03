@@ -13,23 +13,12 @@ val distanceMarks = mutableListOf(
     Coordinate(84.9398207016564, 56.4471399261583), // 1 - ЛЭП (0+804; 1+000)
     Coordinate(84.9547917282365, 56.4429847327726), // 2 - дерево (1+1068; 2+000)
     Coordinate(84.9579233722567, 56.4330278731898),  // 3 - начало дач (2+1133; 3+000)
-    Coordinate(84.92216, 56.45347),
-    Coordinate(84.95483, 56.45035)
 )
 
 // Для хранения своих координат
 val myPosition = mutableListOf(
     Coordinate(84.95483404200479, 56.44270512152631)
 )
-
-// Сохраняет ближайшие к пользователю вершины
-var closestCoordinates = mutableListOf<Coordinate>(
-)
-
-// Сохраняет ближайшие к пользователю вершины
-var closestCoordinatesForCol = mutableListOf<Column>(
-)
-
 
 // Для хранения координат вершин дороги
 val axis = mutableListOf(

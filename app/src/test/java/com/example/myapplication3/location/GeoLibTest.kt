@@ -1,10 +1,10 @@
 package com.example.myapplication3.location
 
+import androidx.core.util.rangeTo
 import org.junit.Test
 import net.sf.geographiclib.*
 import org.junit.Assert.assertEquals
 import kotlin.math.abs
-import kotlin.math.asin
 import kotlin.math.pow
 
 internal class GeoLibTest {
@@ -32,74 +32,17 @@ internal class GeoLibTest {
 
     @Test
     fun testGeoLibPoints() {
-        geoLibKilometersCalc(axis, distanceMarks, 0)
-        geoLibKilometersCalc(axis, distanceMarks, 1)
-//        geoLibKilometersCalc(axis, distanceMarks, 2)
-//        geoLibKilometersCalc(axis, distanceMarks, 3)
-//        geoLibKilometersCalc(axis, distanceMarks, 4)
-        //println("Ближайший столбик: ${findNearestMark(myPosition, distanceMarks, 0)}")
-        //val myLatPosList = decDegToDegMinSec(myPosition[0].latitude)
-//        println("Ближайший столбик: ${findNearestMark(myPosition, 0, distanceMarks)}")
-//        println(
-//            "Ближайшая вершина: ${
-//                findNearestMark(
-//                    distanceMarks,
-//                    findNearestMark(myPosition, 0, distanceMarks),
-//                    axis
-//                )
-//            }"
-//        )
+        geoLibKilometersCalc(axis, distanceMarks)
+        println(closeCoordToColumnMap[1])
+        checkCloseMark(myPosition, closeCoordToColumnMap)
     }
-
-//    private fun findNearestMark(
-//        currentPosition: MutableList<Coordinate>,
-//        currentPositionIndex: Int,
-//        positionList: MutableList<Coordinate>
-//    ): Int {
-//
-//        // Координаты пользователя в градусах, минутах, секундах
-//        val myLatPosList = decDegToDegMinSec(currentPosition[0].latitude)
-//        val myLatDeg: Int = myLatPosList[0]
-//        val myLatMin: Int = myLatPosList[1]
-//        // val myLatSec: Int = myLatPosList[2]
-//
-//        val myLongPosList = decDegToDegMinSec(currentPosition[0].longitude)
-//        val myLongDeg: Int = myLongPosList[0]
-//        val myLongMin: Int = myLongPosList[1]
-//        //  val myLongSec: Int = myLongPosList[2]
-//
-//        // Для запоминания столба
-//        var saveCounter = 0
-//
-//        for (counter in 0 until positionList.size - 1) {
-//            // Перевод координат столбов в минуты, секунды..
-//            val markLatPosList = decDegToDegMinSec(positionList[counter].latitude)
-//            val markLatDeg: Int = markLatPosList[0]
-//            val markLatMin: Int = markLatPosList[1]
-//            //val markLatSec: Int = markLatPosList[2]
-//
-//            val markLongPosList = decDegToDegMinSec(positionList[counter].longitude)
-//            val markLongDeg: Int = markLongPosList[0]
-//            val markLongMin: Int = markLongPosList[1]
-//            //val markLongSec: Int = markLongPosList[2]
-//
-//            // Если координаты пользователя и столба сходятся по градусам, то продолжаем поиск
-//            if (myLatDeg == markLatDeg && myLongDeg == markLongDeg && myLatMin == markLatMin && myLongMin == markLongMin) {
-//                saveCounter = counter
-//            } else continue
-//        }
-//        // Возвращает значение столба - 1, чтобы избежать ситуации, когда столб спереди
-//        return if (saveCounter > 1) saveCounter - 1
-//        else saveCounter
-//    }
 
 
     // Для поиска расстояния от начала координат до проекции столбов
     // получает координаты дороги и конкретный километровый столб
     fun geoLibKilometersCalc(
         axis: MutableList<Coordinate>,
-        distanceMarks: MutableList<Coordinate>,
-        markNum: Int
+        distanceMarks: MutableList<Coordinate>
     ) {
         // Для сохранения расстояний до столба
         var lengthToColumn: Double
@@ -115,149 +58,195 @@ internal class GeoLibTest {
         var lengthOfRoadToColumnVertex = 0.0
         var nextSectionRoadLength = 0.0
         var previousSectionRoadLength = 0.0
+        var prevAzimuth = 0.0
+        var azimuth = 0.0
 
         var projection: Double = 0.0
 
-        val counter = markNum
+        for (markNum in 0 until distanceMarks.lastIndex + 1) {
+            // Для сохранения расстояний до столба
+            minLengthToColumn = Double.MAX_VALUE
+            nextLengthToColumn = 0.0
+            previousLengthToColumn = 0.0
+            offset = 0.0
+            projection = 0.0
 
-        val lastCoordinateIndex = axis.lastIndex
+            // Для сохранения длин отрезков между вершинами
+            totalLengthOfRoadToColumn = 0.0
+            totalRoadLength = 0.0
+            lengthOfRoadToColumnVertex = 0.0
+            nextSectionRoadLength = 0.0
+            previousSectionRoadLength = 0.0
 
-        // Проходимся по всем вершинам
-        for (counter in 0 until lastCoordinateIndex - 1) {
+            // Проходимся по всем вершинам
+            for (counter in 0 until axis.lastIndex) {
 
-            // Находим расстояние от каждой вершины до столба
-            lengthToColumn =
-                Geodesic.WGS84.Inverse(
-                    axis[counter].latitude,
-                    axis[counter].longitude,
-                    distanceMarks[markNum].latitude,
-                    distanceMarks[markNum].longitude
-                ).s12
-
-            // Считаем длину дороги между двумя вершинами
-            currentRoadLength = Geodesic.WGS84.Inverse(
-                axis[counter].latitude,
-                axis[counter].longitude,
-                axis[counter + 1].latitude,
-                axis[counter + 1].longitude
-            ).s12
-
-            // Считаем суммарную длину дороги между вершинами
-            totalRoadLength += currentRoadLength
-
-            /* Если найденное расстояние меньше того, что было, то сохраняем его с длиной
-                участков дороги (от данной вершины до следующей и от данной вершины до предыдущей) */
-            if (lengthToColumn < minLengthToColumn) {
-
-                // Сохранение текущего состояния
-                minLengthToColumn = lengthToColumn
-
-                // Длина до столба от следующей вершины
-                nextLengthToColumn = Geodesic.WGS84.Inverse(
-                    axis[counter + 1].latitude,
-                    axis[counter + 1].longitude,
-                    distanceMarks[markNum].latitude,
-                    distanceMarks[markNum].longitude
-                ).s12
-
-                // Длина текущего отрезка дороги
-                nextSectionRoadLength = currentRoadLength
-
-                if (counter > 0) {
-                    // Длина предыдущего отрезка
-                    previousSectionRoadLength = Geodesic.WGS84.Inverse(
+                // Находим расстояние от каждой вершины до столба
+                lengthToColumn =
+                    Geodesic.WGS84.Inverse(
                         axis[counter].latitude,
                         axis[counter].longitude,
-                        axis[counter - 1].latitude,
-                        axis[counter - 1].longitude
+                        distanceMarks[markNum].latitude,
+                        distanceMarks[markNum].longitude
                     ).s12
 
-                    // Длина до столба от предыдущей вершины
-                    previousLengthToColumn =
-                        Geodesic.WGS84.Inverse(
+                // Считаем длину дороги между двумя вершинами
+                currentRoadLength = Geodesic.WGS84.Inverse(
+                    axis[counter].latitude,
+                    axis[counter].longitude,
+                    axis[counter + 1].latitude,
+                    axis[counter + 1].longitude
+                ).s12
+
+                // Считаем суммарную длину дороги между вершинами
+                totalRoadLength += currentRoadLength
+
+                /* Если найденное расстояние меньше того, что было, то сохраняем его с длиной
+                    участков дороги (от данной вершины до следующей и от данной вершины до предыдущей) */
+                if (lengthToColumn < minLengthToColumn) {
+
+                    // Сохранение текущего состояния
+                    minLengthToColumn = lengthToColumn
+
+                    // Длина до столба от следующей вершины
+                    nextLengthToColumn = Geodesic.WGS84.Inverse(
+                        axis[counter + 1].latitude,
+                        axis[counter + 1].longitude,
+                        distanceMarks[markNum].latitude,
+                        distanceMarks[markNum].longitude
+                    ).s12
+
+                    // Длина текущего отрезка дороги
+                    nextSectionRoadLength = currentRoadLength
+
+                    if (counter > 0) {
+                        // Длина предыдущего отрезка
+                        previousSectionRoadLength = Geodesic.WGS84.Inverse(
+                            axis[counter].latitude,
+                            axis[counter].longitude,
                             axis[counter - 1].latitude,
-                            axis[counter - 1].longitude,
-                            distanceMarks[markNum].latitude,
-                            distanceMarks[markNum].longitude
+                            axis[counter - 1].longitude
                         ).s12
+
+                        // Длина до столба от предыдущей вершины
+                        previousLengthToColumn =
+                            Geodesic.WGS84.Inverse(
+                                axis[counter - 1].latitude,
+                                axis[counter - 1].longitude,
+                                distanceMarks[markNum].latitude,
+                                distanceMarks[markNum].longitude
+                            ).s12
+
+                        prevAzimuth = Geodesic.WGS84.Inverse(
+                            axis[counter].latitude,
+                            axis[counter].longitude,
+                            axis[counter - 1].latitude,
+                            axis[counter - 1].longitude
+                        ).azi1
+                    }
+                    // Записываем длину дороги до вершины около столба
+                    lengthOfRoadToColumnVertex = totalRoadLength - nextSectionRoadLength
+
+                    // Записываем координату ближайшей точки к столбу и ее азимут (для 2ух участков)
+                    closeCoordToColumnMap[markNum] = ClosePointData(
+                        axis[counter].longitude,
+                        axis[counter].latitude,
+                        Geodesic.WGS84.Inverse(
+                            axis[counter].latitude,
+                            axis[counter].longitude,
+                            axis[counter + 1].latitude,
+                            axis[counter + 1].longitude
+                        ).azi1,
+                        prevAzimuth
+                    )
                 }
-                // Записываем длину дороги до вершины около столба
-                lengthOfRoadToColumnVertex = totalRoadLength - nextSectionRoadLength
             }
-        }
 
-        // Косинус угла между столбом и вершиной дороги
-        val nextCosinus: Double =
-            ((minLengthToColumn.pow(2) + nextSectionRoadLength.pow(2) - nextLengthToColumn.pow(
-                2
-            )) / 2 * minLengthToColumn * nextSectionRoadLength)
-        val prevCosinus: Double =
-            ((minLengthToColumn.pow(2) + previousSectionRoadLength.pow(2) - previousLengthToColumn.pow(
-                2
-            )) / 2 * minLengthToColumn * previousSectionRoadLength)
+            // Косинус угла между столбом и вершиной дороги
+            val nextCosinus: Double =
+                ((minLengthToColumn.pow(2) + nextSectionRoadLength.pow(2) - nextLengthToColumn.pow(
+                    2
+                )) / 2 * minLengthToColumn * nextSectionRoadLength)
 
-        if (nextCosinus >= 0.0 && nextSectionRoadLength != 0.0) {
-            projection = findProjectionLength(
-                minLengthToColumn,
-                findOffset(
+            if (nextCosinus >= 0.0 && nextSectionRoadLength != 0.0) {
+                projection = findProjectionLength(
+                    minLengthToColumn,
+                    findOffset(
+                        nextLengthToColumn,
+                        minLengthToColumn,
+                        nextSectionRoadLength,
+                    )
+                )
+                totalLengthOfRoadToColumn = lengthOfRoadToColumnVertex + projection
+                offset = findOffset(
                     nextLengthToColumn,
                     minLengthToColumn,
                     nextSectionRoadLength,
                 )
-            )
-            totalLengthOfRoadToColumn = lengthOfRoadToColumnVertex + projection
-            offset = findOffset(
-                nextLengthToColumn,
-                minLengthToColumn,
-                nextSectionRoadLength,
-            )
-
-        } else if (nextCosinus < 0.0 && previousSectionRoadLength != 0.0) {
-            projection = findProjectionLength(
-                minLengthToColumn,
-                findOffset(
+                azimuth = closeCoordToColumnMap[markNum]?.azimuthNext!!
+                closeCoordToColumnMap[markNum]?.azimuthPrev = 0.0
+            } else if (nextCosinus < 0.0 && previousSectionRoadLength != 0.0) {
+                projection = findProjectionLength(
+                    minLengthToColumn,
+                    findOffset(
+                        previousLengthToColumn,
+                        minLengthToColumn,
+                        previousSectionRoadLength,
+                    )
+                )
+                totalLengthOfRoadToColumn = lengthOfRoadToColumnVertex - projection
+                offset = findOffset(
                     previousLengthToColumn,
                     minLengthToColumn,
                     previousSectionRoadLength,
                 )
+                azimuth = closeCoordToColumnMap[markNum]?.azimuthPrev!!
+                closeCoordToColumnMap[markNum]?.azimuthNext = 0.0
+            } else println("Невозможно рассчитать КМ+М для данного столба.")
+
+            println(
+                "Высота: ${
+                    findOffset(
+                        previousLengthToColumn,
+                        minLengthToColumn,
+                        previousSectionRoadLength,
+                    )
+                }"
             )
-            totalLengthOfRoadToColumn = lengthOfRoadToColumnVertex - projection
-            offset = findOffset(
-                previousLengthToColumn,
-                minLengthToColumn,
-                previousSectionRoadLength,
+            println(
+                "КМ+М: ${convertMeterToKilometer(totalLengthOfRoadToColumn)} +" +
+                        " ${
+                            abs(
+                                (convertMeterToKilometer(totalLengthOfRoadToColumn)) * 1000 -
+                                        (totalLengthOfRoadToColumn.toInt())
+                            )
+                        } " +
+                        "\nOffset: $offset"
             )
-        } else println("Невозможно рассчитать КМ+М для данного столба.")
 
-        println(
-            "Высота: ${findOffset(
-                previousLengthToColumn,
-                minLengthToColumn,
-                previousSectionRoadLength,
-            )}"
-        )
-        println(
-            "КМ+М: ${convertMeterToKilometer(totalLengthOfRoadToColumn)} +" +
-                    " ${
-                        abs(
-                            (convertMeterToKilometer(totalLengthOfRoadToColumn)) * 1000 -
-                                    (totalLengthOfRoadToColumn.toInt())
-                        )
-                    } " +
-                    "\nOffset: $offset\n"
-        )
-        println(
-            " ${Geodesic.WGS84.Direct(distanceMarks[0].latitude, distanceMarks[0].longitude,asin(projection/minLengthToColumn), offset).lat2}\n "+
-            "${Geodesic.WGS84.Direct(distanceMarks[0].latitude, distanceMarks[0].longitude,asin(projection/minLengthToColumn), offset).lon2}"
-        )
-
-        println(
-            " ${Geodesic.WGS84.Direct(distanceMarks[0].latitude, distanceMarks[0].longitude,asin(projection/minLengthToColumn), offset).lat2}\n "+
-                    "${Geodesic.WGS84.Direct(distanceMarks[0].latitude, distanceMarks[0].longitude,asin(projection/minLengthToColumn), offset).lon2}"
-        )
-        println("$minLengthToColumn")
-
-
+            println(
+                "Широта проекции: ${
+                    closeCoordToColumnMap[markNum]?.let {
+                        Geodesic.WGS84.Direct(
+                            it.latitude,
+                            it.longitude,
+                            azimuth,
+                            projection
+                        ).lat2
+                    }
+                }\n" +
+                        "Долгота проеции: ${
+                            closeCoordToColumnMap[markNum]?.let {
+                                Geodesic.WGS84.Direct(
+                                    it.latitude,
+                                    it.longitude,
+                                    azimuth,
+                                    projection
+                                ).lon2
+                            }
+                        }\n"
+            )
+        }
     }
 
     // Функция для нахождения смещения от дороги
@@ -283,30 +272,40 @@ internal class GeoLibTest {
         return (meters / 1000).toInt()
     }
 
-}
+    // Ищет 2 ближайших столбика к положению пользователя
+    private fun checkCloseMark(
+        myPos: MutableList<Coordinate>,
+        column: MutableMap<Int, ClosePointData>
+    ) {
+        var firstColumn = 0
+        var secondColumn = 0
+        var currentLength = 0.0
+        var prevLength = 0.0
 
+        var minLength = Double.MAX_VALUE
 
-//    /* Находит ближайший по координатам столб */
-//    private fun findNearestMark(
-//        myPosition: MutableList<Coordinate>,
-//        distanceMarks: MutableList<Coordinate>,
-//        x: Int
-//    ): Int {
-//        var compareDif: Double = Double.MAX_VALUE
-//        var markCount = 0
-//        //val accuracy = 0.01
-//
-//        for (counter in 0 until distanceMarks.size - 1) {
-//
-//            // Сравниваем разницу по долготе между столбом и позицией
-//            // Алгоритм работает до тех пор, пока разница не начинает увелчиваться
-//            if (compareDif > abs(myPosition[x].latitude - distanceMarks[counter].latitude)) {
-//                compareDif = myPosition[x].latitude - distanceMarks[counter].latitude
-//                markCount += 1
-//            } else break
-//            compareDif = abs(myPosition[x].latitude - distanceMarks[counter].latitude)
-//        }
-//        if (markCount > 0)
-//            return markCount - 1
-//        else return markCount
-//    }
+        for (columnCounter in 0 until column.size) {
+            currentLength = Geodesic.WGS84.Inverse(
+                myPos[0].latitude,
+                myPos[0].longitude,
+                column[columnCounter]?.latitude!!,
+                column[columnCounter]?.longitude!!
+            ).s12
+            if (minLength < currentLength) {
+                minLength = currentLength
+                firstColumn = columnCounter
+                secondColumn = if (columnCounter < column.size && prevLength > Geodesic.WGS84.Inverse(
+                        myPos[0].latitude,
+                        myPos[0].longitude,
+                        column[columnCounter + 1]?.latitude!!,
+                        column[columnCounter + 1]?.longitude!!
+                    ).s12
+                ) columnCounter - 1
+                else columnCounter + 1
+            }
+            prevLength = currentLength
+            println("Мы около столбов: $firstColumn и $secondColumn")
+        }
+
+    }
+    }

@@ -1,3 +1,4 @@
+/*
 package com.example.myapplication3.location
 
 import org.junit.Test
@@ -126,9 +127,11 @@ internal class GeoCalcTest {
                 // Записываем расстояние полной дороги в отдельную переменную
                 totalLength = totalRoadLength
 
-                /* Если найденное расстояние меньше того, что было, то сохраняем его, а также
+                */
+/* Если найденное расстояние меньше того, что было, то сохраняем его, а также
                  расстояние от прошлой/следующей вершины и длину участков дороги
-                 (от данной вершины до следующей и от данной вершины до предыдущей) */
+                 (от данной вершины до следующей и от данной вершины до предыдущей) *//*
+
                 if (lengthToColumn < minLengthToColumn) {
 
                     // Сохранение текущего состояния
@@ -287,4 +290,4 @@ internal class GeoCalcTest {
     private fun convertMeterToKilometer(meters: Double): Int {
         return (meters / 1000).toInt()
     }
-}
+}*/
