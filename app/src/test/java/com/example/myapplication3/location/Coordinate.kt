@@ -130,7 +130,8 @@ class Column(
 // Хранит информацию о пересечении проекции столба с дорогой
 val column = mutableListOf<Column>()
 
-
+var lengthOfColumn = arrayListOf<Double>()
+var lengthfd = mapOf<Int, Int>()
 
 class ColumnNum(
     var columnNumber: Int,

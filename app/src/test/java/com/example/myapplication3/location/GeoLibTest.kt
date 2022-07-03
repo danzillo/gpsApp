@@ -30,10 +30,10 @@ internal class GeoLibTest {
         assertEquals(3625.184, counter, 0.01)
     }
 
-/*    @Test
+    @Test
     fun testGeoLibPoints() {
         geoLibKilometersCalc(axis, distanceMarks, 0)
-//        geoLibKilometersCalc(axis, distanceMarks, 1)
+        geoLibKilometersCalc(axis, distanceMarks, 1)
 //        geoLibKilometersCalc(axis, distanceMarks, 2)
 //        geoLibKilometersCalc(axis, distanceMarks, 3)
 //        geoLibKilometersCalc(axis, distanceMarks, 4)
@@ -51,57 +51,47 @@ internal class GeoLibTest {
 //        )
     }
 
-    private fun findNearestMark(
-        currentPosition: MutableList<Coordinate>,
-        currentPositionIndex: Int,
-        positionList: MutableList<Coordinate>
-    ): Int {
-
-        // Координаты пользователя в градусах, минутах, секундах
-        val myLatPosList = decDegToDegMinSec(currentPosition[0].latitude)
-        val myLatDeg: Int = myLatPosList[0]
-        val myLatMin: Int = myLatPosList[1]
-        // val myLatSec: Int = myLatPosList[2]
-
-        val myLongPosList = decDegToDegMinSec(currentPosition[0].longitude)
-        val myLongDeg: Int = myLongPosList[0]
-        val myLongMin: Int = myLongPosList[1]
-        //  val myLongSec: Int = myLongPosList[2]
-
-        // Для запоминания столба
-        var saveCounter = 0
-
-        for (counter in 0 until positionList.size - 1) {
-            // Перевод координат столбов в минуты, секунды..
-            val markLatPosList = decDegToDegMinSec(positionList[counter].latitude)
-            val markLatDeg: Int = markLatPosList[0]
-            val markLatMin: Int = markLatPosList[1]
-            //val markLatSec: Int = markLatPosList[2]
-
-            val markLongPosList = decDegToDegMinSec(positionList[counter].longitude)
-            val markLongDeg: Int = markLongPosList[0]
-            val markLongMin: Int = markLongPosList[1]
-            //val markLongSec: Int = markLongPosList[2]
-
-            // Если координаты пользователя и столба сходятся по градусам, то продолжаем поиск
-            if (myLatDeg == markLatDeg && myLongDeg == markLongDeg && myLatMin == markLatMin && myLongMin == markLongMin) {
-                saveCounter = counter
-            } else continue
-        }
-        // Возвращает значение столба - 1, чтобы избежать ситуации, когда столб спереди
-        return if (saveCounter > 1) saveCounter - 1
-        else saveCounter
-    }
-
-
-    private fun decDegToDegMinSec(
-        decDeg: Double
-    ): List<Int> {
-        val deg = decDeg.toInt()
-        val min = ((decDeg - deg) * 60).toInt()
-        val sec = ((decDeg - deg - (min.toDouble() / 60)) * 3600).toInt()
-        return listOf<Int>(deg, min, sec)
-    }
+//    private fun findNearestMark(
+//        currentPosition: MutableList<Coordinate>,
+//        currentPositionIndex: Int,
+//        positionList: MutableList<Coordinate>
+//    ): Int {
+//
+//        // Координаты пользователя в градусах, минутах, секундах
+//        val myLatPosList = decDegToDegMinSec(currentPosition[0].latitude)
+//        val myLatDeg: Int = myLatPosList[0]
+//        val myLatMin: Int = myLatPosList[1]
+//        // val myLatSec: Int = myLatPosList[2]
+//
+//        val myLongPosList = decDegToDegMinSec(currentPosition[0].longitude)
+//        val myLongDeg: Int = myLongPosList[0]
+//        val myLongMin: Int = myLongPosList[1]
+//        //  val myLongSec: Int = myLongPosList[2]
+//
+//        // Для запоминания столба
+//        var saveCounter = 0
+//
+//        for (counter in 0 until positionList.size - 1) {
+//            // Перевод координат столбов в минуты, секунды..
+//            val markLatPosList = decDegToDegMinSec(positionList[counter].latitude)
+//            val markLatDeg: Int = markLatPosList[0]
+//            val markLatMin: Int = markLatPosList[1]
+//            //val markLatSec: Int = markLatPosList[2]
+//
+//            val markLongPosList = decDegToDegMinSec(positionList[counter].longitude)
+//            val markLongDeg: Int = markLongPosList[0]
+//            val markLongMin: Int = markLongPosList[1]
+//            //val markLongSec: Int = markLongPosList[2]
+//
+//            // Если координаты пользователя и столба сходятся по градусам, то продолжаем поиск
+//            if (myLatDeg == markLatDeg && myLongDeg == markLongDeg && myLatMin == markLatMin && myLongMin == markLongMin) {
+//                saveCounter = counter
+//            } else continue
+//        }
+//        // Возвращает значение столба - 1, чтобы избежать ситуации, когда столб спереди
+//        return if (saveCounter > 1) saveCounter - 1
+//        else saveCounter
+//    }
 
 
     // Для поиска расстояния от начала координат до проекции столбов
@@ -109,8 +99,7 @@ internal class GeoLibTest {
     fun geoLibKilometersCalc(
         axis: MutableList<Coordinate>,
         distanceMarks: MutableList<Coordinate>,
-        markNum: Int,
-        //  myPosition: MutableList<Coordinate>
+        markNum: Int
     ) {
         // Для сохранения расстояний до столба
         var lengthToColumn: Double
@@ -145,17 +134,19 @@ internal class GeoLibTest {
                     distanceMarks[markNum].longitude
                 ).s12
 
-            // Считаем длину суммарную длину дороги между вершинами
+            // Считаем длину дороги между двумя вершинами
             currentRoadLength = Geodesic.WGS84.Inverse(
                 axis[counter].latitude,
                 axis[counter].longitude,
                 axis[counter + 1].latitude,
                 axis[counter + 1].longitude
             ).s12
+
+            // Считаем суммарную длину дороги между вершинами
             totalRoadLength += currentRoadLength
 
-            *//* Если найденное расстояние меньше того, что было, то сохраняем его с длиной
-                участков дороги (от данной вершины до следующей и от данной вершины до предыдущей) *//*
+            /* Если найденное расстояние меньше того, что было, то сохраняем его с длиной
+                участков дороги (от данной вершины до следующей и от данной вершины до предыдущей) */
             if (lengthToColumn < minLengthToColumn) {
 
                 // Сохранение текущего состояния
@@ -171,7 +162,7 @@ internal class GeoLibTest {
 
                 // Длина текущего отрезка дороги
                 nextSectionRoadLength = currentRoadLength
-               // println(counter)
+
                 if (counter > 0) {
                     // Длина предыдущего отрезка
                     previousSectionRoadLength = Geodesic.WGS84.Inverse(
@@ -200,7 +191,7 @@ internal class GeoLibTest {
             ((minLengthToColumn.pow(2) + nextSectionRoadLength.pow(2) - nextLengthToColumn.pow(
                 2
             )) / 2 * minLengthToColumn * nextSectionRoadLength)
-        val nprefCosinus: Double =
+        val prevCosinus: Double =
             ((minLengthToColumn.pow(2) + previousSectionRoadLength.pow(2) - previousLengthToColumn.pow(
                 2
             )) / 2 * minLengthToColumn * previousSectionRoadLength)
@@ -256,9 +247,16 @@ internal class GeoLibTest {
                     "\nOffset: $offset\n"
         )
         println(
-            " ${Geodesic.WGS84.Direct(distanceMarks[1].latitude, distanceMarks[1].longitude,asin(projection/minLengthToColumn), offset).lat2}\n "+
-            "${Geodesic.WGS84.Direct(distanceMarks[1].latitude, distanceMarks[1].longitude,asin(projection/minLengthToColumn), offset).lon2} "
+            " ${Geodesic.WGS84.Direct(distanceMarks[0].latitude, distanceMarks[0].longitude,asin(projection/minLengthToColumn), offset).lat2}\n "+
+            "${Geodesic.WGS84.Direct(distanceMarks[0].latitude, distanceMarks[0].longitude,asin(projection/minLengthToColumn), offset).lon2}"
         )
+
+        println(
+            " ${Geodesic.WGS84.Direct(distanceMarks[0].latitude, distanceMarks[0].longitude,asin(projection/minLengthToColumn), offset).lat2}\n "+
+                    "${Geodesic.WGS84.Direct(distanceMarks[0].latitude, distanceMarks[0].longitude,asin(projection/minLengthToColumn), offset).lon2}"
+        )
+        println("$minLengthToColumn")
+
 
     }
 
@@ -283,7 +281,7 @@ internal class GeoLibTest {
 
     private fun convertMeterToKilometer(meters: Double): Int {
         return (meters / 1000).toInt()
-    }*/
+    }
 
 }
 

@@ -224,6 +224,8 @@ internal class GeoCalcTest {
                     previousSectionRoadLength,
                 )
             } else println("Невозможно рассчитать КМ+М для данного столба.")
+            lengthOfColumn.add(totalLengthOfRoadToColumn)
+
             println(
                 "КМ+М: ${convertMeterToKilometer(totalLengthOfRoadToColumn)} +" +
                         " ${
@@ -234,6 +236,8 @@ internal class GeoCalcTest {
                         } " +
                         "\nOffset: ${offset.toInt()}\n"
             )
+
+
             columnProjectionLat = Geodesic.WGS84.Direct(
                 distanceMarks[1].latitude,
                 distanceMarks[1].longitude,
