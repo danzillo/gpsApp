@@ -31,15 +31,13 @@ internal class GeoLibTest {
 
     @Test
     fun testGeoLibPoints() {
-        // println(findNearPoint(axis, distanceMarks).get(0).length)
-        // geoLibKilometersCalc(axis, distanceMarks)
-        // println(columnMap[1])
-        //  checkCloseMark(myPosition, columnMap)
-        findNearPoint(axis, distanceMarks)
-        println(lengthAndIndex.get(3).lastIndex)
+        // Считаем все данные
+        geoLibKilometersCalc(axis, distanceMarks)
+        // Находим КМ
+        checkCloseMark(myPosition, marksProjectionCoord)
     }
 
-    // Поиск длины между столбами и точки
+/*    // Поиск длины между столбами и точки
     private fun swiftAndOffset(axis: MutableList<Coordinate>, point: MutableList<Coordinate>) {
         // Для сохранения расстояний до столба
         var lengthToColumn: Double
@@ -98,8 +96,8 @@ internal class GeoLibTest {
                 // Считаем суммарную длину дороги между вершинами
                 totalRoadLength += currentRoadLength
 
-                /* Если найденное расстояние меньше того, что было, то сохраняем его с длиной
-                    участков дороги (от данной вершины до следующей и от данной вершины до предыдущей) */
+                *//* Если найденное расстояние меньше того, что было, то сохраняем его с длиной
+                    участков дороги (от данной вершины до следующей и от данной вершины до предыдущей) *//*
                 if (lengthToColumn < minLengthToColumn) {
 
                     // Сохранение текущего состояния
@@ -241,11 +239,10 @@ internal class GeoLibTest {
                     // println(lengthToPoint)
                 }
             }
-
             lengthAndIndex.add(LengthAndIndex(nearPoint, lengthToPoint))
         }
         return lengthAndIndex
-    }
+    }*/
 
     // Для поиска расстояния от начала координат до проекции столбов
     // получает координаты дороги и конкретный километровый столб
@@ -269,6 +266,8 @@ internal class GeoLibTest {
         var previousSectionRoadLength = 0.0
         var prevAzimuth = 0.0
         var azimuth = 0.0
+        var columnLat = 0.0
+        var columnLong = 0.0
 
         var projection: Double = 0.0
 
@@ -317,8 +316,6 @@ internal class GeoLibTest {
                     // Сохранение текущего состояния
                     minLengthToColumn = lengthToColumn
 
-                    axisDiv
-
                     // Длина до столба от следующей вершины
                     nextLengthToColumn = Geodesic.WGS84.Inverse(
                         axis[counter + 1].latitude,
@@ -360,7 +357,7 @@ internal class GeoLibTest {
                     lengthOfRoadToColumnVertex = totalRoadLength - nextSectionRoadLength
 
                     // Записываем координату ближайшей точки к столбу и ее азимут (для 2ух участков)
-                    columnMap[markNum] = Column(
+                    vertexCoordinate[markNum] = VertexCoordinate(
                         axis[counter].longitude,
                         axis[counter].latitude,
                         Geodesic.WGS84.Inverse(
@@ -371,6 +368,9 @@ internal class GeoLibTest {
                         ).azi1,
                         prevAzimuth
                     )
+
+                    // Записываем индекс ближайшего столба
+                    axisDiv[markNum] = AxisDiv(counter, lengthOfRoadToColumnVertex)
                 }
             }
 
@@ -380,6 +380,7 @@ internal class GeoLibTest {
                     2
                 )) / 2 * minLengthToColumn * nextSectionRoadLength)
 
+            // В зависимости от значения косинуса рассчитываем проекцию столба и ее смещение
             if (nextCosinus >= 0.0 && nextSectionRoadLength != 0.0) {
                 projection = findProjectionLength(
                     minLengthToColumn,
@@ -395,8 +396,8 @@ internal class GeoLibTest {
                     minLengthToColumn,
                     nextSectionRoadLength,
                 )
-                azimuth = columnMap[markNum]?.azimuthNext!!
-                columnMap[markNum]?.azimuthPrev = 0.0
+                azimuth = vertexCoordinate[markNum]?.azimuthNext!!
+                vertexCoordinate[markNum]?.azimuthPrev = 0.0
             } else if (nextCosinus < 0.0 && previousSectionRoadLength != 0.0) {
                 projection = findProjectionLength(
                     minLengthToColumn,
@@ -412,8 +413,11 @@ internal class GeoLibTest {
                     minLengthToColumn,
                     previousSectionRoadLength,
                 )
-                azimuth = columnMap[markNum]?.azimuthPrev!!
-                columnMap[markNum]?.azimuthNext = 0.0
+                axisDiv[markNum] =
+                    axisDiv[markNum]?.let { AxisDiv(it.lastCoordIndex - 1, it.length) }!!
+                // println(   axisDiv[markNum]?.lastCoord)
+                azimuth = vertexCoordinate[markNum]?.azimuthPrev!!
+                vertexCoordinate[markNum]?.azimuthNext = 0.0
             } else println("Невозможно рассчитать КМ+М для данного столба.")
 
             println(
@@ -436,31 +440,34 @@ internal class GeoLibTest {
                         "\nOffset: $offset"
             )
 
-            println(
-                "Широта проекции: ${
-                    columnMap[markNum]?.let {
-                        Geodesic.WGS84.Direct(
-                            it.latitude,
-                            it.longitude,
-                            azimuth,
-                            projection
-                        ).lat2
-                    }
-                }\n" +
-                        "Долгота проеции: ${
-                            columnMap[markNum]?.let {
-                                Geodesic.WGS84.Direct(
-                                    it.latitude,
-                                    it.longitude,
-                                    azimuth,
-                                    projection
-                                ).lon2
-                            }
-                        }\n"
+            columnLat = vertexCoordinate[markNum]?.let {
+                Geodesic.WGS84.Direct(
+                    it.latitude,
+                    it.longitude,
+                    azimuth,
+                    projection,
+                ).lat2
+            }!!
+
+            columnLong = vertexCoordinate[markNum]?.let {
+                Geodesic.WGS84.Direct(
+                    it.latitude,
+                    it.longitude,
+                    azimuth,
+                    projection
+                ).lon2
+            }!!
+
+            marksProjectionCoord[markNum] = MarksProjectionCoord(
+                columnLat, columnLong, totalLengthOfRoadToColumn, offset
             )
+            axisDiv[markNum]?.let { println(it.lastCoordIndex) }
         }
     }
 
+    private fun findMeters(axisDiv: AxisDiv, point: Coordinate, marksProjectionCoord: MarksProjectionCoord){
+
+    }
 
     // Функция для нахождения смещения от дороги
     private fun findOffset(
@@ -488,7 +495,7 @@ internal class GeoLibTest {
     // Ищет 2 ближайших столбика к положению пользователя
     private fun checkCloseMark(
         myPos: MutableList<Coordinate>,
-        column: MutableMap<Int, Column>
+        column: MutableMap<Int, MarksProjectionCoord>
     ) {
         var firstColumn = 0
         var secondColumn = 0

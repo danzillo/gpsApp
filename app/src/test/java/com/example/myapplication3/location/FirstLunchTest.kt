@@ -1,3 +1,4 @@
+/*
 package com.example.myapplication3.location
 
 import net.sf.geographiclib.Geodesic
@@ -5,7 +6,7 @@ import org.junit.Test
 import kotlin.math.pow
 
 class FirstLunchTest {
-    /*    fun saveVertexColumn() {
+    fun saveVertexColumn() {
             // Ключ - значение для вершины i будем записывать номер столба
             for (markCounter in 0 until distanceMarks.lastIndex) {
                 lengthToColumn = Double.MAX_VALUE
@@ -24,7 +25,8 @@ class FirstLunchTest {
             }
 
 
-        }*/
+        }
+
     @Test
     fun saveVertexColumn() {
         // Для сохранения длин до столба
@@ -66,8 +68,9 @@ class FirstLunchTest {
                         distanceMarks[markCounter].longitude
                     ).s12
 
-                /* Если найденное расстояние меньше того, что было, то сохраняем его с длиной
-                    участков дороги (от данной вершины до следующей и от данной вершины до предыдущей) */
+ Если найденное расстояние меньше того, что было, то сохраняем его с длиной
+                    участков дороги (от данной вершины до следующей и от данной вершины до предыдущей)
+
                 if (lengthToColumn < minLengthToColumn) {
                     minLengthToColumn = lengthToColumn
 
@@ -101,3 +104,4 @@ class FirstLunchTest {
         println(lengthOfColumn.get(0))
     }
 }
+*/

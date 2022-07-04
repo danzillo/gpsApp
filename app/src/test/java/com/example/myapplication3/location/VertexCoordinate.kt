@@ -1,6 +1,6 @@
 package com.example.myapplication3.location
 
-class ClosePointData(
+class VertexCoordinate(
     var longitude: Double,
     var latitude: Double,
     var azimuthNext: Double,
@@ -8,4 +8,4 @@ class ClosePointData(
 )
 
 //List
-val closeCoordToColumnMap = mutableMapOf<Int, ClosePointData>()
+val vertexCoordinate = mutableMapOf<Int, VertexCoordinate>()

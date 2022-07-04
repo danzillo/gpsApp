@@ -5,12 +5,10 @@ class Coordinate(
     var latitude: Double
 )
 
-// Здесь будем хранить общую длину дороги
-var totalLength: Double = 0.0
-
 // Для хранения координат столбов
 val distanceMarks = mutableListOf(
     Coordinate(84.9398207016564, 56.4471399261583), // 1 - ЛЭП (0+804; 1+000)
+    Coordinate(84.9398207016564, 56.4471399261584), // 1 - ЛЭП (0+804; 1+000)
     Coordinate(84.9547917282365, 56.4429847327726), // 2 - дерево (1+1068; 2+000)
     Coordinate(84.9579233722567, 56.4330278731898),  // 3 - начало дач (2+1133; 3+000)
 )
@@ -108,32 +106,3 @@ val axis = mutableListOf(
     Coordinate(84.959451326407887, 56.42803768381803309),
     Coordinate(84.95967869836461261, 56.42771851401826666)
 )
-
-class Column(
-    var columnNumber: Int,
-    var longitude: Double,
-    var latitude: Double,
-    var offset: Double
-)
-
-// Хранит информацию о пересечении проекции столба с дорогой
-val column = mutableListOf<Column>()
-
-var lengthOfColumn = arrayListOf<Double>()
-var lengthfd = mapOf<Int, Int>()
-
-class ColumnNum(
-    var columnNumber: Int,
-    var vertexNum: Int
-)
-
-
-class AxisSegment(
-    var axisNumber: Int,
-    var length: Double,
-    var azimut: Double
-)
-
-// Для хранения длин сегментов и их направлений
-val axisSegment = mutableListOf<AxisSegment>()
-
