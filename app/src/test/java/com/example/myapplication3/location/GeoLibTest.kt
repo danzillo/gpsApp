@@ -2,7 +2,6 @@ package com.example.myapplication3.location
 
 import org.junit.Test
 import net.sf.geographiclib.*
-import org.junit.Assert.assertEquals
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -18,11 +17,23 @@ internal class GeoLibTest {
         findMeters(axisDiv, axis, checkCloseMark(myPosition, marksProjectionCoord))
     }
 
+    private fun geoLibKilometersCalc(
+        axis: MutableList<Coordinate>,
+        point: Coordinate
+    ): ShiftAndOffset {
+        TODO()
+    }
+
+    class ShiftAndOffset(
+        val crossPoint: Coordinate,
+        val offset: Double
+    )
+
     // Для поиска расстояния от начала координат до проекции столбов
     // получает координаты дороги и конкретный километровый столб
     private fun geoLibKilometersCalc(
         axis: MutableList<Coordinate>,
-        point: MutableList<Coordinate>
+        distanceMarks: MutableList<Coordinate>
     ) {
         // Для сохранения расстояний до столба
         var lengthToColumn: Double
@@ -45,7 +56,7 @@ internal class GeoLibTest {
 
         var projection: Double = 0.0
 
-        for (markNum in 0 until point.lastIndex + 1) {
+        for (markNum in 0 until distanceMarks.lastIndex + 1) {
             // Для сохранения расстояний до столба
             minLengthToColumn = Double.MAX_VALUE
             nextLengthToColumn = 0.0
@@ -68,8 +79,8 @@ internal class GeoLibTest {
                     Geodesic.WGS84.Inverse(
                         axis[counter].latitude,
                         axis[counter].longitude,
-                        point[markNum].latitude,
-                        point[markNum].longitude
+                        distanceMarks[markNum].latitude,
+                        distanceMarks[markNum].longitude
                     ).s12
 
                 // Считаем длину дороги между двумя вершинами
@@ -94,8 +105,8 @@ internal class GeoLibTest {
                     nextLengthToColumn = Geodesic.WGS84.Inverse(
                         axis[counter + 1].latitude,
                         axis[counter + 1].longitude,
-                        point[markNum].latitude,
-                        point[markNum].longitude
+                        distanceMarks[markNum].latitude,
+                        distanceMarks[markNum].longitude
                     ).s12
 
                     // Длина текущего отрезка дороги
@@ -115,8 +126,8 @@ internal class GeoLibTest {
                             Geodesic.WGS84.Inverse(
                                 axis[counter - 1].latitude,
                                 axis[counter - 1].longitude,
-                                point[markNum].latitude,
-                                point[markNum].longitude
+                                distanceMarks[markNum].latitude,
+                                distanceMarks[markNum].longitude
                             ).s12
 
                         prevAzimuth = Geodesic.WGS84.Inverse(
