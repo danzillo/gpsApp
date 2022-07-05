@@ -110,10 +110,13 @@ internal class GeoLibTest {
         //TODO: Учесть «слепой угол»
         //TODO: Проверить гипотезу о соотношении сторон треугольника c'=c * a/(a+b) <- neponyatno
         //TODO: Пытался понять гипотезу выше, не нашел подобного доказательства
+        //TODO: Уточнить углы, ибо они меняются от 180 до -180
 
         // Определяем угол между следующим сегментом оси и вектором на исходную точку
         // для последующего определения способа расчёта смещения и его знака
+        println(  "first azimuth ${segmentData[numOfMinVertex].azi1}  second azimuth"+ pointData[numOfMinVertex].azi1 )
         val angleBtSegPoint = segmentData[numOfMinVertex].azi1 - pointData[numOfMinVertex].azi1
+        val angleBtSegPoint =
         if (angleBtSegPoint < 90 && angleBtSegPoint >= 270) {
             // Пересечение перпендикуляра на сегменте (наверное)
 
