@@ -9,8 +9,9 @@ internal class GeoLibTest {
 
     @Test
     fun testGeoLibPoints() {
-        shiftAndOffsetCalc(axis, myPosition[0])
-       println(shiftAndOffsetCalc(axis, myPosition[0]).crossPoint.longitude)
+        shiftAndOffsetCalc(axis, distanceMarks[0])
+       println(shiftAndOffsetCalc(axis,distanceMarks[1]).crossPoint.longitude)
+        println(shiftAndOffsetCalc(axis,distanceMarks[1]).crossPoint.latitude)
     }
 
     private fun shiftAndOffsetCalc(
@@ -90,7 +91,7 @@ internal class GeoLibTest {
             coordinateData = Geodesic.WGS84.Direct(
                 segmentData[numOfMinVertex].lat1,
                 segmentData[numOfMinVertex].lon1,
-                segmentData[numOfMinVertex - 1].azi2,
+                segmentData[numOfMinVertex - 1].azi1,
                 projection
             )
         }
