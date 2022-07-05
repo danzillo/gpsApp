@@ -9,7 +9,9 @@ internal class GeoLibTest {
 
     @Test
     fun testGeoLibPoints() {
-        //print(shiftAndOffsetCalc(axis, distanceMarks[0]).shift)
+        println(shiftAndOffsetCalc(axis, distanceMarks[0]))
+        println(shiftAndOffsetCalc(axis, distanceMarks[1]))
+        println(shiftAndOffsetCalc(axis, distanceMarks[2]))
         println(roadKilometerSegment(axis, distanceMarks[0]).kmLength)
         println(roadKilometerSegment(axis, distanceMarks[1]).kmLength)
         println(
@@ -116,7 +118,11 @@ internal class GeoLibTest {
         // для последующего определения способа расчёта смещения и его знака
         println(  "first azimuth ${segmentData[numOfMinVertex].azi1}  second azimuth"+ pointData[numOfMinVertex].azi1 )
         val angleBtSegPoint = segmentData[numOfMinVertex].azi1 - pointData[numOfMinVertex].azi1
-        val angleBtSegPoint =
+        val angleBtSegPoint2 = ((minLengthToPoint.pow(2) +  segmentData[numOfMinVertex].s12.pow(2) -  pointData[numOfMinVertex + 1].s12.pow(
+            2
+        )) /( 2 * minLengthToPoint *  segmentData[numOfMinVertex].s12))
+
+        println("$angleBtSegPoint vtoroi angle $angleBtSegPoint2")
         if (angleBtSegPoint < 90 && angleBtSegPoint >= 270) {
             // Пересечение перпендикуляра на сегменте (наверное)
 
