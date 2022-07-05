@@ -1,7 +1,7 @@
 package com.example.myapplication3.location
 
-import org.junit.Test
 import net.sf.geographiclib.*
+import org.junit.Test
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -10,8 +10,6 @@ internal class GeoLibTest {
     @Test
     fun testGeoLibPoints() {
         shiftAndOffsetCalc(axis, distanceMarks[0])
-       println(shiftAndOffsetCalc(axis,distanceMarks[1]).crossPoint.longitude)
-        println(shiftAndOffsetCalc(axis,distanceMarks[1]).crossPoint.latitude)
     }
 
     private fun shiftAndOffsetCalc(
@@ -91,11 +89,11 @@ internal class GeoLibTest {
             coordinateData = Geodesic.WGS84.Direct(
                 segmentData[numOfMinVertex].lat1,
                 segmentData[numOfMinVertex].lon1,
-                segmentData[numOfMinVertex - 1].azi1,
+                segmentData[numOfMinVertex - 1].azi2+180,
                 projection
             )
         }
-        return ShiftAndOffset(Coordinate(coordinateData.lon1, coordinateData.lat1), offset)
+        return ShiftAndOffset(Coordinate(coordinateData.lon2, coordinateData.lat2), offset)
     }
 
 }
@@ -104,6 +102,8 @@ class ShiftAndOffset(
     val crossPoint: Coordinate,
     val offset: Double
 )
+
+
 
 // Для поиска расстояния от начала координат до проекции столбов
 // получает координаты дороги и конкретный километровый столб
