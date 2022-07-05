@@ -2,6 +2,8 @@ package com.example.myapplication3.location
 
 import net.sf.geographiclib.*
 import org.junit.Test
+import java.lang.Math.acos
+import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 
@@ -9,17 +11,7 @@ internal class GeoLibTest {
 
     @Test
     fun testGeoLibPoints() {
-        println(shiftAndOffsetCalc(axis, distanceMarks[0]))
-        println(shiftAndOffsetCalc(axis, distanceMarks[1]))
-        println(shiftAndOffsetCalc(axis, distanceMarks[2]))
-        println(roadKilometerSegment(axis, distanceMarks[0]).kmLength)
-        println(roadKilometerSegment(axis, distanceMarks[1]).kmLength)
-        println(
-            roadKilometerSegment(axis, distanceMarks[1]).kmLength - roadKilometerSegment(
-                axis,
-                distanceMarks[0]
-            ).kmLength
-        )
+        println(shiftAndOffsetCalc(axis, distanceMarks[0]).offset)
     }
 
     private fun roadKilometerSegment(
@@ -40,6 +32,7 @@ internal class GeoLibTest {
 
         // Сохраняем все вершины для участка дороги между км столбами
         for (axisCounter in prevPoint..kmShiftAndOffset.minVertex) {
+            println(axis[axisCounter])
             segment.add(axis[axisCounter])
         }
 
@@ -96,16 +89,17 @@ internal class GeoLibTest {
                         axis[axisCounter + 1].longitude
                     )
                 )
-
-                currentLength += segmentData[axisCounter].s12
                 // Находим минимальное расстояние между двумя вершинами
-                if (minLengthToPoint > segmentData[axisCounter].s12) {
-                    minLengthToPoint = segmentData[axisCounter].s12
+                if (minLengthToPoint > pointData[axisCounter].s12) {
+                    minLengthToPoint = pointData[axisCounter].s12
                     numOfMinVertex = axisCounter
 
                     // Считаем длину от 0 до точки в близи столба
                     totalLengthBtSegment = currentLength
+                    println(totalLengthBtSegment)
                 }
+                // Общая длина складывается из текущей длины участка
+                currentLength += segmentData[axisCounter].s12
             }
         }
 
@@ -116,13 +110,11 @@ internal class GeoLibTest {
 
         // Определяем угол между следующим сегментом оси и вектором на исходную точку
         // для последующего определения способа расчёта смещения и его знака
-        println(  "first azimuth ${segmentData[numOfMinVertex].azi1}  second azimuth"+ pointData[numOfMinVertex].azi1 )
-        val angleBtSegPoint = segmentData[numOfMinVertex].azi1 - pointData[numOfMinVertex].azi1
-        val angleBtSegPoint2 = ((minLengthToPoint.pow(2) +  segmentData[numOfMinVertex].s12.pow(2) -  pointData[numOfMinVertex + 1].s12.pow(
-            2
-        )) /( 2 * minLengthToPoint *  segmentData[numOfMinVertex].s12))
+        val angleBtSegPoint =
+            (segmentData[numOfMinVertex].azi1 + 180 - pointData[numOfMinVertex].azi1 + 180)
+        // val angleBtSegPoint2 =  ((minLengthToPoint.pow(2) + segmentData[numOfMinVertex].s12.pow(2) - pointData[numOfMinVertex + 1].s12.pow(2)) / (2 * minLengthToPoint * segmentData[numOfMinVertex].s12))
 
-        println("$angleBtSegPoint vtoroi angle $angleBtSegPoint2")
+        // println("$angleBtSegPoint vtoroi angle $angleBtSegPoint2")
         if (angleBtSegPoint < 90 && angleBtSegPoint >= 270) {
             // Пересечение перпендикуляра на сегменте (наверное)
 
