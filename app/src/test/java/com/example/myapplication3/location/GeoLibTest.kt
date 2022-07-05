@@ -9,27 +9,26 @@ internal class GeoLibTest {
 
     @Test
     fun testGeoLibPoints() {
-        // Считаем все данные
-        geoLibKilometersCalc(axis, distanceMarks)
-        // Находим КМ
-        checkCloseMark(myPosition, marksProjectionCoord)
+        shiftAndOffsetCalc(axis, myPosition[0])
+        /* // Считаем все данные
+         geoLibKilometersCalc(axis, distanceMarks)
+         // Находим КМ
+         checkCloseMark(myPosition, marksProjectionCoord)
 
-        findMeters(axisDiv, axis, checkCloseMark(myPosition, marksProjectionCoord))
+         findMeters(axisDiv, axis, checkCloseMark(myPosition, marksProjectionCoord))*/
     }
 
-    private fun geoLibKilometersCalc(
+    private fun shiftAndOffsetCalc(
         axis: MutableList<Coordinate>,
         point: Coordinate
     ): ShiftAndOffset {
         var minLengthToColumn = Double.MAX_VALUE
         var numOfMinColumn = 0
-        var prevLengthToColumn: Double
-        val nextLengthToColumn: Double
-        //var lengthToColumn: Double
         val lengthToColumn = mutableListOf<Double>()
+        val segmentLength = mutableListOf<Double>()
 
         // Считаем и записываем все расстояния от вершины до столба
-        for (axisCounter in 0 until axis.lastIndex) {
+        for (axisCounter in 0 until axis.lastIndex + 1) {
             lengthToColumn.add(
                 Geodesic.WGS84.Inverse(
                     axis[axisCounter].latitude,
@@ -38,6 +37,17 @@ internal class GeoLibTest {
                     point.longitude
                 ).s12
             )
+
+            if (axisCounter < axis.lastIndex)
+            // Длина оси между вершинами
+                segmentLength.add(
+                    Geodesic.WGS84.Inverse(
+                        axis[axisCounter].latitude,
+                        axis[axisCounter].longitude,
+                        axis[axisCounter + 1].latitude,
+                        axis[axisCounter + 1].longitude
+                    ).s12
+                )
         }
 
         // Находим минимальное расстояние между двумя вершинами
@@ -49,11 +59,14 @@ internal class GeoLibTest {
         }
 
         // Определяем косинус для последующего определения смещения + или -
-        val cosinus: Double =
-            ((minLengthToColumn.pow(2) + nextSectionRoadLength.pow(2) - lengthToColumn[numOfMinColumn].pow(
+        val cosBtSegCol: Double =
+            ((minLengthToColumn.pow(2) + segmentLength[numOfMinColumn].pow(2) - lengthToColumn[numOfMinColumn+1].pow(
                 2
-            )) / 2 * minLengthToColumn * nextSectionRoadLength)
+            )) / 2 * minLengthToColumn * segmentLength[numOfMinColumn])
 
+        println("COS: "+cosBtSegCol)
+
+        return ShiftAndOffset(Coordinate(84.95657856918512607, 56.43811916896690661), 1.0)
     }
 
 }
@@ -523,5 +536,4 @@ private fun findProjectionLength(
 
 private fun convertMeterToKilometer(meters: Double): Int {
     return (meters / 1000).toInt()
-}
 }
