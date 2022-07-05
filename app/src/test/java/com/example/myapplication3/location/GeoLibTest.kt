@@ -25,8 +25,11 @@ internal class GeoLibTest {
         var minLengthToColumn = Double.MAX_VALUE
         var numOfMinColumn = 0
         val lengthToColumn = mutableListOf<Double>()
-        val segmentLength = mutableListOf<Double>()
-
+        //val segmentLength = mutableListOf<Double>()
+        val segmentData = mutableListOf<GeodesicData>()
+        val azimuth = mutableListOf<Double>()
+        val projection: Double
+        val offset: Double
         // Считаем и записываем все расстояния от вершины до столба
         for (axisCounter in 0 until axis.lastIndex + 1) {
             lengthToColumn.add(
@@ -40,13 +43,13 @@ internal class GeoLibTest {
 
             if (axisCounter < axis.lastIndex)
             // Длина оси между вершинами
-                segmentLength.add(
+                segmentData.add(
                     Geodesic.WGS84.Inverse(
                         axis[axisCounter].latitude,
                         axis[axisCounter].longitude,
                         axis[axisCounter + 1].latitude,
                         axis[axisCounter + 1].longitude
-                    ).s12
+                    )
                 )
         }
 
@@ -60,13 +63,32 @@ internal class GeoLibTest {
 
         // Определяем косинус для последующего определения смещения + или -
         val cosBtSegCol: Double =
-            ((minLengthToColumn.pow(2) + segmentLength[numOfMinColumn].pow(2) - lengthToColumn[numOfMinColumn+1].pow(
+            ((minLengthToColumn.pow(2) + segmentData[numOfMinColumn].s12.pow(2) - lengthToColumn[numOfMinColumn + 1].pow(
                 2
-            )) / 2 * minLengthToColumn * segmentLength[numOfMinColumn])
+            )) / (2 * minLengthToColumn * segmentData[numOfMinColumn].s12))
 
-        println("COS: "+cosBtSegCol)
+        if (cosBtSegCol > 0) {
+            offset = findOffset(
+                lengthToColumn[numOfMinColumn + 1],
+                minLengthToColumn,
+                segmentData[numOfMinColumn].s12
+            )
 
-        return ShiftAndOffset(Coordinate(84.95657856918512607, 56.43811916896690661), 1.0)
+            projection = findProjectionLength(
+                minLengthToColumn, offset
+            )
+        } else {
+            offset = findOffset(
+                lengthToColumn[numOfMinColumn - 1],
+                minLengthToColumn,
+                segmentData[numOfMinColumn - 1].s12
+            )
+
+            projection = findProjectionLength(
+                minLengthToColumn, offset
+            )
+        }
+        return ShiftAndOffset(Coordinate(84.95657856918512607, 56.43811916896690661), offset)
     }
 
 }

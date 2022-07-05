@@ -15,7 +15,7 @@ val distanceMarks = mutableListOf(
 
 // Для хранения своих координат
 val myPosition = mutableListOf(
-    Coordinate(84.95483404200479, 56.44270512152631)
+    Coordinate(84.933032, 56.449165)
 )
 
 // Для хранения координат вершин дороги
