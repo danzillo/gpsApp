@@ -24,28 +24,29 @@ internal class GeoLibTest {
 
         // Находим координаты проекции столба, ближайшую вершину(слева от столба)
         // смещение и расстояние до проекции
-        val kmArea: ShiftAndOffset = shiftAndOffsetCalc(
+        val kmShiftAndOffset: ShiftAndOffset = shiftAndOffsetCalc(
             axis,
-            Coordinate(kmPoint.longitude, kmPoint.latitude)
+            kmPoint
         )
 
-        for (axisCounter in prevPoint until kmArea.minVertex + 1) {
+        // Сохраняем все вершины для участка дороги между км столбами
+        for (axisCounter in prevPoint..kmShiftAndOffset.minVertex) {
             segment.add(axis[axisCounter])
         }
 
-        // Записываем все вершины для сегмента дороги между км столбами
-        segment.add(kmArea.crossPoint)
+        // Добавляем точку пересечения с перпендикуляром от км столба
+        segment.add(kmShiftAndOffset.crossPoint)
 
         // Расстояние от начала до проекции
-        kmLength = kmArea.shift
+        kmLength = kmShiftAndOffset.shift
 
         // Прошлая точка около столба
-        prevPoint = kmArea.minVertex
+        prevPoint = kmShiftAndOffset.minVertex
         return RoadKmSegment(segment, kmLength, prevPoint)
     }
 
     class RoadKmSegment(
-        val segement: MutableList<Coordinate>,
+        val segment: MutableList<Coordinate>,
         val kmLength: Double,
         val point: Int
     )
@@ -63,9 +64,10 @@ internal class GeoLibTest {
         val coordinateData: GeodesicData // Хранит инф. о координатах проекции столба
         var offset: Double // Инфо о смещении
         var totalLength = 0.0
-        for (axisCounter in 0 until axis.lastIndex + 1) {
 
-            // Считаем и сохраняем все данные от вершины до столба
+        for (axisCounter in 0..axis.lastIndex) {
+
+            // Считаем и сохраняем все данные (азимут, расстояние от вершины до столба
             pointData.add(
                 Geodesic.WGS84.Inverse(
                     axis[axisCounter].latitude,
@@ -75,8 +77,8 @@ internal class GeoLibTest {
                 )
             )
 
-            if (axisCounter < axis.lastIndex)
-            // Считаем и сохраняем все данные от вершины до вершины
+            if (axisCounter < axis.lastIndex) {
+                // Считаем и сохраняем все данные от вершины до вершины
                 segmentData.add(
                     Geodesic.WGS84.Inverse(
                         axis[axisCounter].latitude,
@@ -85,6 +87,7 @@ internal class GeoLibTest {
                         axis[axisCounter + 1].longitude
                     )
                 )
+            }
         }
 
         // Находим минимальное расстояние между двумя вершинами
@@ -100,16 +103,25 @@ internal class GeoLibTest {
             totalLength += segmentData[segmentCounter].s12
         }
 
-        // Определяем косинус для последующего определения способа рассчета смещения и его знака
-        val cosBtSegPoint = segmentData[numOfMinVertex].azi1 - pointData[numOfMinVertex].azi1
-        if (cosBtSegPoint < 90 && cosBtSegPoint >= 270) {
+        //TODO: Учесть «слепой угол»
+        //TODO: Проверить гипотезу о соотношении сторон треугольника c'=c * a/(a+b)
+
+        // Определяем угол между следующим сегментом оси и вектором на исходную точку
+        // для последующего определения способа расчёта смещения и его знака
+        val angleBtSegPoint = segmentData[numOfMinVertex].azi1 - pointData[numOfMinVertex].azi1
+        if (angleBtSegPoint < 90 && angleBtSegPoint >= 270) {
+            // Пересечение перпендикуляра на сегменте (наверное)
+
+            // Рассчитываем ближайшее расстояние от точки до оси
             offset = findOffset(
                 pointData[numOfMinVertex + 1].s12,
                 minLengthToPoint,
                 segmentData[numOfMinVertex].s12
             )
 
-            if (cosBtSegPoint >= 270) offset = -offset
+            if (angleBtSegPoint >= 270) offset = -offset
+
+            // Рассчитываем расстояние от ближайшей вершины до пересечения
             projection = findProjectionLength(
                 minLengthToPoint, offset
             )
@@ -121,12 +133,13 @@ internal class GeoLibTest {
             )
             totalLength += projection
         } else {
+            // Пересечение перпендикуляра до сегмента
             offset = findOffset(
                 pointData[numOfMinVertex - 1].s12,
                 minLengthToPoint,
                 segmentData[numOfMinVertex - 1].s12
             )
-            if (cosBtSegPoint >= 180) offset = -offset
+            if (angleBtSegPoint >= 180) offset = -offset
             projection = findProjectionLength(
                 minLengthToPoint, offset
             )
@@ -157,7 +170,13 @@ class ShiftAndOffset(
 )
 
 
-// Функция для нахождения смещения от дороги
+/**
+ * Функция для нахождения смещения от дороги
+ * @param length - расстояние от (пред или след) вершины до столба
+ * @param lengthMin - минимальное расстояние от вершины
+ * @param lengthRoad - длина сегмента оси между двумя вершинами (одна из них - мин)
+ * @return длина перпендикуляра
+ */
 private fun findOffset(
     length: Double,
     lengthMin: Double,
