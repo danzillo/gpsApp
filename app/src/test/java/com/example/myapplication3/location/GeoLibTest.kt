@@ -22,8 +22,8 @@ internal class GeoLibTest {
         var prevPoint = 0
         val segment = mutableListOf<Coordinate>()
 
-        // Находим для каждого столба расстояние от предыдущего, точку пересечения и
-        // точки, которые принадлежат км отрезку
+        // Находим координаты проекции столба, ближайшую вершину(слева от столба)
+        // смещение и расстояние до проеции
         val kmArea: ShiftAndOffset = shiftAndOffsetCalc(
             axis,
             Coordinate(kmPoint.longitude, kmPoint.latitude)
@@ -33,9 +33,10 @@ internal class GeoLibTest {
             segment.add(axis[axisCounter])
         }
 
+        // Записываем все вершины для сегмента дороги между км столбами
         segment.add(kmArea.crossPoint)
 
-        // Расстояние от 0 до проекции
+        // Расстояние от начала до проекции
         kmLength = kmArea.shift
 
         // Прошлая точка около столба
