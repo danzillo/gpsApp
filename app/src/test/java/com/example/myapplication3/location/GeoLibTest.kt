@@ -9,44 +9,44 @@ internal class GeoLibTest {
     @Test
     fun testGeoLibPoints() {
         //print(shiftAndOffsetCalc(axis, distanceMarks[0]).shift)
-        //roadKilometerSegment(axis, distanceMarks)?.let { println( it.kmLength[1]) }
+        println(roadKilometerSegment(axis, distanceMarks[0]).kmLength)
+        println(roadKilometerSegment(axis, distanceMarks[1]).kmLength)
+        println(roadKilometerSegment(axis, distanceMarks[1]).kmLength - roadKilometerSegment(axis, distanceMarks[0]).kmLength )
     }
 
     private fun roadKilometerSegment(
         axis: MutableList<Coordinate>,
-        kmPoint: MutableList<Coordinate>
-    ): RoadKmSegment? {
-        var kmArea: ShiftAndOffset
-        var kmStart: Int
-        var kmEnd: Int
-        var kmLength: Double
-        var prevPoint: Int = 0
-        var segment = mutableListOf<Coordinate>()
-        for (kmCounter in 0 until kmPoint.lastIndex) {
-            // Находим для каждого столба расстояние от предыдущего, точку пересечения и
-            // точки, которые принадлежат км отрезку
-            kmArea = shiftAndOffsetCalc(
-                axis,
-                Coordinate(kmPoint[kmCounter].longitude, kmPoint[kmCounter].latitude)
-            )
+        kmPoint: Coordinate
+    ): RoadKmSegment {
+        val kmLength: Double
+        var prevPoint = 0
+        val segment = mutableListOf<Coordinate>()
 
-            for (axisCounter in prevPoint until kmArea.minVertex + 1) {
-                segment.add(axis[axisCounter])
-            }
+        // Находим для каждого столба расстояние от предыдущего, точку пересечения и
+        // точки, которые принадлежат км отрезку
+        val kmArea: ShiftAndOffset = shiftAndOffsetCalc(
+            axis,
+            Coordinate(kmPoint.longitude, kmPoint.latitude)
+        )
 
-            segment.add(kmArea.crossPoint)
-            // Расстояние от 0 до проекции
-            kmLength = kmArea.shift
-
-            prevPoint = kmArea.minVertex
-            return RoadKmSegment(segment, kmLength)
+        for (axisCounter in prevPoint until kmArea.minVertex + 1) {
+            segment.add(axis[axisCounter])
         }
-        return null
+
+        segment.add(kmArea.crossPoint)
+
+        // Расстояние от 0 до проекции
+        kmLength = kmArea.shift
+
+        // Прошлая точка около столба
+        prevPoint = kmArea.minVertex
+        return RoadKmSegment(segment, kmLength, prevPoint)
     }
 
     class RoadKmSegment(
         val segement: MutableList<Coordinate>,
-        val kmLength: Double
+        val kmLength: Double,
+        val point: Int
     )
 
     private fun shiftAndOffsetCalc(
