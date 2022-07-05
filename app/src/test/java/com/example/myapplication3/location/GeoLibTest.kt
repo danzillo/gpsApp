@@ -23,7 +23,7 @@ internal class GeoLibTest {
         val segment = mutableListOf<Coordinate>()
 
         // Находим координаты проекции столба, ближайшую вершину(слева от столба)
-        // смещение и расстояние до проеции
+        // смещение и расстояние до проекции
         val kmArea: ShiftAndOffset = shiftAndOffsetCalc(
             axis,
             Coordinate(kmPoint.longitude, kmPoint.latitude)
