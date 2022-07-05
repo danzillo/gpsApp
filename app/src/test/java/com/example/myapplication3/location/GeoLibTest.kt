@@ -3,6 +3,7 @@ package com.example.myapplication3.location
 import net.sf.geographiclib.*
 import org.junit.Test
 import kotlin.math.pow
+import kotlin.math.sin
 
 internal class GeoLibTest {
 
@@ -11,7 +12,12 @@ internal class GeoLibTest {
         //print(shiftAndOffsetCalc(axis, distanceMarks[0]).shift)
         println(roadKilometerSegment(axis, distanceMarks[0]).kmLength)
         println(roadKilometerSegment(axis, distanceMarks[1]).kmLength)
-        println(roadKilometerSegment(axis, distanceMarks[1]).kmLength - roadKilometerSegment(axis, distanceMarks[0]).kmLength )
+        println(
+            roadKilometerSegment(axis, distanceMarks[1]).kmLength - roadKilometerSegment(
+                axis,
+                distanceMarks[0]
+            ).kmLength
+        )
     }
 
     private fun roadKilometerSegment(
@@ -21,6 +27,7 @@ internal class GeoLibTest {
         val kmLength: Double
         var prevPoint = 0
         val segment = mutableListOf<Coordinate>()
+        val currentLength = 0.0
 
         // Находим координаты проекции столба, ближайшую вершину(слева от столба)
         // смещение и расстояние до проекции
@@ -63,8 +70,8 @@ internal class GeoLibTest {
         val projection: Double // Проекция перпендикуляра столба
         val coordinateData: GeodesicData // Хранит инф. о координатах проекции столба
         var offset: Double // Инфо о смещении
-        var totalLength = 0.0
-
+        var currentLength = 0.0
+        var totalLengthBtSegment = 0.0
         for (axisCounter in 0..axis.lastIndex) {
 
             // Считаем и сохраняем все данные (азимут, расстояние от вершины до столба
@@ -87,24 +94,22 @@ internal class GeoLibTest {
                         axis[axisCounter + 1].longitude
                     )
                 )
-            }
-        }
 
-        // Находим минимальное расстояние между двумя вершинами
-        pointData.forEachIndexed { index, element ->
-            if (minLengthToPoint > element.s12) {
-                minLengthToPoint = element.s12
-                numOfMinVertex = index
-            }
-        }
+                currentLength += segmentData[axisCounter].s12
+                // Находим минимальное расстояние между двумя вершинами
+                if (minLengthToPoint > segmentData[axisCounter].s12) {
+                    minLengthToPoint = segmentData[axisCounter].s12
+                    numOfMinVertex = axisCounter
 
-        // Считаем длину от начала до точки
-        for (segmentCounter in 0 until numOfMinVertex) {
-            totalLength += segmentData[segmentCounter].s12
+                    // Считаем длину от 0 до точки в близи столба
+                    totalLengthBtSegment = currentLength
+                }
+            }
         }
 
         //TODO: Учесть «слепой угол»
-        //TODO: Проверить гипотезу о соотношении сторон треугольника c'=c * a/(a+b)
+        //TODO: Проверить гипотезу о соотношении сторон треугольника c'=c * a/(a+b) <- neponyatno
+        //TODO: Пытался понять гипотезу выше, не нашел подобного доказательства
 
         // Определяем угол между следующим сегментом оси и вектором на исходную точку
         // для последующего определения способа расчёта смещения и его знака
@@ -131,7 +136,7 @@ internal class GeoLibTest {
                 segmentData[numOfMinVertex].azi1,
                 projection
             )
-            totalLength += projection
+            totalLengthBtSegment += projection
         } else {
             // Пересечение перпендикуляра до сегмента
             offset = findOffset(
@@ -149,13 +154,13 @@ internal class GeoLibTest {
                 segmentData[numOfMinVertex - 1].azi2 + 180,
                 projection
             )
-            totalLength -= projection
+            totalLengthBtSegment -= projection
             numOfMinVertex -= 1
         }
         return ShiftAndOffset(
             Coordinate(coordinateData.lon2, coordinateData.lat2),
             offset,
-            totalLength,
+            totalLengthBtSegment,
             numOfMinVertex
         )
     }
