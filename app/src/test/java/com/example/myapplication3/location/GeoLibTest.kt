@@ -2,33 +2,70 @@ package com.example.myapplication3.location
 
 import net.sf.geographiclib.*
 import org.junit.Test
-import kotlin.math.abs
 import kotlin.math.pow
 
 internal class GeoLibTest {
 
     @Test
     fun testGeoLibPoints() {
-        shiftAndOffsetCalc(axis, distanceMarks[0])
+        //print(shiftAndOffsetCalc(axis, distanceMarks[0]).shift)
+        //roadKilometerSegment(axis, distanceMarks)?.let { println( it.kmLength[1]) }
     }
+
+    private fun roadKilometerSegment(
+        axis: MutableList<Coordinate>,
+        kmPoint: MutableList<Coordinate>
+    ): RoadKmSegment? {
+        var kmArea: ShiftAndOffset
+        var kmStart: Int
+        var kmEnd: Int
+        var kmLength: Double
+        var prevPoint: Int = 0
+        var segment = mutableListOf<Coordinate>()
+        for (kmCounter in 0 until kmPoint.lastIndex) {
+            // Находим для каждого столба расстояние от предыдущего, точку пересечения и
+            // точки, которые принадлежат км отрезку
+            kmArea = shiftAndOffsetCalc(
+                axis,
+                Coordinate(kmPoint[kmCounter].longitude, kmPoint[kmCounter].latitude)
+            )
+
+            for (axisCounter in prevPoint until kmArea.minVertex + 1) {
+                segment.add(axis[axisCounter])
+            }
+
+            segment.add(kmArea.crossPoint)
+            // Расстояние от 0 до проекции
+            kmLength = kmArea.shift
+
+            prevPoint = kmArea.minVertex
+            return RoadKmSegment(segment, kmLength)
+        }
+        return null
+    }
+
+    class RoadKmSegment(
+        val segement: MutableList<Coordinate>,
+        val kmLength: Double
+    )
 
     private fun shiftAndOffsetCalc(
         axis: MutableList<Coordinate>,
         point: Coordinate
     ): ShiftAndOffset {
-        var minLengthToColumn =
+        var minLengthToPoint =
             Double.MAX_VALUE  // Хранит минимальное расстояние между вершиной и столбом
         var numOfMinVertex = 0 // Номер вершины от которой расстояние минимально
-        val columnData = mutableListOf<GeodesicData>() // Хранит гео-инф. о вершинах и столбах
+        val pointData = mutableListOf<GeodesicData>() // Хранит гео-инф. о вершинах и столбах
         val segmentData = mutableListOf<GeodesicData>()  // Хранит гео-инф. о вершинах
         val projection: Double // Проекция перпендикуляра столба
         val coordinateData: GeodesicData // Хранит инф. о координатах проекции столба
         var offset: Double // Инфо о смещении
-
+        var totalLength = 0.0
         for (axisCounter in 0 until axis.lastIndex + 1) {
 
             // Считаем и сохраняем все данные от вершины до столба
-            columnData.add(
+            pointData.add(
                 Geodesic.WGS84.Inverse(
                     axis[axisCounter].latitude,
                     axis[axisCounter].longitude,
@@ -50,25 +87,30 @@ internal class GeoLibTest {
         }
 
         // Находим минимальное расстояние между двумя вершинами
-        columnData.forEachIndexed { index, element ->
-            if (minLengthToColumn > element.s12) {
-                minLengthToColumn = element.s12
+        pointData.forEachIndexed { index, element ->
+            if (minLengthToPoint > element.s12) {
+                minLengthToPoint = element.s12
                 numOfMinVertex = index
             }
         }
 
+        // Считаем длину от начала до точки
+        for (segmentCounter in 0 until numOfMinVertex) {
+            totalLength += segmentData[segmentCounter].s12
+        }
+
         // Определяем косинус для последующего определения способа рассчета смещения и его знака
-        val cosBtSegCol = segmentData[numOfMinVertex].azi1 - columnData[numOfMinVertex].azi1
-        if (cosBtSegCol < 90 && cosBtSegCol >= 270) {
+        val cosBtSegPoint = segmentData[numOfMinVertex].azi1 - pointData[numOfMinVertex].azi1
+        if (cosBtSegPoint < 90 && cosBtSegPoint >= 270) {
             offset = findOffset(
-                columnData[numOfMinVertex + 1].s12,
-                minLengthToColumn,
+                pointData[numOfMinVertex + 1].s12,
+                minLengthToPoint,
                 segmentData[numOfMinVertex].s12
             )
 
-            if (cosBtSegCol >= 270) offset = -offset
+            if (cosBtSegPoint >= 270) offset = -offset
             projection = findProjectionLength(
-                minLengthToColumn, offset
+                minLengthToPoint, offset
             )
             coordinateData = Geodesic.WGS84.Direct(
                 segmentData[numOfMinVertex].lat1,
@@ -76,36 +118,69 @@ internal class GeoLibTest {
                 segmentData[numOfMinVertex].azi1,
                 projection
             )
+            totalLength += projection
         } else {
             offset = findOffset(
-                columnData[numOfMinVertex - 1].s12,
-                minLengthToColumn,
+                pointData[numOfMinVertex - 1].s12,
+                minLengthToPoint,
                 segmentData[numOfMinVertex - 1].s12
             )
-            if (cosBtSegCol >= 180) offset = -offset
+            if (cosBtSegPoint >= 180) offset = -offset
             projection = findProjectionLength(
-                minLengthToColumn, offset
+                minLengthToPoint, offset
             )
             coordinateData = Geodesic.WGS84.Direct(
                 segmentData[numOfMinVertex].lat1,
                 segmentData[numOfMinVertex].lon1,
-                segmentData[numOfMinVertex - 1].azi2+180,
+                segmentData[numOfMinVertex - 1].azi2 + 180,
                 projection
             )
+            totalLength -= projection
+            numOfMinVertex -= 1
         }
-        return ShiftAndOffset(Coordinate(coordinateData.lon2, coordinateData.lat2), offset)
+        return ShiftAndOffset(
+            Coordinate(coordinateData.lon2, coordinateData.lat2),
+            offset,
+            totalLength,
+            numOfMinVertex
+        )
     }
 
 }
 
 class ShiftAndOffset(
     val crossPoint: Coordinate,
-    val offset: Double
+    val offset: Double,
+    val shift: Double,
+    val minVertex: Int
 )
 
 
+// Функция для нахождения смещения от дороги
+private fun findOffset(
+    length: Double,
+    lengthMin: Double,
+    lengthRoad: Double,
+): Double {
+    val p = (length + lengthMin + lengthRoad) / 2
+    val square = (p * (p - length) * (p - lengthMin) * (p - lengthRoad)).pow(0.5)
+    return 2 * square / lengthRoad
+}
 
-// Для поиска расстояния от начала координат до проекции столбов
+// Функция для нахождения длины проекции
+private fun findProjectionLength(
+    lengthMin: Double,
+    height: Double,
+): Double {
+    return (lengthMin.pow(2) - height.pow(2)).pow(0.5)
+}
+
+private fun convertMeterToKilometer(meters: Double): Int {
+    return (meters / 1000).toInt()
+}
+
+
+/*// Для поиска расстояния от начала координат до проекции столбов
 // получает координаты дороги и конкретный километровый столб
 private fun geoLibKilometersCalc(
     axis: MutableList<Coordinate>,
@@ -170,8 +245,8 @@ private fun geoLibKilometersCalc(
             // Считаем суммарную длину дороги между вершинами
             totalRoadLength += currentRoadLength
 
-            /* Если найденное расстояние меньше того, что было, то сохраняем его с длиной
-                участков дороги (от данной вершины до следующей и от данной вершины до предыдущей) */
+            *//* Если найденное расстояние меньше того, что было, то сохраняем его с длиной
+                участков дороги (от данной вершины до следующей и от данной вершины до предыдущей) *//*
             if (lengthToColumn < minLengthToColumn) {
 
                 // Сохранение текущего состояния
@@ -401,8 +476,8 @@ private fun findMeters(
             // Считаем суммарную длину дороги между вершинами
             totalRoadLength += currentRoadLength
             // println(lengthToColumn)
-            /* Если найденное расстояние меньше того, что было, то сохраняем его с длиной
-                участков дороги (от данной вершины до следующей и от данной вершины до предыдущей) */
+            *//* Если найденное расстояние меньше того, что было, то сохраняем его с длиной
+                участков дороги (от данной вершины до следующей и от данной вершины до предыдущей) *//*
             if (minLengthToColumn > lengthToColumn) {
 
                 // Сохранение текущего состояния
@@ -542,27 +617,5 @@ private fun checkCloseMark(
 
     //  println(currentColumn) // new column
     return currentColumn
-}
+}*/
 
-// Функция для нахождения смещения от дороги
-private fun findOffset(
-    length: Double,
-    lengthMin: Double,
-    lengthRoad: Double,
-): Double {
-    val p = (length + lengthMin + lengthRoad) / 2
-    val square = (p * (p - length) * (p - lengthMin) * (p - lengthRoad)).pow(0.5)
-    return 2 * square / lengthRoad
-}
-
-// Функция для нахождения длины проекции
-private fun findProjectionLength(
-    lengthMin: Double,
-    height: Double,
-): Double {
-    return (lengthMin.pow(2) - height.pow(2)).pow(0.5)
-}
-
-private fun convertMeterToKilometer(meters: Double): Int {
-    return (meters / 1000).toInt()
-}
