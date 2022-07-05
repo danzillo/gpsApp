@@ -10,39 +10,36 @@ internal class GeoLibTest {
     @Test
     fun testGeoLibPoints() {
         shiftAndOffsetCalc(axis, myPosition[0])
-        /* // Считаем все данные
-         geoLibKilometersCalc(axis, distanceMarks)
-         // Находим КМ
-         checkCloseMark(myPosition, marksProjectionCoord)
-
-         findMeters(axisDiv, axis, checkCloseMark(myPosition, marksProjectionCoord))*/
+       println(shiftAndOffsetCalc(axis, myPosition[0]).crossPoint.longitude)
     }
 
     private fun shiftAndOffsetCalc(
         axis: MutableList<Coordinate>,
         point: Coordinate
     ): ShiftAndOffset {
-        var minLengthToColumn = Double.MAX_VALUE
-        var numOfMinColumn = 0
-        val lengthToColumn = mutableListOf<Double>()
-        //val segmentLength = mutableListOf<Double>()
-        val segmentData = mutableListOf<GeodesicData>()
-        val azimuth = mutableListOf<Double>()
-        val projection: Double
-        val offset: Double
-        // Считаем и записываем все расстояния от вершины до столба
+        var minLengthToColumn =
+            Double.MAX_VALUE  // Хранит минимальное расстояние между вершиной и столбом
+        var numOfMinVertex = 0 // Номер вершины от которой расстояние минимально
+        val columnData = mutableListOf<GeodesicData>() // Хранит гео-инф. о вершинах и столбах
+        val segmentData = mutableListOf<GeodesicData>()  // Хранит гео-инф. о вершинах
+        val projection: Double // Проекция перпендикуляра столба
+        val coordinateData: GeodesicData // Хранит инф. о координатах проекции столба
+        var offset: Double // Инфо о смещении
+
         for (axisCounter in 0 until axis.lastIndex + 1) {
-            lengthToColumn.add(
+
+            // Считаем и сохраняем все данные от вершины до столба
+            columnData.add(
                 Geodesic.WGS84.Inverse(
                     axis[axisCounter].latitude,
                     axis[axisCounter].longitude,
                     point.latitude,
                     point.longitude
-                ).s12
+                )
             )
 
             if (axisCounter < axis.lastIndex)
-            // Длина оси между вершинами
+            // Считаем и сохраняем все данные от вершины до вершины
                 segmentData.add(
                     Geodesic.WGS84.Inverse(
                         axis[axisCounter].latitude,
@@ -54,41 +51,50 @@ internal class GeoLibTest {
         }
 
         // Находим минимальное расстояние между двумя вершинами
-        lengthToColumn.forEachIndexed { index, element ->
-            if (minLengthToColumn > element) {
-                minLengthToColumn = element
-                numOfMinColumn = index
+        columnData.forEachIndexed { index, element ->
+            if (minLengthToColumn > element.s12) {
+                minLengthToColumn = element.s12
+                numOfMinVertex = index
             }
         }
 
-        // Определяем косинус для последующего определения смещения + или -
-        val cosBtSegCol: Double =
-            ((minLengthToColumn.pow(2) + segmentData[numOfMinColumn].s12.pow(2) - lengthToColumn[numOfMinColumn + 1].pow(
-                2
-            )) / (2 * minLengthToColumn * segmentData[numOfMinColumn].s12))
-
-        if (cosBtSegCol > 0) {
+        // Определяем косинус для последующего определения способа рассчета смещения и его знака
+        val cosBtSegCol = segmentData[numOfMinVertex].azi1 - columnData[numOfMinVertex].azi1
+        if (cosBtSegCol < 90 && cosBtSegCol >= 270) {
             offset = findOffset(
-                lengthToColumn[numOfMinColumn + 1],
+                columnData[numOfMinVertex + 1].s12,
                 minLengthToColumn,
-                segmentData[numOfMinColumn].s12
+                segmentData[numOfMinVertex].s12
             )
 
+            if (cosBtSegCol >= 270) offset = -offset
             projection = findProjectionLength(
                 minLengthToColumn, offset
+            )
+            coordinateData = Geodesic.WGS84.Direct(
+                segmentData[numOfMinVertex].lat1,
+                segmentData[numOfMinVertex].lon1,
+                segmentData[numOfMinVertex].azi1,
+                projection
             )
         } else {
             offset = findOffset(
-                lengthToColumn[numOfMinColumn - 1],
+                columnData[numOfMinVertex - 1].s12,
                 minLengthToColumn,
-                segmentData[numOfMinColumn - 1].s12
+                segmentData[numOfMinVertex - 1].s12
             )
-
+            if (cosBtSegCol >= 180) offset = -offset
             projection = findProjectionLength(
                 minLengthToColumn, offset
             )
+            coordinateData = Geodesic.WGS84.Direct(
+                segmentData[numOfMinVertex].lat1,
+                segmentData[numOfMinVertex].lon1,
+                segmentData[numOfMinVertex - 1].azi2,
+                projection
+            )
         }
-        return ShiftAndOffset(Coordinate(84.95657856918512607, 56.43811916896690661), offset)
+        return ShiftAndOffset(Coordinate(coordinateData.lon1, coordinateData.lat1), offset)
     }
 
 }
