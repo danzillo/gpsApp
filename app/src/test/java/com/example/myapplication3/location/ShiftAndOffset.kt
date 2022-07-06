@@ -82,6 +82,7 @@ fun shiftAndOffsetCalc(
     println(findAngle(segmentData[numOfMinVertex].azi2, pointData[numOfMinVertex].azi1))
 
     println(checkOffsetSymbol(segmentData[numOfMinVertex].azi2, pointData[numOfMinVertex].azi1))
+    println(checkSide(segmentData[numOfMinVertex].azi2, pointData[numOfMinVertex].azi1))
     if (angleBtSegPoint < 90 && angleBtSegPoint >= 270) {
         // Пересечение перпендикуляра на сегменте (наверное)
 
@@ -204,34 +205,38 @@ private fun checkOffsetSymbol(
 ): Boolean {
     // println("ras ${translateToFullCircle(segmentAz + 180)} dva" + translateToFullCircle(pointAz))
     if (translateToFullCircle(segmentAz + 180) > translateToFullCircle(segmentAz)) {
-        if (translateToFullCircle(segmentAz + 180) >= translateToFullCircle(pointAz) && translateToFullCircle(
-                segmentAz
-            ) <= translateToFullCircle(pointAz)
-        ) return false
-        else return true
+        return !(translateToFullCircle(segmentAz + 180) >= translateToFullCircle(pointAz) && translateToFullCircle(
+            segmentAz
+        ) <= translateToFullCircle(pointAz))
     } else (translateToFullCircle(segmentAz + 180) < translateToFullCircle(segmentAz))
-            if(translateToFullCircle(segmentAz + 180) <= translateToFullCircle(pointAz) && translateToFullCircle(
-                    segmentAz
-                ) >= translateToFullCircle(pointAz)
-            ) return false
-    else return true
-/*            return if (translateToFullCircle(segmentAz + 180) > translateToFullCircle(segmentAz))
-                return !(translateToFullCircle(segmentAz + 180) >= translateToFullCircle(pointAz) && translateToFullCircle(
-                    segmentAz
-                ) <= translateToFullCircle(pointAz))*/
+    return !(translateToFullCircle(segmentAz + 180) <= translateToFullCircle(pointAz) && translateToFullCircle(
+        segmentAz
+    ) >= translateToFullCircle(pointAz))
 }
 
 private fun checkSide(
     segmentAz: Double,
     pointAz: Double
-): Int {
-    return if (checkOffsetSymbol(segmentAz, pointAz)) {
-        if (segmentAz > pointAz && segmentAz - 90 < pointAz)
-            -1
-        else 1
-    } else if (segmentAz < pointAz && segmentAz + 90 > pointAz)
-        -1
-    else 1
+): Boolean {
+    if ((translateToFullCircle(segmentAz + 180) > translateToFullCircle(segmentAz))) {
+        if (translateToFullCircle(segmentAz + 90) > translateToFullCircle(segmentAz)) {
+            if (translateToFullCircle(segmentAz + 90) >= translateToFullCircle(pointAz) && translateToFullCircle(
+                    segmentAz
+                ) < translateToFullCircle(pointAz)
+            ) return true
+            else return false
+        }
+        if (translateToFullCircle(segmentAz + 90) < translateToFullCircle(segmentAz)) {
+            if (translateToFullCircle(segmentAz + 90) <= translateToFullCircle(pointAz) && translateToFullCircle(
+                    segmentAz
+                ) > translateToFullCircle(pointAz)
+            ) return true
+            else return false
+        }
+    } else (translateToFullCircle(segmentAz + 180) < translateToFullCircle(segmentAz))
+    return !(translateToFullCircle(segmentAz + 180) <= translateToFullCircle(pointAz) && translateToFullCircle(
+        segmentAz
+    ) >= translateToFullCircle(pointAz))
 }
 
 
