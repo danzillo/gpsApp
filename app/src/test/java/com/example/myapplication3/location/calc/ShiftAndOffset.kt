@@ -1,15 +1,17 @@
-package com.example.myapplication3.location
+package com.example.myapplication3.location.calc
 
 import net.sf.geographiclib.Geodesic
 import net.sf.geographiclib.GeodesicData
 import kotlin.math.*
 
-class ShiftAndOffset(
-    val crossPoint: Coordinate,
-    val offset: Double,
+data class ShiftAndOffset(
     val shift: Double,
+    val offset: Double,
+    val crossPoint: Coordinate,
     val minVertex: Int
-)
+) {
+    override fun toString() = "<ShiftAndOffset> {shift: $shift, offset: $offset}"
+}
 
 fun shiftAndOffsetCalc(
     axis: MutableList<Coordinate>,
@@ -25,17 +27,25 @@ fun shiftAndOffsetCalc(
     var offset: Double // Инфо о смещении
     var currentLength = 0.0
     var totalLengthBtSegment = 0.0
+
     for (axisCounter in 0..axis.lastIndex) {
 
-        // Считаем и сохраняем все данные (азимут, расстояние от вершины до столба
-        pointData.add(
-            Geodesic.WGS84.Inverse(
-                axis[axisCounter].latitude,
-                axis[axisCounter].longitude,
-                point.latitude,
-                point.longitude
-            )
+        // Считаем и сохраняем все данные (азимут, расстояние от вершины до заданной точкой
+        val geodesicData = Geodesic.WGS84.Inverse(
+            axis[axisCounter].latitude,
+            axis[axisCounter].longitude,
+            point.latitude,
+            point.longitude
         )
+        pointData.add(geodesicData)
+        // Находим минимальное расстояние между вершиной и заданной точкой
+        if (minLengthToPoint > geodesicData.s12) {
+            minLengthToPoint = geodesicData.s12
+            numOfMinVertex = axisCounter
+
+            // Сохраняем длину от 0 до точки в близи столба
+            totalLengthBtSegment = currentLength
+        }
 
         if (axisCounter < axis.lastIndex) {
             // Считаем и сохраняем все данные от вершины до вершины
@@ -47,17 +57,10 @@ fun shiftAndOffsetCalc(
                     axis[axisCounter + 1].longitude
                 )
             )
-            // Находим минимальное расстояние между двумя вершинами
-            if (minLengthToPoint > pointData[axisCounter].s12) {
-                minLengthToPoint = pointData[axisCounter].s12
-                numOfMinVertex = axisCounter
-
-                // Считаем длину от 0 до точки в близи столба
-                totalLengthBtSegment = currentLength
-            }
             // Общая длина складывается из текущей длины участка
             currentLength += segmentData[axisCounter].s12
         }
+
     }
 
     //TODO: Учесть «слепой угол»
@@ -127,10 +130,10 @@ fun shiftAndOffsetCalc(
         numOfMinVertex -= 1
     }
     return ShiftAndOffset(
-        Coordinate(coordinateData.lon2, coordinateData.lat2),
-        offset,
-        totalLengthBtSegment,
-        numOfMinVertex
+        shift = totalLengthBtSegment,
+        offset = offset,
+        crossPoint = Coordinate(coordinateData.lon2, coordinateData.lat2),
+        minVertex = numOfMinVertex
     )
 }
 

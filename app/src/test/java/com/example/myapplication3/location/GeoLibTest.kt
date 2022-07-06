@@ -1,18 +1,71 @@
 package com.example.myapplication3.location
 
+import com.example.myapplication3.location.calc.*
 import net.sf.geographiclib.*
+import org.junit.Assert
 import org.junit.Test
-import java.lang.Math.acos
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sin
 
 internal class GeoLibTest {
 
+    // Тестовые точки на дороге
+    data class TestPoint(
+        val name: String,
+        val coordinate: Coordinate,
+        val kmPlusOffset: KmPlusOffset
+    )
+    private val points: List<TestPoint> = listOf(
+        TestPoint(
+            name = "Начало парковки (0+360, R 9.5)",
+            coordinate = Coordinate(84.9333383060032, 56.4488557703840),
+            kmPlusOffset = KmPlusOffset(0, 360.0, 9.5)
+        ),
+        TestPoint(
+            name = "Не доезжая ЛЭП (0+785, R 5.7)",
+            coordinate = Coordinate(84.939519790763, 56.4471799709039),
+            kmPlusOffset = KmPlusOffset(0, 785.0, 5.7)
+        )
+    )
+
     @Test
-    fun testGeoLibPoints() {
-        //  println(shiftAndOffsetCalc(axis, distanceMarks[0]).offset)
-        shiftAndOffsetCalc(axis, myPosition[1])
+    fun testShiftAndOffsetCalc() {
+        val r1 = shiftAndOffsetCalc(axis, points[0].coordinate)
+        println("r1 = $r1")
+        //Assert.assertEquals(points[0].kmPlusOffset.meter, r1.shift, 0.2)
+
+        val r2 = shiftAndOffsetCalc(axis, points[1].coordinate)
+        println("r2 = $r2")
+        Assert.assertEquals(points[1].kmPlusOffset.meter, r2.shift, 0.2)
+    }
+
+    @Test
+    fun testAzimuthSign() {
+        val g1 = Geodesic.WGS84.Inverse(
+            54.0, 85.0,
+            54.0, 85.1
+        )
+        println("g1 → ${g1.azi1}")
+        Assert.assertEquals(90.0, g1.azi1, 0.1)
+
+        val g2 = Geodesic.WGS84.Inverse(
+            54.0, 85.0,
+            54.0, 84.9
+        )
+        println("g2 ← ${g2.azi1}")
+        Assert.assertEquals(-90.0, g2.azi1, 0.1)
+
+        val g3 = Geodesic.WGS84.Inverse(
+            54.0, 85.0,
+            53.9, 84.9
+        )
+        println("g3 ↙ ${g3.azi1}")
+        Assert.assertEquals(-149.4, g3.azi1, 0.1)
+
+        val g4 = Geodesic.WGS84.Inverse(
+            54.0, 85.0,
+            53.9, 85.1
+        )
+        println("g4 ↘ ${g4.azi1}")
+        Assert.assertEquals(149.4, g4.azi1, 0.1)
     }
 
     private fun roadKilometerSegment(

@@ -1,6 +1,7 @@
 package com.example.myapplication3.location
 
 import android.app.Application
+import com.example.myapplication3.location.calc.axis
 import org.junit.Assert
 import org.junit.Test
 

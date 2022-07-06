@@ -1,4 +1,4 @@
-package com.example.myapplication3.location
+package com.example.myapplication3.location.calc
 
 class Coordinate(
     var longitude: Double,
