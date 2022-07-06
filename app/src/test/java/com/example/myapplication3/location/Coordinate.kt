@@ -15,10 +15,11 @@ val distanceMarks = mutableListOf(
 
 // Для хранения своих координат
 val myPosition = mutableListOf(
-    Coordinate( 84.937823, 56.447524),
-    Coordinate( 84.936702, 56.447861),
-    Coordinate( 84.936589, 56.447751),
-    Coordinate( 84.937823, 56.447524)
+    Coordinate( 84.938401, 56.447532), //11
+    Coordinate( 84.938255, 56.447238), //-+
+    Coordinate( 84.937195, 56.447764), //+-
+    Coordinate( 84.937097, 56.447578), //--
+
 )
 
 val axis2 = mutableListOf(

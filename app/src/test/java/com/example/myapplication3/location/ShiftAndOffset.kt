@@ -2,8 +2,7 @@ package com.example.myapplication3.location
 
 import net.sf.geographiclib.Geodesic
 import net.sf.geographiclib.GeodesicData
-import kotlin.math.abs
-import kotlin.math.pow
+import kotlin.math.*
 
 class ShiftAndOffset(
     val crossPoint: Coordinate,
@@ -62,24 +61,27 @@ fun shiftAndOffsetCalc(
     }
 
     //TODO: Учесть «слепой угол»
-    //TODO: Проверить гипотезу о соотношении сторон треугольника c'=c * a/(a+b) <- neponyatno
-    //TODO: Пытался понять гипотезу выше, не нашел подобного доказательства
+
+    val cosinus: Double =
+        (minLengthToPoint.pow(2) + segmentData[numOfMinVertex].s12.pow(2) - pointData[numOfMinVertex + 1].s12.pow(
+            2
+        )) / (2 * minLengthToPoint * segmentData[numOfMinVertex].s12)
 
     // Определяем угол между следующим сегментом оси и вектором на исходную точку
     // для последующего определения способа расчёта смещения и его знака
     val angleBtSegPoint =
-        (translateToFullCircle(segmentData[numOfMinVertex].azi1)  - translateToFullCircle(pointData[numOfMinVertex].azi1))
-    println(segmentData[numOfMinVertex ].azi2)
-    println(pointData[numOfMinVertex].azi2)
+        abs(
+            translateToFullCircle(segmentData[numOfMinVertex].azi1) - translateToFullCircle(
+                pointData[numOfMinVertex].azi1
+            )
+        )
+    println(translateToFullCircle(segmentData[numOfMinVertex].azi2))
+    println(translateToFullCircle(pointData[numOfMinVertex].azi2))
     println(angleBtSegPoint)
-    println(
-        adjacentAngle(
-            segmentData[numOfMinVertex - 1].azi2,
-            segmentData[numOfMinVertex].azi1
-        ).get(0)
-    )
-    println(findAngle(segmentData[numOfMinVertex - 1].azi2, pointData[numOfMinVertex].azi1))
 
+    println(findAngle(segmentData[numOfMinVertex].azi2, pointData[numOfMinVertex].azi1))
+
+    println(checkOffsetSymbol(segmentData[numOfMinVertex].azi2, pointData[numOfMinVertex].azi1))
     if (angleBtSegPoint < 90 && angleBtSegPoint >= 270) {
         // Пересечение перпендикуляра на сегменте (наверное)
 
@@ -172,7 +174,7 @@ private fun findAngle(
     firstAngle: Double,
     secondAngle: Double
 ): Double {
-    return abs(translateToFullCircle(firstAngle) - translateToFullCircle(secondAngle))
+    return translateToFullCircle(firstAngle) - translateToFullCircle(secondAngle)
 }
 
 // Находит размерность смежного угла, и вычисляет промежуток в котором находится "слепой угол"
@@ -194,6 +196,44 @@ private fun adjacentAngle(
         )
     }
 }
+
+// Проверяет в какую сторону от оси дороги смещение(true - влево false - вправо)
+private fun checkOffsetSymbol(
+    segmentAz: Double,
+    pointAz: Double
+): Boolean {
+    // println("ras ${translateToFullCircle(segmentAz + 180)} dva" + translateToFullCircle(pointAz))
+    if (translateToFullCircle(segmentAz + 180) > translateToFullCircle(segmentAz)) {
+        if (translateToFullCircle(segmentAz + 180) >= translateToFullCircle(pointAz) && translateToFullCircle(
+                segmentAz
+            ) <= translateToFullCircle(pointAz)
+        ) return false
+        else return true
+    } else (translateToFullCircle(segmentAz + 180) < translateToFullCircle(segmentAz))
+            if(translateToFullCircle(segmentAz + 180) <= translateToFullCircle(pointAz) && translateToFullCircle(
+                    segmentAz
+                ) >= translateToFullCircle(pointAz)
+            ) return false
+    else return true
+/*            return if (translateToFullCircle(segmentAz + 180) > translateToFullCircle(segmentAz))
+                return !(translateToFullCircle(segmentAz + 180) >= translateToFullCircle(pointAz) && translateToFullCircle(
+                    segmentAz
+                ) <= translateToFullCircle(pointAz))*/
+}
+
+private fun checkSide(
+    segmentAz: Double,
+    pointAz: Double
+): Int {
+    return if (checkOffsetSymbol(segmentAz, pointAz)) {
+        if (segmentAz > pointAz && segmentAz - 90 < pointAz)
+            -1
+        else 1
+    } else if (segmentAz < pointAz && segmentAz + 90 > pointAz)
+        -1
+    else 1
+}
+
 
 private fun convertMeterToKilometer(meters: Double): Int {
     return (meters / 1000).toInt()

@@ -12,7 +12,7 @@ internal class GeoLibTest {
     @Test
     fun testGeoLibPoints() {
         //  println(shiftAndOffsetCalc(axis, distanceMarks[0]).offset)
-        shiftAndOffsetCalc(axis, myPosition[0])
+        shiftAndOffsetCalc(axis, myPosition[1])
     }
 
     private fun roadKilometerSegment(
