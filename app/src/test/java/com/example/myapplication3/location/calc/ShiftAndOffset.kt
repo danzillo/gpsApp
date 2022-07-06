@@ -75,7 +75,7 @@ fun shiftAndOffsetCalc(
     // Определяем угол между следующим сегментом оси и вектором на исходную точку
     // для последующего определения способа расчёта смещения и его знака
     val angleBtSegPoint = (pointData[numOfMinVertex].azi1) - (segmentData[numOfMinVertex].azi1)
-    checkOffsetSymbol((segmentData[numOfMinVertex].azi1),(pointData[numOfMinVertex].azi1) )
+    checkOffsetSymbol((segmentData[numOfMinVertex].azi1), (pointData[numOfMinVertex].azi1))
     println("Coord ${segmentData[numOfMinVertex].lon1}")
     println("lan ${segmentData[numOfMinVertex].lat1}")
     if (angleBtSegPoint < 0) {
@@ -225,7 +225,11 @@ private fun checkOffsetSymbol(segmetAz: Double, pointAz: Double) {
             columnPos = 1
         } else if (pointAz < thirdBoard && pointAz > secondBoard)
             columnPos = -1
-        else if (pointAz < secondBoard  && pointAz > (secondBoard - 90))
+        else if (pointAz < secondBoard && pointAz > (secondBoard - firstBoard) || pointAz <= 180 && pointAz > (180 - abs(
+                thirdBoard
+            )
+                    )
+        )
             columnPos = -1
         else columnPos = 1
 
@@ -244,7 +248,9 @@ private fun checkOffsetSymbol(segmetAz: Double, pointAz: Double) {
             columnPos = 1
         } else if (pointAz > thirdBoard && pointAz < secondBoard)
             columnPos = -1
-        else if (pointAz < firstBoard && pointAz > firstBoard-90) // тут подумать
+        else if (pointAz >= secondBoard && pointAz <= secondBoard + abs(firstBoard) || pointAz >= -180 && pointAz > (-180 + abs(
+                thirdBoard)
+            )) // тут подумать
             columnPos = 1
         else columnPos = -1
     }
