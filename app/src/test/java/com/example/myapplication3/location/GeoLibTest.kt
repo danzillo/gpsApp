@@ -4,9 +4,16 @@ import com.example.myapplication3.location.calc.*
 import net.sf.geographiclib.*
 import org.junit.Assert
 import org.junit.Test
+import kotlin.Pair
 
 internal class GeoLibTest {
 
+    // Заранее проверенные положения опорных точек
+    private val knownDistanceMarks: Map<Int, Pair<Double, Double>> = mapOf(
+        1 to Pair(804.11, 5.97),
+        2 to Pair(1068.49, -3.30),
+        3 to Pair(1132.85, 4.20)
+    )
     // Тестовые точки на дороге
     data class TestPoint(
         val name: String,
@@ -23,6 +30,41 @@ internal class GeoLibTest {
             name = "Не доезжая ЛЭП (0+785, R 5.7)",
             coordinate = Coordinate(84.939519790763, 56.4471799709039),
             kmPlusOffset = KmPlusOffset(0, 785.0, 5.7)
+        ),
+        TestPoint(
+            name = "Чуть позже ЛЭП (1+021 R 4.3)",
+            coordinate = Coordinate(84.9401600146328, 56.4471080939880),
+            kmPlusOffset = KmPlusOffset(1, 021.3, 4.3)
+        ),
+        TestPoint(
+            name = "Съезд в поле направо после ЛЭП (1+524 R 7.9)",
+            coordinate = Coordinate(84.9480027570299, 56.4459193406610),
+            kmPlusOffset = KmPlusOffset(1, 524.5, 7.9)
+        ),
+        TestPoint(
+            name = "Съезд после ЛЭП в поле налево (1+812 L 8.3)",
+            coordinate = Coordinate(84.9521063373097, 56.4447347087405),
+            kmPlusOffset = KmPlusOffset(1, 812.4, -8.3)
+        ),
+        TestPoint(
+            name = "Напротив дерева (1+1068; 2+000 R 4.4)",
+            coordinate = Coordinate(84.9546837617013, 56.4429497990569),
+            kmPlusOffset = KmPlusOffset(2, 0.0, 4.4)
+        ),
+        TestPoint(
+            name = "Съезд налево после дерева 1 (2+330 L 13.1)",
+            coordinate = Coordinate(84.9565129930468, 56.4401790136846),
+            kmPlusOffset = KmPlusOffset(2, 330.7, -13.1)
+        ),
+        TestPoint(
+            name = "Съезд после дерева налево 2 (2+963 L 12.2)",
+            coordinate = Coordinate(84.9579139623627, 56.4345738705636),
+            kmPlusOffset = KmPlusOffset(2, 962.5, -12.2)
+        ),
+        TestPoint(
+            name = "Дача (3+448 R 5.5)",
+            coordinate = Coordinate(84.9586023413717, 56.4291355996175),
+            kmPlusOffset = KmPlusOffset(3, 448.6, 5.5)
         )
     )
 
@@ -35,6 +77,11 @@ internal class GeoLibTest {
         val r2 = shiftAndOffsetCalc(axis, points[1].coordinate)
         println("r2 = $r2")
         Assert.assertEquals(points[1].kmPlusOffset.meter, r2.shift, 0.2)
+
+        val l1 = points[4].kmPlusOffset.meter + knownDistanceMarks[1]!!.first
+        val r5 = shiftAndOffsetCalc(axis, points[4].coordinate)
+        println("r5 = $r5, l1 = $l1")
+        Assert.assertEquals(l1, r5.shift, 0.2)
     }
 
     @Test
