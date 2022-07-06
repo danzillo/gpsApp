@@ -75,11 +75,9 @@ fun shiftAndOffsetCalc(
     // Определяем угол между следующим сегментом оси и вектором на исходную точку
     // для последующего определения способа расчёта смещения и его знака
     val angleBtSegPoint = (pointData[numOfMinVertex].azi1) - (segmentData[numOfMinVertex].azi1)
-
-    //  if(pointData[numOfMinVertex].azi1 > num || pointData[numOfMinVertex]< numOne)
-    //  if( (pointData[numOfMinVertex].azi1))
-    println("point" + (pointData[numOfMinVertex].azi1))
-    println("seg" + (segmentData[numOfMinVertex].azi1))
+    checkOffsetSymbol((segmentData[numOfMinVertex].azi1),(pointData[numOfMinVertex].azi1) )
+    println("Coord ${segmentData[numOfMinVertex].lon1}")
+    println("lan ${segmentData[numOfMinVertex].lat1}")
     if (angleBtSegPoint < 0) {
         // Рассчитываем ближайшее расстояние от точки до оси
         offset = findOffset(
@@ -210,9 +208,10 @@ private fun convertMeterToKilometer(meters: Double): Int {
 private fun checkOffsetSymbol(segmetAz: Double, pointAz: Double) {
     // Определяет знак смещения -1 справа +1 слева
     var offsetSymbol = 0
-    // Определяет смещение относительно столба -1 = столб слева 1 = столб справа
+    // Определяет смещение относительно столба -1 = столб справа столб слева 1
     var columnPos = 0
     if (segmetAz > 0) {
+
         // Все что внутри, то +, снаружи -!
         val firstBoard = segmetAz
         val secondBoard = segmetAz - 180
@@ -226,26 +225,29 @@ private fun checkOffsetSymbol(segmetAz: Double, pointAz: Double) {
             columnPos = 1
         } else if (pointAz < thirdBoard && pointAz > secondBoard)
             columnPos = -1
-        else if (pointAz < secondBoard - firstBoard || pointAz > 180 - (90 - segmetAz))
+        else if (pointAz < secondBoard  && pointAz > (secondBoard - 90))
             columnPos = -1
         else columnPos = 1
 
     } else {
+        println("Rabotaet <segm")
         // Все что внутри это -, снаружи +!
         val firstBoard = segmetAz
         val secondBoard = segmetAz + 180
         val thirdBoard = segmetAz + 90
 
         if (pointAz > firstBoard && pointAz < secondBoard)
-            offsetSymbol = 1
-        else offsetSymbol = -1
+            offsetSymbol = -1 //справа
+        else offsetSymbol = 1 //слева
 
         if (pointAz > firstBoard && pointAz < thirdBoard) {
             columnPos = 1
         } else if (pointAz > thirdBoard && pointAz < secondBoard)
             columnPos = -1
-        else if (pointAz > secondBoard - firstBoard || pointAz < 180 - (90 - segmetAz)) // тут подумать
-            columnPos = -1
-        else columnPos = 1
+        else if (pointAz < firstBoard && pointAz > firstBoard-90) // тут подумать
+            columnPos = 1
+        else columnPos = -1
     }
+
+    println("Offset: ${offsetSymbol} ColumnPos ${columnPos}")
 }
