@@ -14,12 +14,14 @@ internal class GeoLibTest {
         2 to Pair(1068.49, -3.30),
         3 to Pair(1132.85, 4.20)
     )
+
     // Тестовые точки на дороге
     data class TestPoint(
         val name: String,
         val coordinate: Coordinate,
         val kmPlusOffset: KmPlusOffset
     )
+
     private val points: List<TestPoint> = listOf(
         TestPoint(
             name = "Начало парковки (0+360, R 9.5)",
@@ -82,6 +84,19 @@ internal class GeoLibTest {
         val r5 = shiftAndOffsetCalc(axis, points[4].coordinate)
         println("r5 = $r5, l1 = $l1")
         Assert.assertEquals(l1, r5.shift, 0.2)
+    }
+
+    @Test
+    fun findOffsetSum() {
+        val r1 = shiftAndOffsetCalc(axis, distanceMarks[0])
+        println("r1 = $r1")
+        println(r1.offset)
+        val r2 = shiftAndOffsetCalc(axis, distanceMarks[1])
+        println("r1 = $r2")
+        println(r2.offset)
+        val r3 = shiftAndOffsetCalc(axis, distanceMarks[2])
+        println("r1 = $r3")
+        println(r3.offset)
     }
 
     @Test
