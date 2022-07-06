@@ -68,7 +68,7 @@ fun shiftAndOffsetCalc(
     // Определяем угол между следующим сегментом оси и вектором на исходную точку
     // для последующего определения способа расчёта смещения и его знака
     val angleBtSegPoint =
-        findAngle(segmentData[numOfMinVertex].azi1, pointData[numOfMinVertex].azi1)
+        (translateToFullCircle(segmentData[numOfMinVertex].azi1)  - translateToFullCircle(pointData[numOfMinVertex].azi1))
     println(segmentData[numOfMinVertex ].azi2)
     println(pointData[numOfMinVertex].azi2)
     println(angleBtSegPoint)
