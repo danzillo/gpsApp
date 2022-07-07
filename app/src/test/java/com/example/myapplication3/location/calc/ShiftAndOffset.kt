@@ -25,8 +25,8 @@ fun shiftAndOffsetCalc(
     var numOfMinSeg = 0 // Номер сегмента от которого расстояние минимально
     val pointData = mutableListOf<GeodesicData>() // Хранит гео-инф. о вершинах и столбах
     val segmentData = mutableListOf<GeodesicData>()  // Хранит гео-инф. о вершинах
-    var projection: Double // Проекция перпендикуляра столба
-    var coordinateData: GeodesicData // Хранит инф. о координатах проекции столба
+    val projection: Double // Проекция перпендикуляра столба
+    val coordinateData: GeodesicData // Хранит инф. о координатах проекции столба
     var offset: Double = 0.0 // Инфо о смещении
     var currentLength = 0.0
     var totalLengthBtSegment = 0.0
@@ -74,8 +74,6 @@ fun shiftAndOffsetCalc(
     // Определяем угол между следующим сегментом оси и вектором на исходную точку
     // для последующего определения способа расчёта смещения и его знака
 
-    // val angleBtSegPoint =
-    //     findAngle(segmentData[numOfMinVertex].azi1, pointData[numOfMinVertex].azi1)
     numOfMinSeg = numOfMinVertex
     if (numOfMinVertex == axis.lastIndex) numOfMinSeg -= 1
 
@@ -157,15 +155,6 @@ fun shiftAndOffsetCalc(
             if (!listSymbol[0]) {
                 offset *= -1
             }
-            /*           // записываем номера ближайших точек
-                       if (numOfMinVertex > 0){
-                           prevPoint = numOfMinVertex - 1
-                       nextPoint = numOfMinVertex
-                   } else {
-                       prevPoint = numOfMinVertex
-                       if (numOfMinVertex < axis.lastIndex)
-                           nextPoint = numOfMinVertex + 1
-                   }*/
 
             coordinateData = Geodesic.WGS84.Direct(
                 segmentData[numOfMinVertex].lat1,
