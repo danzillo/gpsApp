@@ -21,10 +21,11 @@ fun shiftAndOffsetCalc(
     var minLengthToPoint =
         Double.MAX_VALUE  // Хранит минимальное расстояние между вершиной и столбом
     var numOfMinVertex = 0 // Номер вершины от которой расстояние минимально
+    var numOfMinVertexSeg = 0
     val pointData = mutableListOf<GeodesicData>() // Хранит гео-инф. о вершинах и столбах
     val segmentData = mutableListOf<GeodesicData>()  // Хранит гео-инф. о вершинах
     val projection: Double // Проекция перпендикуляра столба
-    val coordinateData: GeodesicData // Хранит инф. о координатах проекции столба
+    var coordinateData: GeodesicData // Хранит инф. о координатах проекции столба
     var offset: Double = 0.0 // Инфо о смещении
     var currentLength = 0.0
     var totalLengthBtSegment = 0.0
@@ -45,7 +46,7 @@ fun shiftAndOffsetCalc(
         if (minLengthToPoint > geodesicData.s12) {
             minLengthToPoint = geodesicData.s12
             numOfMinVertex = axisCounter
-
+            println(numOfMinVertex)
             // Сохраняем длину от 0 до точки в близи столба
             totalLengthBtSegment = currentLength
         }
@@ -71,14 +72,16 @@ fun shiftAndOffsetCalc(
 
     // Определяем угол между следующим сегментом оси и вектором на исходную точку
     // для последующего определения способа расчёта смещения и его знака
-
-
-    if (numOfMinVertex == axis.lastIndex) numOfMinVertex -= 1
+    numOfMinVertexSeg = numOfMinVertex
+    if(numOfMinVertex == axis.lastIndex){
+        numOfMinVertexSeg -= 1
+        print("gjvx")
+    }
     val angleBtSegPoint =
-        findAngle(segmentData[numOfMinVertex].azi1, pointData[numOfMinVertex].azi1)
+        findAngle(segmentData[numOfMinVertexSeg].azi1, pointData[numOfMinVertex].azi1)
     val listSymbol =
         checkOffsetAndColumnPlace(
-            (segmentData[numOfMinVertex].azi1),
+            (segmentData[numOfMinVertexSeg].azi1),
             pointData[numOfMinVertex].azi1
         )
 
@@ -92,7 +95,7 @@ fun shiftAndOffsetCalc(
             offset = findOffset(
                 pointData[numOfMinVertex + 1].s12,
                 minLengthToPoint,
-                segmentData[numOfMinVertex].s12
+                segmentData[numOfMinVertexSeg].s12
             )
 
             // Рассчитываем расстояние от ближайшей вершины до пересечения
@@ -115,9 +118,9 @@ fun shiftAndOffsetCalc(
                    }*/
 
             coordinateData = Geodesic.WGS84.Direct(
-                segmentData[numOfMinVertex].lat1,
-                segmentData[numOfMinVertex].lon1,
-                segmentData[numOfMinVertex].azi1,
+                segmentData[numOfMinVertexSeg].lat1,
+                segmentData[numOfMinVertexSeg].lon1,
+                segmentData[numOfMinVertexSeg].azi1,
                 projection
             )
             totalLengthBtSegment += projection
@@ -131,7 +134,7 @@ fun shiftAndOffsetCalc(
             offset = findOffset(
                 pointData[numOfMinVertex - 1].s12,
                 minLengthToPoint,
-                segmentData[numOfMinVertex - 1].s12
+                segmentData[numOfMinVertexSeg - 1].s12
             )
 
             projection = findProjectionLength(
@@ -150,9 +153,9 @@ fun shiftAndOffsetCalc(
             }
 
             coordinateData = Geodesic.WGS84.Direct(
-                segmentData[numOfMinVertex].lat1,
-                segmentData[numOfMinVertex].lon1,
-                segmentData[numOfMinVertex - 1].azi2 + 180,
+                segmentData[numOfMinVertexSeg].lat1,
+                segmentData[numOfMinVertexSeg].lon1,
+                segmentData[numOfMinVertexSeg - 1].azi2 + 180,
                 projection
             )
             totalLengthBtSegment -= projection
@@ -162,6 +165,12 @@ fun shiftAndOffsetCalc(
             coordinateData = GeodesicData()
         }
     }
+    coordinateData = Geodesic.WGS84.Direct(
+        segmentData[numOfMinVertexSeg].lat1,
+        segmentData[numOfMinVertexSeg].lon1,
+        segmentData[numOfMinVertexSeg - 1].azi2 + 180,
+        1.0
+    )
     return ShiftAndOffset(
         shift = totalLengthBtSegment,
         offset = offset,
