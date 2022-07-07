@@ -168,18 +168,13 @@ internal class GeoLibTest {
     @Test
     fun closeKmPoint() {
         // Добавляем к км столбам начальную и конечную точку оси дороги
+        kmPlusMeter(roadKilometerSegment(axis, distanceMarks))
 
-
-        println("Находимся около КМ")
-
-      //  println(shiftAndOffsetCalc(distanceMarks, myPosition[0]).prevPoint)
-      //  println(shiftAndOffsetCalc(distanceMarks, myPosition[0]).offset)
        val r1 = roadKilometerSegment(axis, distanceMarks)
         r1[0]?.kmPoints?.let { println(it[0].latitude) }
         r1[0]?.kmPoints?.let { println(it[1].latitude) }
         r1[0]?.kmPoints?.let { println(it[2].latitude) }
         r1[0]?.kmPoints?.let { println(it[3].latitude) }
-
     }
 }
 
