@@ -8,9 +8,10 @@ data class ShiftAndOffset(
     val shift: Double,
     val offset: Double,
     val crossPoint: Coordinate,
-    val minVertex: Int
+    val prevPoint: Int,
+    val nextPoint: Int
 ) {
-    override fun toString() = "<ShiftAndOffset> {shift: $shift, offset: $offset}"
+    override fun toString() = "<ShiftAndOffset> {shift: $shift, offset: $offset, lat: ${crossPoint.latitude}, long:  ${crossPoint.longitude}}"
 }
 
 fun shiftAndOffsetCalc(
@@ -24,9 +25,11 @@ fun shiftAndOffsetCalc(
     val segmentData = mutableListOf<GeodesicData>()  // Хранит гео-инф. о вершинах
     val projection: Double // Проекция перпендикуляра столба
     val coordinateData: GeodesicData // Хранит инф. о координатах проекции столба
-    var offset: Double // Инфо о смещении
+    var offset: Double = 0.0 // Инфо о смещении
     var currentLength = 0.0
     var totalLengthBtSegment = 0.0
+    var nextPoint = -1
+    var prevPoint = -1
 
     for (axisCounter in 0..axis.lastIndex) {
 
@@ -68,64 +71,103 @@ fun shiftAndOffsetCalc(
 
     // Определяем угол между следующим сегментом оси и вектором на исходную точку
     // для последующего определения способа расчёта смещения и его знака
+
+
+    if (numOfMinVertex == axis.lastIndex) numOfMinVertex -= 1
     val angleBtSegPoint =
         findAngle(segmentData[numOfMinVertex].azi1, pointData[numOfMinVertex].azi1)
-
     val listSymbol =
         checkOffsetAndColumnPlace(
             (segmentData[numOfMinVertex].azi1),
             pointData[numOfMinVertex].azi1
         )
 
+    // Если true - означает, что точка находится спереди от вершины
     if (listSymbol[1]) {
-        // Рассчитываем ближайшее расстояние от точки до оси
-        offset = findOffset(
-            pointData[numOfMinVertex + 1].s12,
-            minLengthToPoint,
-            segmentData[numOfMinVertex].s12
-        )
 
-        // Рассчитываем расстояние от ближайшей вершины до пересечения
-        projection = findProjectionLength(
-            minLengthToPoint, offset
-        )
+        // Проверяем что точка находится в пределах оси
+        if (numOfMinVertex < axis.lastIndex) {
 
-        if (!listSymbol[0]) offset *= -1
-        coordinateData = Geodesic.WGS84.Direct(
-            segmentData[numOfMinVertex].lat1,
-            segmentData[numOfMinVertex].lon1,
-            segmentData[numOfMinVertex].azi1,
-            projection
-        )
-        totalLengthBtSegment += projection
+            // Рассчитываем ближайшее расстояние от точки до оси
+            offset = findOffset(
+                pointData[numOfMinVertex + 1].s12,
+                minLengthToPoint,
+                segmentData[numOfMinVertex].s12
+            )
+
+            // Рассчитываем расстояние от ближайшей вершины до пересечения
+            projection = findProjectionLength(
+                minLengthToPoint, offset
+            )
+
+            // Если проекция столба справа, то -1
+            if (!listSymbol[0]) {
+                offset *= -1
+            }
+            /*           // записываем номера ближайших точек
+                       if (numOfMinVertex > 0){
+                           prevPoint = numOfMinVertex - 1
+                       nextPoint = numOfMinVertex
+                   } else {
+                       prevPoint = numOfMinVertex
+                       if (numOfMinVertex < axis.lastIndex)
+                           nextPoint = numOfMinVertex + 1
+                   }*/
+
+            coordinateData = Geodesic.WGS84.Direct(
+                segmentData[numOfMinVertex].lat1,
+                segmentData[numOfMinVertex].lon1,
+                segmentData[numOfMinVertex].azi1,
+                projection
+            )
+            totalLengthBtSegment += projection
+        } else {
+            offset = minLengthToPoint
+            coordinateData = GeodesicData()
+        }
     } else {
-        // Пересечение перпендикуляра до сегмента
-        offset = findOffset(
-            pointData[numOfMinVertex - 1].s12,
-            minLengthToPoint,
-            segmentData[numOfMinVertex - 1].s12
-        )
+        if (numOfMinVertex > 0) {
+            // Пересечение перпендикуляра до сегмента
+            offset = findOffset(
+                pointData[numOfMinVertex - 1].s12,
+                minLengthToPoint,
+                segmentData[numOfMinVertex - 1].s12
+            )
 
+            projection = findProjectionLength(
+                minLengthToPoint, offset
+            )
+            if (!listSymbol[0]) {
+                offset *= -1
+            }
+            if (numOfMinVertex > 0) {
+                prevPoint = numOfMinVertex - 1
+                nextPoint = numOfMinVertex
+            } else {
+                prevPoint = numOfMinVertex
+                if (numOfMinVertex < axis.lastIndex)
+                    nextPoint = numOfMinVertex + 1
+            }
 
-        projection = findProjectionLength(
-            minLengthToPoint, offset
-        )
-        if (!listSymbol[0]) offset *= -1
-        coordinateData = Geodesic.WGS84.Direct(
-            segmentData[numOfMinVertex].lat1,
-            segmentData[numOfMinVertex].lon1,
-            segmentData[numOfMinVertex - 1].azi2 + 180,
-            projection
-        )
-        totalLengthBtSegment -= projection
-        numOfMinVertex -= 1
+            coordinateData = Geodesic.WGS84.Direct(
+                segmentData[numOfMinVertex].lat1,
+                segmentData[numOfMinVertex].lon1,
+                segmentData[numOfMinVertex - 1].azi2 + 180,
+                projection
+            )
+            totalLengthBtSegment -= projection
+
+        } else {
+            offset = minLengthToPoint
+            coordinateData = GeodesicData()
+        }
     }
-    println("projectoion: $projection")
     return ShiftAndOffset(
         shift = totalLengthBtSegment,
         offset = offset,
         crossPoint = Coordinate(coordinateData.lon2, coordinateData.lat2),
-        minVertex = numOfMinVertex
+        prevPoint = prevPoint,
+        nextPoint = nextPoint
     )
 }
 
@@ -154,7 +196,6 @@ private fun findProjectionLength(
 ): Double {
     return (lengthMin.pow(2) - height.pow(2)).pow(0.5)
 }
-
 
 // Поиск угла между азимутами двух векторов
 private fun findAngle(

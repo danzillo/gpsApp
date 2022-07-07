@@ -90,15 +90,15 @@ internal class GeoLibTest {
     fun findOffsetSum() {
         val r1 = shiftAndOffsetCalc(axis, distanceMarks[0])
         println("Coord ${r1.crossPoint.latitude}  SHift ${r1.shift} Offset ${r1.offset}")
-       /* println("r1 = $r1")
+        /* println("r1 = $r1")
         println(r1.offset)*/
         val r2 = shiftAndOffsetCalc(axis, distanceMarks[1])
         println("Coord ${r2.crossPoint.latitude}  SHift ${r2.shift} Offset ${r2.offset}")
-     /*   println("r1 = $r2")
+        /*   println("r1 = $r2")
         println(r2.offset)*/
         val r3 = shiftAndOffsetCalc(axis, myPosition[2])
         val r4 = shiftAndOffsetCalc(axis, myPosition[3])
-       /* println("r1 = $r3")
+        /* println("r1 = $r3")
         println(r3.offset)*/
     }
 
@@ -133,44 +133,50 @@ internal class GeoLibTest {
         Assert.assertEquals(149.4, g4.azi1, 0.1)
     }
 
-    private fun roadKilometerSegment(
-        axis: MutableList<Coordinate>,
-        kmPoint: Coordinate
-    ): RoadKmSegment {
-        val kmLength: Double
-        var prevPoint = 0
-        val segment = mutableListOf<Coordinate>()
-        val currentLength = 0.0
+    @Test
+    fun roadKmSegment() {
+        val r1 = roadKilometerSegment(axis, distanceMarks)
 
-        // Находим координаты проекции столба, ближайшую вершину(слева от столба)
-        // смещение и расстояние до проекции
-        val kmShiftAndOffset: ShiftAndOffset = shiftAndOffsetCalc(
-            axis,
-            kmPoint
+        val r2 = shiftAndOffsetCalc(axis, distanceMarks[0])
+        Assert.assertEquals(
+            r2.crossPoint.latitude,
+            r1[0]?.segment?.lastIndex?.let { r1[0]?.segment?.get(it) }!!.latitude,
+            0.1
         )
 
-        // Сохраняем все вершины для участка дороги между км столбами
-        for (axisCounter in prevPoint..kmShiftAndOffset.minVertex) {
-            println(axis[axisCounter])
-            segment.add(axis[axisCounter])
-        }
+        val r3 = shiftAndOffsetCalc(axis, distanceMarks[1])
+        Assert.assertEquals(
+            r3.crossPoint.latitude,
+            r1[1]?.segment?.lastIndex?.let { r1[1]?.segment?.get(it) }!!.latitude,
+            0.1
+        )
 
-        // Добавляем точку пересечения с перпендикуляром от км столба
-        segment.add(kmShiftAndOffset.crossPoint)
+        val r4 = shiftAndOffsetCalc(axis, distanceMarks[2])
+        Assert.assertEquals(
+            r4.crossPoint.latitude,
+            r1[1]?.segment?.lastIndex?.let { r1[1]?.segment?.get(it) }!!.latitude,
+            0.1
+        )
 
-        // Расстояние от начала до проекции
-        kmLength = kmShiftAndOffset.shift
-
-        // Прошлая точка около столба
-        prevPoint = kmShiftAndOffset.minVertex
-        return RoadKmSegment(segment, kmLength, prevPoint)
+        Assert.assertEquals(
+            axis[axis.lastIndex].latitude,
+            r1[3]?.segment?.lastIndex?.let { r1[3]?.segment?.get(it) }!!.latitude,
+            0.1
+        )
     }
 
-    class RoadKmSegment(
-        val segment: MutableList<Coordinate>,
-        val kmLength: Double,
-        val point: Int
-    )
+    @Test
+    fun closeKmPoint() {
+        // Добавляем к км столбам начальную и конечную точку оси дороги
+        if (distanceMarks[0] != axis[0]) distanceMarks.add(0, axis[0])
+        if (distanceMarks[distanceMarks.lastIndex] != axis[axis.lastIndex]) distanceMarks.add(
+            distanceMarks.size, axis[axis.lastIndex]
+        )
+
+        println("Находимся около КМ")
+        println(shiftAndOffsetCalc(distanceMarks, myPosition[1]).prevPoint)
+        println(shiftAndOffsetCalc(distanceMarks, myPosition[1]).offset)
+    }
 }
 
 
