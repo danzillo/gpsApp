@@ -47,7 +47,6 @@ fun shiftAndOffsetCalc(
         if (minLengthToPoint > geodesicData.s12) {
             minLengthToPoint = geodesicData.s12
             numOfMinVertex = axisCounter
-
             // Сохраняем длину от 0 до точки в близи столба
             totalLengthBtSegment = currentLength
         }
@@ -67,7 +66,7 @@ fun shiftAndOffsetCalc(
         }
 
     }
-    //println(minLengthToPoint)
+
     //TODO: Учесть «слепой угол»
     //TODO: Расчёт высоты в треугольнике с помощью sin
 
@@ -176,11 +175,13 @@ fun shiftAndOffsetCalc(
                 )
                 if (!listSymbol[0]) {
                     offset *= -1
+
                 }
                 if (numOfMinVertex > 0) {
-                    prevPoint = numOfMinVertex - 1
+                    prevPoint = numOfMinVertex -1
                     nextPoint = numOfMinVertex
-                } else {
+                }
+                 else {
                     prevPoint = numOfMinVertex
                     nextPoint = numOfMinVertex + 1
                 }

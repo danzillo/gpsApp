@@ -3,12 +3,14 @@ package com.example.myapplication3.location.calc
 class KilometerSegment(
     val segment: MutableList<Coordinate>,
     val kmLength: Double,
-    val kmPoints: MutableList<Coordinate>
+    val kmPoints: MutableList<Coordinate>,
+
 )
 
 fun roadKilometerSegment(
     axis: MutableList<Coordinate>,
-    kmPoint: MutableList<Coordinate>
+    kmPoint: MutableList<Coordinate>,
+   cord: Coordinate
 ): MutableMap<Int, KilometerSegment> {
     val roadKilometerMap = mutableMapOf<Int, KilometerSegment>()
     var kmLength: Double
@@ -33,6 +35,7 @@ fun roadKilometerSegment(
             for (axisCounter in prevPoint..kmShiftAndOffset.prevPoint) {
                 segment.add(axis[axisCounter])
             }
+            kmPoints.add((axis[kmShiftAndOffset.prevPoint]))
         } else {
             kmPoints.add(kmShiftAndOffset.crossPoint)
             segment.add(kmShiftAndOffset.crossPoint)
@@ -64,6 +67,6 @@ fun roadKilometerSegment(
 
         roadKilometerMap[kmPointCounter] = KilometerSegment(segment, kmLength, kmPoints)
     }
-
+    println("ETO CHO "+ shiftAndOffsetCalc(kmPoints, cord).prevPoint)
     return roadKilometerMap
 }
