@@ -67,7 +67,7 @@ fun shiftAndOffsetCalc(
         }
 
     }
-
+    //println(minLengthToPoint)
     //TODO: Учесть «слепой угол»
     //TODO: Расчёт высоты в треугольнике с помощью sin
 
@@ -131,13 +131,9 @@ fun shiftAndOffsetCalc(
             nextPoint = numOfMinVertex
         }
 
-    }
-    else{
-    // Если true - означает, что точка находится спереди от вершины
-    if (listSymbol[1]) {
-
-        // Проверяем что точка находится в пределах оси
-        if (numOfMinVertex < axis.lastIndex) {
+    } else {
+        // Если true - означает, что точка находится спереди от вершины
+        if (listSymbol[1]) {
 
             // Рассчитываем ближайшее расстояние от точки до оси
             offset = findOffset(
@@ -162,48 +158,47 @@ fun shiftAndOffsetCalc(
                 segmentData[numOfMinVertex].azi1,
                 projection
             )
+            prevPoint = numOfMinVertex
+            nextPoint = numOfMinVertex + 1
             totalLengthBtSegment += projection
-        } else {
-            offset = minLengthToPoint
-            coordinateData = GeodesicData()
-        }
-    } else {
-        if (numOfMinVertex > 0) {
-            // Пересечение перпендикуляра до сегмента
-            offset = findOffset(
-                pointData[numOfMinVertex - 1].s12,
-                minLengthToPoint,
-                segmentData[numOfMinVertex - 1].s12
-            )
 
-            projection = findProjectionLength(
-                minLengthToPoint, offset
-            )
-            if (!listSymbol[0]) {
-                offset *= -1
-            }
+        } else {
             if (numOfMinVertex > 0) {
-                prevPoint = numOfMinVertex - 1
-                nextPoint = numOfMinVertex
-            } else {
-                prevPoint = numOfMinVertex
-                if (numOfMinVertex < axis.lastIndex)
+                // Пересечение перпендикуляра до сегмента
+                offset = findOffset(
+                    pointData[numOfMinVertex - 1].s12,
+                    minLengthToPoint,
+                    segmentData[numOfMinVertex - 1].s12
+                )
+
+                projection = findProjectionLength(
+                    minLengthToPoint, offset
+                )
+                if (!listSymbol[0]) {
+                    offset *= -1
+                }
+                if (numOfMinVertex > 0) {
+                    prevPoint = numOfMinVertex - 1
+                    nextPoint = numOfMinVertex
+                } else {
+                    prevPoint = numOfMinVertex
                     nextPoint = numOfMinVertex + 1
+                }
+
+                coordinateData = Geodesic.WGS84.Direct(
+                    segmentData[numOfMinVertex].lat1,
+                    segmentData[numOfMinVertex].lon1,
+                    segmentData[numOfMinVertex - 1].azi2 + 180,
+                    projection
+                )
+                totalLengthBtSegment -= projection
+
+            } else {
+                offset = minLengthToPoint
+                coordinateData = GeodesicData()
             }
-
-            coordinateData = Geodesic.WGS84.Direct(
-                segmentData[numOfMinVertex].lat1,
-                segmentData[numOfMinVertex].lon1,
-                segmentData[numOfMinVertex - 1].azi2 + 180,
-                projection
-            )
-            totalLengthBtSegment -= projection
-
-        } else {
-            offset = minLengthToPoint
-            coordinateData = GeodesicData()
         }
-    }}
+    }
     return ShiftAndOffset(
         shift = totalLengthBtSegment,
         offset = offset,
