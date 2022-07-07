@@ -274,7 +274,6 @@ private fun checkOffsetAndColumnPlace(segmentAz: Double, pointAz: Double): Mutab
     var columnPos = false
     val listSymbol = mutableListOf<Boolean>()
     if (segmentAz > 0) {
-
         // Все что внутри, то +, снаружи -!
         val firstBoard = segmentAz
         val secondBoard = segmentAz - 180
@@ -282,11 +281,12 @@ private fun checkOffsetAndColumnPlace(segmentAz: Double, pointAz: Double): Mutab
 
         offsetSymbol = pointAz < firstBoard && pointAz > secondBoard
 
-        columnPos = if (pointAz < firstBoard && pointAz > thirdBoard) {
+
+        columnPos = if (pointAz <= firstBoard && pointAz >= thirdBoard) {
             true
-        } else if (pointAz < thirdBoard && pointAz > secondBoard)
+        } else if (pointAz < thirdBoard && pointAz >= secondBoard)
             false
-        else !(pointAz < secondBoard && pointAz > (secondBoard - firstBoard) || pointAz <= 180 && pointAz > (180 - abs(
+        else !(pointAz < secondBoard && pointAz >= (secondBoard - firstBoard) || pointAz <= 180 && pointAz > (180 - abs(
             thirdBoard
         )))
 
