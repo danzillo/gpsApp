@@ -69,9 +69,7 @@ fun shiftAndOffsetCalc(
     // для последующего определения способа расчёта смещения и его знака
     val angleBtSegPoint =
         findAngle(segmentData[numOfMinVertex].azi1, pointData[numOfMinVertex].azi1)
-    println(pointData[numOfMinVertex].azi1)
-    println()
-    println("SIn" + sin(Math.toRadians(abs(angleBtSegPoint))))
+
     val listSymbol =
         checkOffsetAndColumnPlace(
             (segmentData[numOfMinVertex].azi1),
@@ -80,7 +78,11 @@ fun shiftAndOffsetCalc(
 
     if (listSymbol[1]) {
         // Рассчитываем ближайшее расстояние от точки до оси
-        offset = sin(Math.toRadians(abs(angleBtSegPoint))) * minLengthToPoint
+        offset = findOffset(
+            pointData[numOfMinVertex + 1].s12,
+            minLengthToPoint,
+            segmentData[numOfMinVertex].s12
+        )
 
         // Рассчитываем расстояние от ближайшей вершины до пересечения
         projection = findProjectionLength(
@@ -96,8 +98,13 @@ fun shiftAndOffsetCalc(
         )
         totalLengthBtSegment += projection
     } else {
-        // Рассчитываем ближайшее расстояние от точки до оси
-        offset = sin(Math.toRadians(abs(angleBtSegPoint))) * minLengthToPoint
+        // Пересечение перпендикуляра до сегмента
+        offset = findOffset(
+            pointData[numOfMinVertex - 1].s12,
+            minLengthToPoint,
+            segmentData[numOfMinVertex - 1].s12
+        )
+
 
         projection = findProjectionLength(
             minLengthToPoint, offset
