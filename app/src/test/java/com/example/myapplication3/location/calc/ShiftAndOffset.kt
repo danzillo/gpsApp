@@ -280,7 +280,9 @@ private fun checkOffsetAndColumnPlace(segmentAz: Double, pointAz: Double): Mutab
         val thirdBoard = segmentAz - 90
 
         offsetSymbol = pointAz < firstBoard && pointAz > secondBoard
-
+        println("Point:"+pointAz)
+        println("FirstBor:"+firstBoard)
+        println("third:"+thirdBoard)
 
         columnPos = if (pointAz <= firstBoard && pointAz >= thirdBoard) {
             true

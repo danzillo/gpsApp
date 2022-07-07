@@ -88,6 +88,7 @@ internal class GeoLibTest {
 
     @Test
     fun roadKmSegment() {
+       // shiftAndOffsetCalc(axis, distanceMarks[0])
         val r1 = roadKilometerSegment(axis, distanceMarks, points[0].coordinate)
         val R2 = roadKilometerSegment(axis, distanceMarks, points[1].coordinate)
         val R3 = roadKilometerSegment(axis, distanceMarks, points[2].coordinate)

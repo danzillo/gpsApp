@@ -67,6 +67,7 @@ fun roadKilometerSegment(
 
         roadKilometerMap[kmPointCounter] = KilometerSegment(segment, kmLength, kmPoints)
     }
-    println("ETO CHO "+ shiftAndOffsetCalc(kmPoints, cord).prevPoint)
+    val r1 =shiftAndOffsetCalc(kmPoints, cord)
+    println("ETO CHO " +r1.prevPoint)
     return roadKilometerMap
 }
