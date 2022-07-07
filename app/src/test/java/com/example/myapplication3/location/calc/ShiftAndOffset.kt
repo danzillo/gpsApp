@@ -72,8 +72,6 @@ fun shiftAndOffsetCalc(
     // Определяем угол между следующим сегментом оси и вектором на исходную точку
     // для последующего определения способа расчёта смещения и его знака
 
-
-    if (numOfMinVertex == axis.lastIndex) numOfMinVertex -= 1
     val angleBtSegPoint =
         findAngle(segmentData[numOfMinVertex].azi1, pointData[numOfMinVertex].azi1)
     val listSymbol =
