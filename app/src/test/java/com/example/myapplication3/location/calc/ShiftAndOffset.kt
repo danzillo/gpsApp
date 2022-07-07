@@ -11,7 +11,8 @@ data class ShiftAndOffset(
     val prevPoint: Int,
     val nextPoint: Int
 ) {
-    override fun toString() = "<ShiftAndOffset> {shift: $shift, offset: $offset, lat: ${crossPoint.latitude}, long:  ${crossPoint.longitude}}"
+    override fun toString() =
+        "<ShiftAndOffset> {shift: $shift, offset: $offset, lat: ${crossPoint.latitude}, long:  ${crossPoint.longitude}}"
 }
 
 fun shiftAndOffsetCalc(
@@ -21,10 +22,11 @@ fun shiftAndOffsetCalc(
     var minLengthToPoint =
         Double.MAX_VALUE  // Хранит минимальное расстояние между вершиной и столбом
     var numOfMinVertex = 0 // Номер вершины от которой расстояние минимально
+    var numOfMinSeg = 0 // Номер сегмента от которого расстояние минимально
     val pointData = mutableListOf<GeodesicData>() // Хранит гео-инф. о вершинах и столбах
     val segmentData = mutableListOf<GeodesicData>()  // Хранит гео-инф. о вершинах
-    val projection: Double // Проекция перпендикуляра столба
-    val coordinateData: GeodesicData // Хранит инф. о координатах проекции столба
+    var projection: Double // Проекция перпендикуляра столба
+    var coordinateData: GeodesicData // Хранит инф. о координатах проекции столба
     var offset: Double = 0.0 // Инфо о смещении
     var currentLength = 0.0
     var totalLengthBtSegment = 0.0
@@ -72,14 +74,67 @@ fun shiftAndOffsetCalc(
     // Определяем угол между следующим сегментом оси и вектором на исходную точку
     // для последующего определения способа расчёта смещения и его знака
 
-    val angleBtSegPoint =
-        findAngle(segmentData[numOfMinVertex].azi1, pointData[numOfMinVertex].azi1)
+    // val angleBtSegPoint =
+    //     findAngle(segmentData[numOfMinVertex].azi1, pointData[numOfMinVertex].azi1)
+    numOfMinSeg = numOfMinVertex
+    if (numOfMinVertex == axis.lastIndex) numOfMinSeg -= 1
+
+    // Определяем с какой стороны от крайней точки находится столб
     val listSymbol =
         checkOffsetAndColumnPlace(
-            (segmentData[numOfMinVertex].azi1),
+            (segmentData[numOfMinSeg].azi1),
             pointData[numOfMinVertex].azi1
         )
 
+    // Если столбец является крайним
+    if (numOfMinVertex != numOfMinSeg) {
+
+        // Если столбец стоит за осью дороги
+        if (listSymbol[1]) {
+            offset = minLengthToPoint
+            if (!listSymbol[0]) {
+                offset *= -1
+            }
+
+            coordinateData = Geodesic.WGS84.Inverse(
+                point.latitude,
+                point.longitude,
+                point.latitude,
+                point.longitude
+            )
+
+            prevPoint = numOfMinVertex
+            nextPoint = numOfMinVertex
+        }
+
+        // Если столбец стоит перед столбцом
+        else {
+            offset = findOffset(
+                pointData[numOfMinVertex - 1].s12,
+                minLengthToPoint,
+                segmentData[numOfMinSeg].s12
+            )
+            projection = findProjectionLength(
+                minLengthToPoint, offset
+            )
+
+            coordinateData = Geodesic.WGS84.Direct(
+                segmentData[numOfMinSeg].lat1,
+                segmentData[numOfMinSeg].lon1,
+                segmentData[numOfMinSeg].azi1,
+                projection
+            )
+
+            if (!listSymbol[0]) {
+                offset *= -1
+            }
+
+            prevPoint = numOfMinSeg
+            nextPoint = numOfMinVertex
+        }
+
+    }
+    else{
     // Если true - означает, что точка находится спереди от вершины
     if (listSymbol[1]) {
 
@@ -159,7 +214,7 @@ fun shiftAndOffsetCalc(
             offset = minLengthToPoint
             coordinateData = GeodesicData()
         }
-    }
+    }}
     return ShiftAndOffset(
         shift = totalLengthBtSegment,
         offset = offset,

@@ -175,8 +175,8 @@ internal class GeoLibTest {
 
         println("Находимся около КМ")
 
-        println(shiftAndOffsetCalc(distanceMarks, myPosition[3]).prevPoint)
-        println(shiftAndOffsetCalc(distanceMarks, myPosition[3]).offset)
+        println(shiftAndOffsetCalc(distanceMarks, myPosition[0]).prevPoint)
+        println(shiftAndOffsetCalc(distanceMarks, myPosition[0]).offset)
     }
 }
 
