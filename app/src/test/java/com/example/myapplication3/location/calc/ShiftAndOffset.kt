@@ -67,18 +67,20 @@ fun shiftAndOffsetCalc(
 
     // Определяем угол между следующим сегментом оси и вектором на исходную точку
     // для последующего определения способа расчёта смещения и его знака
-    val angleBtSegPoint = (pointData[numOfMinVertex].azi1) - (segmentData[numOfMinVertex].azi1)
-
+    val angleBtSegPoint =
+        findAngle(segmentData[numOfMinVertex].azi1, pointData[numOfMinVertex].azi1)
+    println(pointData[numOfMinVertex].azi1)
+    println()
+    println("SIn" + sin(Math.toRadians(abs(angleBtSegPoint))))
     val listSymbol =
-        checkOffsetSymbol((segmentData[numOfMinVertex].azi1), pointData[numOfMinVertex].azi1)
+        checkOffsetAndColumnPlace(
+            (segmentData[numOfMinVertex].azi1),
+            pointData[numOfMinVertex].azi1
+        )
 
     if (listSymbol[1]) {
         // Рассчитываем ближайшее расстояние от точки до оси
-        offset = findOffset(
-            pointData[numOfMinVertex + 1].s12,
-            minLengthToPoint,
-            segmentData[numOfMinVertex].s12
-        )
+        offset = sin(Math.toRadians(abs(angleBtSegPoint))) * minLengthToPoint
 
         // Рассчитываем расстояние от ближайшей вершины до пересечения
         projection = findProjectionLength(
@@ -94,13 +96,8 @@ fun shiftAndOffsetCalc(
         )
         totalLengthBtSegment += projection
     } else {
-        // Пересечение перпендикуляра до сегмента
-        offset = findOffset(
-            pointData[numOfMinVertex - 1].s12,
-            minLengthToPoint,
-            segmentData[numOfMinVertex - 1].s12
-        )
-
+        // Рассчитываем ближайшее расстояние от точки до оси
+        offset = sin(Math.toRadians(abs(angleBtSegPoint))) * minLengthToPoint
 
         projection = findProjectionLength(
             minLengthToPoint, offset
@@ -183,7 +180,7 @@ private fun convertMeterToKilometer(meters: Double): Int {
     return (meters / 1000).toInt()
 }
 
-private fun checkOffsetSymbol(segmentAz: Double, pointAz: Double): MutableList<Boolean> {
+private fun checkOffsetAndColumnPlace(segmentAz: Double, pointAz: Double): MutableList<Boolean> {
     // Определяет знак смещения -1 справа +1 слева
     var offsetSymbol = false
     // Определяет смещение относительно столба -1 = столб справа столб слева 1
@@ -207,7 +204,6 @@ private fun checkOffsetSymbol(segmentAz: Double, pointAz: Double): MutableList<B
         )))
 
     } else {
-        println("thisworkNow")
         // Все что внутри это -, снаружи +!
         val firstBoard = segmentAz
         val secondBoard = segmentAz + 180
@@ -225,7 +221,6 @@ private fun checkOffsetSymbol(segmentAz: Double, pointAz: Double): MutableList<B
                 )
     }
 
-    //println("Offset: ${offsetSymbol} ColumnPos ${columnPos}")
     listSymbol.add(offsetSymbol)
     listSymbol.add(columnPos)
     return listSymbol
