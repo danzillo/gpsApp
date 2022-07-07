@@ -2,7 +2,8 @@ package com.example.myapplication3.location.calc
 
 class KilometerSegment(
     val segment: MutableList<Coordinate>,
-    val kmLength: Double
+    val kmLength: Double,
+    val kmPoints: MutableList<Coordinate>
 )
 
 fun roadKilometerSegment(
@@ -15,6 +16,7 @@ fun roadKilometerSegment(
     var nextPoint = 0
     var prevCrossPoint = Coordinate(0.0, 0.0)
     val lastPoint = axis.lastIndex
+    val kmPoints = mutableListOf<Coordinate>()
 
     for (kmPointCounter in 0..kmPoint.lastIndex) {
         val segment = mutableListOf<Coordinate>()
@@ -27,16 +29,18 @@ fun roadKilometerSegment(
 
         // Сохраняем все вершины для участка дороги между км столбами
         if (kmPointCounter == 0) {
+            kmPoints.add(axis[prevPoint])
             for (axisCounter in prevPoint..kmShiftAndOffset.prevPoint) {
                 segment.add(axis[axisCounter])
             }
         } else {
+            kmPoints.add(kmShiftAndOffset.crossPoint)
             segment.add(kmShiftAndOffset.crossPoint)
             for (axisCounter in nextPoint..kmShiftAndOffset.prevPoint) {
                 segment.add(prevCrossPoint)
             }
         }
-
+        //kmPoints.add(kmShiftAndOffset.crossPoint)
         // Добавляем точку пересечения с перпендикуляром от км столба
         segment.add(kmShiftAndOffset.crossPoint)
 
@@ -45,7 +49,8 @@ fun roadKilometerSegment(
             for (axisCounter in nextPoint..lastPoint) {
                 segment.add(axis[axisCounter])
             }
-            roadKilometerMap[kmPointCounter + 1] = KilometerSegment(segment, 0.0)
+            kmPoints.add(axis[lastPoint])
+            roadKilometerMap[kmPointCounter + 1] = KilometerSegment(segment, 0.0, kmPoints)
         }
 
         // Расстояние от начала до проекции
@@ -57,7 +62,7 @@ fun roadKilometerSegment(
         // Точка, которая будет записываться после prevCrossPoint
         nextPoint = kmShiftAndOffset.nextPoint
 
-        roadKilometerMap[kmPointCounter] = KilometerSegment(segment, kmLength)
+        roadKilometerMap[kmPointCounter] = KilometerSegment(segment, kmLength, kmPoints)
     }
 
     return roadKilometerMap
