@@ -22,13 +22,6 @@ val myPosition = mutableListOf(
 
 )
 
-val axis2 = mutableListOf(
-    Coordinate( 84.940240, 56.447974),
-    Coordinate(84.941264, 56.447465),
-    Coordinate(84.941087, 56.447123),
-    Coordinate(84.940419,  56.446641),
-
-)
 // Для хранения координат вершин дороги
 val axis = mutableListOf(
     Coordinate(84.92880858269907662, 56.45087313041989319),

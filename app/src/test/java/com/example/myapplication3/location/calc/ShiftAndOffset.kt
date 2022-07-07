@@ -65,20 +65,14 @@ fun shiftAndOffsetCalc(
 
     //TODO: Учесть «слепой угол»
 
-/*
-    val cosinus: Double =
-        (minLengthToPoint.pow(2) + segmentData[numOfMinVertex].s12.pow(2) - pointData[numOfMinVertex + 1].s12.pow(
-            2
-        )) / (2 * minLengthToPoint * segmentData[numOfMinVertex].s12)
-*/
-
     // Определяем угол между следующим сегментом оси и вектором на исходную точку
     // для последующего определения способа расчёта смещения и его знака
     val angleBtSegPoint = (pointData[numOfMinVertex].azi1) - (segmentData[numOfMinVertex].azi1)
-    checkOffsetSymbol((segmentData[numOfMinVertex].azi1), (pointData[numOfMinVertex].azi1))
-    println("Coord ${segmentData[numOfMinVertex].lon1}")
-    println("lan ${segmentData[numOfMinVertex].lat1}")
-    if (angleBtSegPoint < 0) {
+
+    val listSymbol =
+        checkOffsetSymbol((segmentData[numOfMinVertex].azi1), pointData[numOfMinVertex].azi1)
+
+    if (listSymbol[1]) {
         // Рассчитываем ближайшее расстояние от точки до оси
         offset = findOffset(
             pointData[numOfMinVertex + 1].s12,
@@ -90,14 +84,14 @@ fun shiftAndOffsetCalc(
         projection = findProjectionLength(
             minLengthToPoint, offset
         )
+
+        if (!listSymbol[0]) offset *= -1
         coordinateData = Geodesic.WGS84.Direct(
             segmentData[numOfMinVertex].lat1,
             segmentData[numOfMinVertex].lon1,
             segmentData[numOfMinVertex].azi1,
             projection
         )
-
-        // println("OFF "+offset*znak)
         totalLengthBtSegment += projection
     } else {
         // Пересечение перпендикуляра до сегмента
@@ -111,7 +105,7 @@ fun shiftAndOffsetCalc(
         projection = findProjectionLength(
             minLengthToPoint, offset
         )
-        //println("OFF "+offset*znak)
+        if (!listSymbol[0]) offset *= -1
         coordinateData = Geodesic.WGS84.Direct(
             segmentData[numOfMinVertex].lat1,
             segmentData[numOfMinVertex].lon1,
@@ -185,75 +179,54 @@ private fun adjacentAngle(
     }
 }
 
-// Проверяет в какую сторону от оси дороги смещение(true - влево false - вправо)
-/*private fun checkOffsetSymbol(
-    segmentAz: Double,
-    pointAz: Double
-): Boolean {
-    // println("ras ${translateToFullCircle(segmentAz + 180)} dva" + translateToFullCircle(pointAz))
-    if ((segmentAz + 180) > (segmentAz)) {
-        return !((segmentAz + 180) >= (pointAz) && (
-                segmentAz
-                ) <= (pointAz))
-    } else ((segmentAz + 180) < (segmentAz))
-    return !((segmentAz + 180) <= (pointAz) && (
-            segmentAz
-            ) >= (pointAz))
-}*/
-
 private fun convertMeterToKilometer(meters: Double): Int {
     return (meters / 1000).toInt()
 }
 
-private fun checkOffsetSymbol(segmetAz: Double, pointAz: Double) {
+private fun checkOffsetSymbol(segmentAz: Double, pointAz: Double): MutableList<Boolean> {
     // Определяет знак смещения -1 справа +1 слева
-    var offsetSymbol = 0
+    var offsetSymbol = false
     // Определяет смещение относительно столба -1 = столб справа столб слева 1
-    var columnPos = 0
-    if (segmetAz > 0) {
+    var columnPos = false
+    val listSymbol = mutableListOf<Boolean>()
+    if (segmentAz > 0) {
 
         // Все что внутри, то +, снаружи -!
-        val firstBoard = segmetAz
-        val secondBoard = segmetAz - 180
-        val thirdBoard = segmetAz - 90
+        val firstBoard = segmentAz
+        val secondBoard = segmentAz - 180
+        val thirdBoard = segmentAz - 90
 
-        if (pointAz < firstBoard && pointAz > secondBoard)
-            offsetSymbol = 1
-        else offsetSymbol = -1
+        offsetSymbol = pointAz < firstBoard && pointAz > secondBoard
 
-        if (pointAz < firstBoard && pointAz > thirdBoard) {
-            columnPos = 1
+        columnPos = if (pointAz < firstBoard && pointAz > thirdBoard) {
+            true
         } else if (pointAz < thirdBoard && pointAz > secondBoard)
-            columnPos = -1
-        else if (pointAz < secondBoard && pointAz > (secondBoard - firstBoard) || pointAz <= 180 && pointAz > (180 - abs(
-                thirdBoard
-            )
-                    )
-        )
-            columnPos = -1
-        else columnPos = 1
+            false
+        else !(pointAz < secondBoard && pointAz > (secondBoard - firstBoard) || pointAz <= 180 && pointAz > (180 - abs(
+            thirdBoard
+        )))
 
     } else {
-        println("Rabotaet <segm")
+        println("thisworkNow")
         // Все что внутри это -, снаружи +!
-        val firstBoard = segmetAz
-        val secondBoard = segmetAz + 180
-        val thirdBoard = segmetAz + 90
+        val firstBoard = segmentAz
+        val secondBoard = segmentAz + 180
+        val thirdBoard = segmentAz + 90
 
-        if (pointAz > firstBoard && pointAz < secondBoard)
-            offsetSymbol = -1 //справа
-        else offsetSymbol = 1 //слева
+        offsetSymbol = !(pointAz > firstBoard && pointAz < secondBoard) //слева
 
-        if (pointAz > firstBoard && pointAz < thirdBoard) {
-            columnPos = 1
+        columnPos = if (pointAz > firstBoard && pointAz < thirdBoard) {
+            true
         } else if (pointAz > thirdBoard && pointAz < secondBoard)
-            columnPos = -1
-        else if (pointAz >= secondBoard && pointAz <= secondBoard + abs(firstBoard) || pointAz >= -180 && pointAz > (-180 + abs(
-                thirdBoard)
-            )) // тут подумать
-            columnPos = 1
-        else columnPos = -1
+            false
+        else pointAz >= secondBoard && pointAz <= secondBoard + abs(firstBoard) || pointAz >= -180 && pointAz > (-180 + abs(
+            thirdBoard
+        )
+                )
     }
 
-    println("Offset: ${offsetSymbol} ColumnPos ${columnPos}")
+    //println("Offset: ${offsetSymbol} ColumnPos ${columnPos}")
+    listSymbol.add(offsetSymbol)
+    listSymbol.add(columnPos)
+    return listSymbol
 }

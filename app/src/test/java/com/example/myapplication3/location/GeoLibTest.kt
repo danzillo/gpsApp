@@ -88,11 +88,12 @@ internal class GeoLibTest {
 
     @Test
     fun findOffsetSum() {
-        val r1 = shiftAndOffsetCalc(axis, myPosition[0])
-        println("Coord ${r1}")
+        val r1 = shiftAndOffsetCalc(axis, distanceMarks[0])
+        println("Coord ${r1.crossPoint.latitude}  SHift ${r1.shift} Offset ${r1.offset}")
        /* println("r1 = $r1")
         println(r1.offset)*/
-        val r2 = shiftAndOffsetCalc(axis, myPosition[1])
+        val r2 = shiftAndOffsetCalc(axis, distanceMarks[1])
+        println("Coord ${r2.crossPoint.latitude}  SHift ${r2.shift} Offset ${r2.offset}")
      /*   println("r1 = $r2")
         println(r2.offset)*/
         val r3 = shiftAndOffsetCalc(axis, myPosition[2])
