@@ -73,6 +73,16 @@ internal class GeoLibTest {
             name = "Дача (3+448 R 5.5)",
             coordinate = Coordinate(84.9586023413717, 56.4291355996175),
             kmPlusOffset = KmPlusOffset(3, 448.6, 5.5)
+        ),
+/*        TestPoint(
+            name = "Дача (3+448 R 5.5)",
+            coordinate = Coordinate(84.925367, 56.452365),
+            kmPlusOffset = KmPlusOffset(3, 448.6, 5.5)
+        ) ,*/
+        TestPoint(
+            name = "Дача (3+448 R 5.5)",
+            coordinate = Coordinate(84.963074, 56.422947),
+            kmPlusOffset = KmPlusOffset(3, 448.6, 5.5)
         )
     )
 

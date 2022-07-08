@@ -70,10 +70,13 @@ fun roadKilometerSegment(
         segment.add(kmShiftAndOffset.crossPoint)
         kmLength = kmShiftAndOffset.shift
         roadKilometerMap[kmPointCounter] = KilometerSegment(segment, kmLength, kmPoints)
+        // Точка, которая будет записываться после prevCrossPoint
+        nextPoint = kmShiftAndOffset.nextPoint
+
         if (kmPointCounter == kmPoint.lastIndex) {
-            segment = mutableListOf<Coordinate>()
+            segment = mutableListOf()
             segment.add(kmShiftAndOffset.crossPoint)
-            for (axisCounter in kmShiftAndOffset.prevPoint..lastPoint) {
+            for (axisCounter in nextPoint..lastPoint) {
                 segment.add(axis[axisCounter])
             }
             // segment.add(kmShiftAndOffset.crossPoint)
@@ -87,8 +90,7 @@ fun roadKilometerSegment(
         // Точка пересечения перпендикуляра с дорогой (с нее заполняется сегмент)
         prevCrossPoint = kmShiftAndOffset.crossPoint
 
-        // Точка, которая будет записываться после prevCrossPoint
-        nextPoint = kmShiftAndOffset.nextPoint
+
 
 
     }
@@ -105,8 +107,9 @@ fun roadKilometerSegment(
         r1.minPoint -= 1
 
     println(r1.minPoint)
-    println(roadKilometerMap[2]?.segment!![0].latitude)
-    println(roadKilometerMap[2]?.segment!![0].longitude)
+    println(roadKilometerMap[3]?.segment!![1].latitude)
+    println(roadKilometerMap[3]?.segment!![1].longitude)
+
     val r2 = shiftAndOffsetCalc(roadKilometerMap[r1.minPoint]?.segment!!, cord)
     println(r2.shift)
     road.add(PointData(r1.minPoint, r2.shift, r2.offset))
