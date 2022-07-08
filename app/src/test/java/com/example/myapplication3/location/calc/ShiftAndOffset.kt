@@ -89,7 +89,7 @@ fun shiftAndOffsetCalc(
     // Если вершина является крайней
     if (numOfMinVertex != numOfMinSeg) {
 
-        // Если столбец стоит за осью дороги
+        // Если точка стоит за осью дороги
         if (listSymbol[1]) {
             offset = minLengthToPoint
             if (!listSymbol[0]) {
@@ -107,7 +107,7 @@ fun shiftAndOffsetCalc(
             nextPoint = numOfMinVertex
         }
 
-        // Если столбец стоит перед столбцом
+        // Если точка стоит перед крайней вершиной
         else {
             offset = findOffset(
                 pointData[numOfMinVertex - 1].s12,

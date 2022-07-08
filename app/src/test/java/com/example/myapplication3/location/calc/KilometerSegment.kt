@@ -29,7 +29,7 @@ fun roadKilometerSegment(
     var totalLength: Double = 0.0
 
     for (kmPointCounter in 0..kmPoint.lastIndex) {
-        val segment = mutableListOf<Coordinate>()
+        var segment = mutableListOf<Coordinate>()
         // Находим координаты проекции столба, ближайшую вершину(слева//справа от столба)
         // смещение и расстояние до проекции
         val kmShiftAndOffset: ShiftAndOffset = shiftAndOffsetCalc(
@@ -68,19 +68,21 @@ fun roadKilometerSegment(
 
         // Добавляем точку пересечения с перпендикуляром от км столба
         segment.add(kmShiftAndOffset.crossPoint)
-
+        kmLength = kmShiftAndOffset.shift
+        roadKilometerMap[kmPointCounter] = KilometerSegment(segment, kmLength, kmPoints)
         if (kmPointCounter == kmPoint.lastIndex) {
+            segment = mutableListOf<Coordinate>()
             segment.add(kmShiftAndOffset.crossPoint)
-            for (axisCounter in nextPoint..kmShiftAndOffset.prevPoint) {
+            for (axisCounter in kmShiftAndOffset.prevPoint..lastPoint) {
                 segment.add(axis[axisCounter])
             }
-            segment.add(kmShiftAndOffset.crossPoint)
+            // segment.add(kmShiftAndOffset.crossPoint)
             kmPoints.add(axis[lastPoint])
             roadKilometerMap[kmPointCounter + 1] = KilometerSegment(segment, 0.0, kmPoints)
         }
 
         // Расстояние от начала до проекции
-        kmLength = kmShiftAndOffset.shift
+
 
         // Точка пересечения перпендикуляра с дорогой (с нее заполняется сегмент)
         prevCrossPoint = kmShiftAndOffset.crossPoint
@@ -88,7 +90,7 @@ fun roadKilometerSegment(
         // Точка, которая будет записываться после prevCrossPoint
         nextPoint = kmShiftAndOffset.nextPoint
 
-        roadKilometerMap[kmPointCounter] = KilometerSegment(segment, kmLength, kmPoints)
+
     }
 
     // Находим ближайший столбец к точке
@@ -102,11 +104,14 @@ fun roadKilometerSegment(
     if (r1.minPoint > 0 && r1.minPoint <= kmPointsLength.lastIndex && r1.shift < kmPointsLength[r1.minPoint])
         r1.minPoint -= 1
 
-/*    println(roadKilometerMap[3]?.segment!![23].latitude)
-    println(roadKilometerMap[3]?.segment!![23].longitude)*/
+    println(r1.minPoint)
+    println(roadKilometerMap[2]?.segment!![0].latitude)
+    println(roadKilometerMap[2]?.segment!![0].longitude)
     val r2 = shiftAndOffsetCalc(roadKilometerMap[r1.minPoint]?.segment!!, cord)
+    println(r2.shift)
     road.add(PointData(r1.minPoint, r2.shift, r2.offset))
     //val shift = r2.shift
+    // Не заполняется один из сегментов
 
 
     return road
