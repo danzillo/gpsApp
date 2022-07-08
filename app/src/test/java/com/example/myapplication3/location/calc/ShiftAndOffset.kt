@@ -9,7 +9,9 @@ data class ShiftAndOffset(
     val offset: Double,
     val crossPoint: Coordinate,
     val prevPoint: Int,
-    val nextPoint: Int
+    val nextPoint: Int,
+    var minPoint: Int,
+    val totalLength: Double
 ) {
     override fun toString() =
         "<ShiftAndOffset> {shift: $shift, offset: $offset, lat: ${crossPoint.latitude}, long:  ${crossPoint.longitude}}"
@@ -67,6 +69,7 @@ fun shiftAndOffsetCalc(
 
     }
 
+    val minPoint = numOfMinVertex
     //TODO: Учесть «слепой угол»
     //TODO: Расчёт высоты в треугольнике с помощью sin
 
@@ -109,7 +112,7 @@ fun shiftAndOffsetCalc(
             offset = findOffset(
                 pointData[numOfMinVertex - 1].s12,
                 minLengthToPoint,
-                segmentData[numOfMinSeg].s12
+                segmentData[numOfMinVertex - 1].s12
             )
             projection = findProjectionLength(
                 minLengthToPoint, offset
@@ -128,6 +131,7 @@ fun shiftAndOffsetCalc(
 
             prevPoint = numOfMinSeg
             nextPoint = numOfMinVertex
+            totalLengthBtSegment-=projection
         }
 
     } else {
@@ -205,7 +209,9 @@ fun shiftAndOffsetCalc(
         offset = offset,
         crossPoint = Coordinate(coordinateData.lon2, coordinateData.lat2),
         prevPoint = prevPoint,
-        nextPoint = nextPoint
+        nextPoint = nextPoint,
+        minPoint = minPoint,
+        totalLength = currentLength
     )
 }
 
@@ -280,9 +286,9 @@ private fun checkOffsetAndColumnPlace(segmentAz: Double, pointAz: Double): Mutab
         val thirdBoard = segmentAz - 90
 
         offsetSymbol = pointAz < firstBoard && pointAz > secondBoard
-        println("Point:"+pointAz)
+       /* println("Point:"+pointAz)
         println("FirstBor:"+firstBoard)
-        println("third:"+thirdBoard)
+        println("third:"+thirdBoard)*/
 
         columnPos = if (pointAz <= firstBoard && pointAz >= thirdBoard) {
             true
