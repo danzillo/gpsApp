@@ -8,9 +8,13 @@ data class ShiftAndOffset(
     val shift: Double,
     val offset: Double,
     val crossPoint: Coordinate,
-    val minVertex: Int
+    val prevPoint: Int,
+    val nextPoint: Int,
+    var minPoint: Int,
+    val totalLength: Double
 ) {
-    override fun toString() = "<ShiftAndOffset> {shift: $shift, offset: $offset}"
+    override fun toString() =
+        "<ShiftAndOffset> {shift: $shift, offset: $offset, lat: ${crossPoint.latitude}, long:  ${crossPoint.longitude}}"
 }
 
 fun shiftAndOffsetCalc(
@@ -20,13 +24,16 @@ fun shiftAndOffsetCalc(
     var minLengthToPoint =
         Double.MAX_VALUE  // Хранит минимальное расстояние между вершиной и столбом
     var numOfMinVertex = 0 // Номер вершины от которой расстояние минимально
+    var numOfMinSeg = 0 // Номер сегмента от которого расстояние минимально
     val pointData = mutableListOf<GeodesicData>() // Хранит гео-инф. о вершинах и столбах
     val segmentData = mutableListOf<GeodesicData>()  // Хранит гео-инф. о вершинах
     val projection: Double // Проекция перпендикуляра столба
     val coordinateData: GeodesicData // Хранит инф. о координатах проекции столба
-    var offset: Double // Инфо о смещении
+    var offset: Double = 0.0 // Инфо о смещении
     var currentLength = 0.0
     var totalLengthBtSegment = 0.0
+    var nextPoint = -1
+    var prevPoint = -1
 
     for (axisCounter in 0..axis.lastIndex) {
 
@@ -42,7 +49,6 @@ fun shiftAndOffsetCalc(
         if (minLengthToPoint > geodesicData.s12) {
             minLengthToPoint = geodesicData.s12
             numOfMinVertex = axisCounter
-
             // Сохраняем длину от 0 до точки в близи столба
             totalLengthBtSegment = currentLength
         }
@@ -63,77 +69,149 @@ fun shiftAndOffsetCalc(
 
     }
 
+    val minPoint = numOfMinVertex
     //TODO: Учесть «слепой угол»
-
-    val cosinus: Double =
-        (minLengthToPoint.pow(2) + segmentData[numOfMinVertex].s12.pow(2) - pointData[numOfMinVertex + 1].s12.pow(
-            2
-        )) / (2 * minLengthToPoint * segmentData[numOfMinVertex].s12)
+    //TODO: Расчёт высоты в треугольнике с помощью sin
 
     // Определяем угол между следующим сегментом оси и вектором на исходную точку
     // для последующего определения способа расчёта смещения и его знака
-    val angleBtSegPoint =
-        abs(
-            translateToFullCircle(segmentData[numOfMinVertex].azi1) - translateToFullCircle(
-                pointData[numOfMinVertex].azi1
+
+    numOfMinSeg = numOfMinVertex
+    if (numOfMinVertex == axis.lastIndex) numOfMinSeg -= 1
+
+    // Определяем с какой стороны от крайней точки находится столб
+    val listSymbol =
+        checkOffsetAndColumnPlace(
+            (segmentData[numOfMinSeg].azi1),
+            pointData[numOfMinVertex].azi1
+        )
+
+    // Если вершина является крайней
+    if (numOfMinVertex != numOfMinSeg) {
+
+        // Если столбец стоит за осью дороги
+        if (listSymbol[1]) {
+            offset = minLengthToPoint
+            if (!listSymbol[0]) {
+                offset *= -1
+            }
+
+            coordinateData = Geodesic.WGS84.Inverse(
+                point.latitude,
+                point.longitude,
+                point.latitude,
+                point.longitude
             )
-        )
-    println(translateToFullCircle(segmentData[numOfMinVertex].azi2))
-    println(translateToFullCircle(pointData[numOfMinVertex].azi2))
-    println(angleBtSegPoint)
 
-    println(findAngle(segmentData[numOfMinVertex].azi2, pointData[numOfMinVertex].azi1))
+            prevPoint = numOfMinVertex
+            nextPoint = numOfMinVertex
+        }
 
-    println(checkOffsetSymbol(segmentData[numOfMinVertex].azi2, pointData[numOfMinVertex].azi1))
-    println(checkSide(segmentData[numOfMinVertex].azi2, pointData[numOfMinVertex].azi1))
-    if (angleBtSegPoint < 90 && angleBtSegPoint >= 270) {
-        // Пересечение перпендикуляра на сегменте (наверное)
+        // Если столбец стоит перед столбцом
+        else {
+            offset = findOffset(
+                pointData[numOfMinVertex - 1].s12,
+                minLengthToPoint,
+                segmentData[numOfMinVertex - 1].s12
+            )
+            projection = findProjectionLength(
+                minLengthToPoint, offset
+            )
 
-        // Рассчитываем ближайшее расстояние от точки до оси
-        offset = findOffset(
-            pointData[numOfMinVertex + 1].s12,
-            minLengthToPoint,
-            segmentData[numOfMinVertex].s12
-        )
+            coordinateData = Geodesic.WGS84.Direct(
+                segmentData[numOfMinSeg].lat1,
+                segmentData[numOfMinSeg].lon1,
+                segmentData[numOfMinSeg].azi1,
+                projection
+            )
 
-        if (angleBtSegPoint >= 270) offset = -offset
+            if (!listSymbol[0]) {
+                offset *= -1
+            }
 
-        // Рассчитываем расстояние от ближайшей вершины до пересечения
-        projection = findProjectionLength(
-            minLengthToPoint, offset
-        )
-        coordinateData = Geodesic.WGS84.Direct(
-            segmentData[numOfMinVertex].lat1,
-            segmentData[numOfMinVertex].lon1,
-            segmentData[numOfMinVertex].azi1,
-            projection
-        )
-        totalLengthBtSegment += projection
+            prevPoint = numOfMinSeg
+            nextPoint = numOfMinVertex
+            totalLengthBtSegment-=projection
+        }
+
     } else {
-        // Пересечение перпендикуляра до сегмента
-        offset = findOffset(
-            pointData[numOfMinVertex - 1].s12,
-            minLengthToPoint,
-            segmentData[numOfMinVertex - 1].s12
-        )
-        if (angleBtSegPoint >= 180) offset = -offset
-        projection = findProjectionLength(
-            minLengthToPoint, offset
-        )
-        coordinateData = Geodesic.WGS84.Direct(
-            segmentData[numOfMinVertex].lat1,
-            segmentData[numOfMinVertex].lon1,
-            segmentData[numOfMinVertex - 1].azi2 + 180,
-            projection
-        )
-        totalLengthBtSegment -= projection
-        numOfMinVertex -= 1
+        // Если true - означает, что точка находится спереди от вершины
+        if (listSymbol[1]) {
+
+            // Рассчитываем ближайшее расстояние от точки до оси
+            offset = findOffset(
+                pointData[numOfMinVertex + 1].s12,
+                minLengthToPoint,
+                segmentData[numOfMinVertex].s12
+            )
+
+            // Рассчитываем расстояние от ближайшей вершины до пересечения
+            projection = findProjectionLength(
+                minLengthToPoint, offset
+            )
+
+            // Если проекция столба справа, то -1
+            if (!listSymbol[0]) {
+                offset *= -1
+            }
+
+            coordinateData = Geodesic.WGS84.Direct(
+                segmentData[numOfMinVertex].lat1,
+                segmentData[numOfMinVertex].lon1,
+                segmentData[numOfMinVertex].azi1,
+                projection
+            )
+            prevPoint = numOfMinVertex
+            nextPoint = numOfMinVertex + 1
+            totalLengthBtSegment += projection
+
+        } else {
+            if (numOfMinVertex > 0) {
+                // Пересечение перпендикуляра до сегмента
+                offset = findOffset(
+                    pointData[numOfMinVertex - 1].s12,
+                    minLengthToPoint,
+                    segmentData[numOfMinVertex - 1].s12
+                )
+
+                projection = findProjectionLength(
+                    minLengthToPoint, offset
+                )
+                if (!listSymbol[0]) {
+                    offset *= -1
+
+                }
+                if (numOfMinVertex > 0) {
+                    prevPoint = numOfMinVertex -1
+                    nextPoint = numOfMinVertex
+                }
+                 else {
+                    prevPoint = numOfMinVertex
+                    nextPoint = numOfMinVertex + 1
+                }
+
+                coordinateData = Geodesic.WGS84.Direct(
+                    segmentData[numOfMinVertex].lat1,
+                    segmentData[numOfMinVertex].lon1,
+                    segmentData[numOfMinVertex - 1].azi2 + 180,
+                    projection
+                )
+                totalLengthBtSegment -= projection
+
+            } else {
+                offset = minLengthToPoint
+                coordinateData = GeodesicData()
+            }
+        }
     }
     return ShiftAndOffset(
         shift = totalLengthBtSegment,
         offset = offset,
         crossPoint = Coordinate(coordinateData.lon2, coordinateData.lat2),
-        minVertex = numOfMinVertex
+        prevPoint = prevPoint,
+        nextPoint = nextPoint,
+        minPoint = minPoint,
+        totalLength = currentLength
     )
 }
 
@@ -144,6 +222,7 @@ fun shiftAndOffsetCalc(
  * @param lengthRoad - длина сегмента оси между двумя вершинами (одна из них - мин)
  * @return длина перпендикуляра
  */
+
 private fun findOffset(
     length: Double,
     lengthMin: Double,
@@ -162,23 +241,12 @@ private fun findProjectionLength(
     return (lengthMin.pow(2) - height.pow(2)).pow(0.5)
 }
 
-// Преобразует значения градусов в значения от 0 до 360
-private fun translateToFullCircle(
-    deg: Double
-): Double {
-    return if (deg > 360)
-        deg - 360
-    else if (deg < 0)
-        deg + 360
-    else deg
-}
-
 // Поиск угла между азимутами двух векторов
 private fun findAngle(
     firstAngle: Double,
     secondAngle: Double
 ): Double {
-    return translateToFullCircle(firstAngle) - translateToFullCircle(secondAngle)
+    return firstAngle - secondAngle
 }
 
 // Находит размерность смежного угла, и вычисляет промежуток в котором находится "слепой угол"
@@ -188,61 +256,67 @@ private fun adjacentAngle(
 ): MutableList<Double> {
     val adjacentAngle = (360 - 2 * findAngle(firstAngle, secondAngle)) / 2
 
-    return if (translateToFullCircle(firstAngle) > translateToFullCircle(secondAngle)) {
+    return if (firstAngle > secondAngle) {
         mutableListOf(
-            translateToFullCircle(translateToFullCircle(firstAngle) + adjacentAngle),
-            translateToFullCircle(translateToFullCircle(secondAngle) - adjacentAngle)
+            (firstAngle + adjacentAngle),
+            (secondAngle - adjacentAngle)
         )
     } else {
         mutableListOf(
-            translateToFullCircle(translateToFullCircle(firstAngle) - adjacentAngle),
-            translateToFullCircle(translateToFullCircle(secondAngle) + adjacentAngle)
+            (firstAngle - adjacentAngle),
+            (secondAngle + adjacentAngle)
         )
     }
 }
 
-// Проверяет в какую сторону от оси дороги смещение(true - влево false - вправо)
-private fun checkOffsetSymbol(
-    segmentAz: Double,
-    pointAz: Double
-): Boolean {
-    // println("ras ${translateToFullCircle(segmentAz + 180)} dva" + translateToFullCircle(pointAz))
-    if (translateToFullCircle(segmentAz + 180) > translateToFullCircle(segmentAz)) {
-        return !(translateToFullCircle(segmentAz + 180) >= translateToFullCircle(pointAz) && translateToFullCircle(
-            segmentAz
-        ) <= translateToFullCircle(pointAz))
-    } else (translateToFullCircle(segmentAz + 180) < translateToFullCircle(segmentAz))
-    return !(translateToFullCircle(segmentAz + 180) <= translateToFullCircle(pointAz) && translateToFullCircle(
-        segmentAz
-    ) >= translateToFullCircle(pointAz))
-}
-
-private fun checkSide(
-    segmentAz: Double,
-    pointAz: Double
-): Boolean {
-    if ((translateToFullCircle(segmentAz + 180) > translateToFullCircle(segmentAz))) {
-        if (translateToFullCircle(segmentAz + 90) > translateToFullCircle(segmentAz)) {
-            if (translateToFullCircle(segmentAz + 90) >= translateToFullCircle(pointAz) && translateToFullCircle(
-                    segmentAz
-                ) < translateToFullCircle(pointAz)
-            ) return true
-            else return false
-        }
-        if (translateToFullCircle(segmentAz + 90) < translateToFullCircle(segmentAz)) {
-            if (translateToFullCircle(segmentAz + 90) <= translateToFullCircle(pointAz) && translateToFullCircle(
-                    segmentAz
-                ) > translateToFullCircle(pointAz)
-            ) return true
-            else return false
-        }
-    } else (translateToFullCircle(segmentAz + 180) < translateToFullCircle(segmentAz))
-    return !(translateToFullCircle(segmentAz + 180) <= translateToFullCircle(pointAz) && translateToFullCircle(
-        segmentAz
-    ) >= translateToFullCircle(pointAz))
-}
-
-
 private fun convertMeterToKilometer(meters: Double): Int {
     return (meters / 1000).toInt()
+}
+
+private fun checkOffsetAndColumnPlace(segmentAz: Double, pointAz: Double): MutableList<Boolean> {
+    // Определяет знак смещения -1 справа +1 слева
+    var offsetSymbol = false
+    // Определяет смещение относительно столба -1 = столб справа столб слева 1
+    var columnPos = false
+    val listSymbol = mutableListOf<Boolean>()
+    if (segmentAz > 0) {
+        // Все что внутри, то +, снаружи -!
+        val firstBoard = segmentAz
+        val secondBoard = segmentAz - 180
+        val thirdBoard = segmentAz - 90
+
+        offsetSymbol = pointAz < firstBoard && pointAz > secondBoard
+       /* println("Point:"+pointAz)
+        println("FirstBor:"+firstBoard)
+        println("third:"+thirdBoard)*/
+
+        columnPos = if (pointAz <= firstBoard && pointAz >= thirdBoard) {
+            true
+        } else if (pointAz < thirdBoard && pointAz >= secondBoard)
+            false
+        else !(pointAz < secondBoard && pointAz >= (secondBoard - firstBoard) || pointAz <= 180 && pointAz > (180 - abs(
+            thirdBoard
+        )))
+
+    } else {
+        // Все что внутри это -, снаружи +!
+        val firstBoard = segmentAz
+        val secondBoard = segmentAz + 180
+        val thirdBoard = segmentAz + 90
+
+        offsetSymbol = !(pointAz > firstBoard && pointAz < secondBoard) //слева
+
+        columnPos = if (pointAz > firstBoard && pointAz < thirdBoard) {
+            true
+        } else if (pointAz > thirdBoard && pointAz < secondBoard)
+            false
+        else pointAz >= secondBoard && pointAz <= secondBoard + abs(firstBoard) || pointAz >= -180 && pointAz > (-180 + abs(
+            thirdBoard
+        )
+                )
+    }
+
+    listSymbol.add(offsetSymbol)
+    listSymbol.add(columnPos)
+    return listSymbol
 }

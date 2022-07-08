@@ -14,12 +14,14 @@ internal class GeoLibTest {
         2 to Pair(1068.49, -3.30),
         3 to Pair(1132.85, 4.20)
     )
+
     // Тестовые точки на дороге
     data class TestPoint(
         val name: String,
         val coordinate: Coordinate,
         val kmPlusOffset: KmPlusOffset
     )
+
     private val points: List<TestPoint> = listOf(
         TestPoint(
             name = "Начало парковки (0+360, R 9.5)",
@@ -46,10 +48,16 @@ internal class GeoLibTest {
             coordinate = Coordinate(84.9521063373097, 56.4447347087405),
             kmPlusOffset = KmPlusOffset(1, 812.4, -8.3)
         ),
+        /*       TestPoint(
+                   name = "Напротив дерева (1+1068; 2+000 R 4.4)",
+                   coordinate = Coordinate(84.9546837617013, 56.4429497990569),
+                   kmPlusOffset = KmPlusOffset(2, 0.0, 4.4)
+               ),*/
+
         TestPoint(
             name = "Напротив дерева (1+1068; 2+000 R 4.4)",
             coordinate = Coordinate(84.9546837617013, 56.4429497990569),
-            kmPlusOffset = KmPlusOffset(2, 0.0, 4.4)
+            kmPlusOffset = KmPlusOffset(1, 1068.49, 4.4)
         ),
         TestPoint(
             name = "Съезд налево после дерева 1 (2+330 L 13.1)",
@@ -72,16 +80,48 @@ internal class GeoLibTest {
     fun testShiftAndOffsetCalc() {
         val r1 = shiftAndOffsetCalc(axis, points[0].coordinate)
         println("r1 = $r1")
-        //Assert.assertEquals(points[0].kmPlusOffset.meter, r1.shift, 0.2)
 
         val r2 = shiftAndOffsetCalc(axis, points[1].coordinate)
         println("r2 = $r2")
-        Assert.assertEquals(points[1].kmPlusOffset.meter, r2.shift, 0.2)
+        Assert.assertEquals(points[2].kmPlusOffset.meter, r2.shift, 0.2)
 
         val l1 = points[4].kmPlusOffset.meter + knownDistanceMarks[1]!!.first
         val r5 = shiftAndOffsetCalc(axis, points[4].coordinate)
         println("r5 = $r5, l1 = $l1")
         Assert.assertEquals(l1, r5.shift, 0.2)
+    }
+
+    @Test
+    fun testToadKmSegment() {
+        fun testOnePoint(testPoint: TestPoint) {
+            println("-=[ Test: ${testPoint.name} ]=------------------------------------------------")
+            val res = roadKilometerSegment(axis, distanceMarks, testPoint.coordinate)[0]
+            println("r1 km = ${res.km}")
+            println("r1 m = ${res.meter}")
+            println("r1 off = ${res.offset}\n")
+            Assert.assertEquals(testPoint.kmPlusOffset.km, res.km)
+            Assert.assertEquals(testPoint.kmPlusOffset.meter, res.meter, 0.2)
+            Assert.assertEquals(testPoint.kmPlusOffset.offset, -res.offset, 0.2)
+        }
+
+        for(point in points)
+            testOnePoint(point)
+    }
+
+    @Test
+    fun findOffsetSum() {
+        val r1 = shiftAndOffsetCalc(axis, distanceMarks[0])
+        println("Coord ${r1.crossPoint.latitude}  SHift ${r1.shift} Offset ${r1.offset}")
+        /* println("r1 = $r1")
+        println(r1.offset)*/
+        val r2 = shiftAndOffsetCalc(axis, distanceMarks[1])
+        println("Coord ${r2.crossPoint.latitude}  SHift ${r2.shift} Offset ${r2.offset}")
+        /*   println("r1 = $r2")
+        println(r2.offset)*/
+        val r3 = shiftAndOffsetCalc(axis, myPosition[2])
+        val r4 = shiftAndOffsetCalc(axis, myPosition[3])
+        /* println("r1 = $r3")
+        println(r3.offset)*/
     }
 
     @Test
@@ -115,44 +155,21 @@ internal class GeoLibTest {
         Assert.assertEquals(149.4, g4.azi1, 0.1)
     }
 
-    private fun roadKilometerSegment(
-        axis: MutableList<Coordinate>,
-        kmPoint: Coordinate
-    ): RoadKmSegment {
-        val kmLength: Double
-        var prevPoint = 0
-        val segment = mutableListOf<Coordinate>()
-        val currentLength = 0.0
+    @Test
+    fun closeKmPoint() {
+        // roadKilometerSegment(axis, distanceMarks)
+        // Добавляем к км столбам начальную и конечную точку оси дороги
+        // kmPlusMeter(r, points[2].coordinate)
+        // kmPlusMeter(roadKilometerSegment(axis, distanceMarks), myPosition[0])
 
-        // Находим координаты проекции столба, ближайшую вершину(слева от столба)
-        // смещение и расстояние до проекции
-        val kmShiftAndOffset: ShiftAndOffset = shiftAndOffsetCalc(
-            axis,
-            kmPoint
-        )
-
-        // Сохраняем все вершины для участка дороги между км столбами
-        for (axisCounter in prevPoint..kmShiftAndOffset.minVertex) {
-            println(axis[axisCounter])
-            segment.add(axis[axisCounter])
-        }
-
-        // Добавляем точку пересечения с перпендикуляром от км столба
-        segment.add(kmShiftAndOffset.crossPoint)
-
-        // Расстояние от начала до проекции
-        kmLength = kmShiftAndOffset.shift
-
-        // Прошлая точка около столба
-        prevPoint = kmShiftAndOffset.minVertex
-        return RoadKmSegment(segment, kmLength, prevPoint)
+        /*    val r1 = roadKilometerSegment(axis, distanceMarks)
+             r1[0]?.kmPoints?.let { println(it[0].latitude) }
+             r1[0]?.kmPoints?.let { println(it[1].latitude) }
+             r1[0]?.kmPoints?.let { println(it[2].latitude) }
+             r1[0]?.kmPoints?.let { println(it[3].latitude) }*/
     }
 
-    class RoadKmSegment(
-        val segment: MutableList<Coordinate>,
-        val kmLength: Double,
-        val point: Int
-    )
+
 }
 
 
