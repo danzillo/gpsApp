@@ -1,18 +1,24 @@
 package com.example.myapplication3.location.calc
 
-class KilometerSegment(
+data class KilometerSegment(
     val segment: MutableList<Coordinate>,
     val kmLength: Double,
     val kmPoints: MutableList<Coordinate>,
+)
 
-    )
+class PointData(
+    val km: Int,
+    val meter: Double,
+    val offset: Double
+)
 
 fun roadKilometerSegment(
     axis: MutableList<Coordinate>,
     kmPoint: MutableList<Coordinate>,
     cord: Coordinate
-): MutableMap<Int, KilometerSegment> {
+): MutableList<PointData> {
     val roadKilometerMap = mutableMapOf<Int, KilometerSegment>()
+    val road = mutableListOf<PointData>()
     var kmLength: Double
     val prevPoint = 0
     var nextPoint = 0
@@ -50,11 +56,11 @@ fun roadKilometerSegment(
                 segment.add(axis[axisCounter])
             }
         }
-        //kmPoints.add(kmShiftAndOffset.crossPoint)
+
         // Добавляем точку пересечения с перпендикуляром от км столба
         segment.add(kmShiftAndOffset.crossPoint)
 
-        if (nextPoint < lastPoint && kmPointCounter == kmPoint.lastIndex) {
+        if (kmPointCounter == kmPoint.lastIndex) {
             segment.add(kmShiftAndOffset.crossPoint)
             for (axisCounter in nextPoint..lastPoint) {
                 segment.add(axis[axisCounter])
@@ -86,9 +92,12 @@ fun roadKilometerSegment(
     if (r1.minPoint > 0 && r1.minPoint <= kmPointsLength.lastIndex && r1.shift < kmPointsLength[r1.minPoint])
         r1.minPoint -= 1
 
-    val r2 = shiftAndOffsetCalc(roadKilometerMap[ r1.minPoint]?.segment!!, cord)
-    val shift = r2.shift
+    println(roadKilometerMap[3]?.segment!![22].latitude)
+    println(roadKilometerMap[3]?.segment!![22].longitude)
+    val r2 = shiftAndOffsetCalc(roadKilometerMap[r1.minPoint]?.segment!!, cord)
+    road.add(PointData(r1.minPoint, r2.shift, r2.offset))
+    //val shift = r2.shift
 
 
-    return roadKilometerMap
+    return road
 }

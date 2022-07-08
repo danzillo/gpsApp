@@ -48,10 +48,16 @@ internal class GeoLibTest {
             coordinate = Coordinate(84.9521063373097, 56.4447347087405),
             kmPlusOffset = KmPlusOffset(1, 812.4, -8.3)
         ),
-        TestPoint(
+ /*       TestPoint(
             name = "Напротив дерева (1+1068; 2+000 R 4.4)",
             coordinate = Coordinate(84.9546837617013, 56.4429497990569),
             kmPlusOffset = KmPlusOffset(2, 0.0, 4.4)
+        ),*/
+
+               TestPoint(
+            name = "Напротив дерева (1+1068; 2+000 R 4.4)",
+            coordinate = Coordinate(84.9546837617013, 56.4429497990569),
+            kmPlusOffset = KmPlusOffset(1, 1068.49, 4.4)
         ),
         TestPoint(
             name = "Съезд налево после дерева 1 (2+330 L 13.1)",
@@ -88,44 +94,54 @@ internal class GeoLibTest {
     @Test
     fun roadKmSegment() {
        // shiftAndOffsetCalc(axis, distanceMarks[0])
-        val r1 = roadKilometerSegment(axis, distanceMarks, points[0].coordinate)
-        println("r1 = $r1")
+   /*     val r1 = roadKilometerSegment(axis, distanceMarks, points[0].coordinate)
+        println("r1 km = ${r1[0].km}")
+        println("r1 m = ${r1[0].meter}")
+        println("r1 off = ${r1[0].offset}\n")
+        Assert.assertEquals(points[0].kmPlusOffset.meter, r1[0].meter, 0.2)
 
-        val R2 = roadKilometerSegment(axis, distanceMarks, points[1].coordinate)
-        val R3 = roadKilometerSegment(axis, distanceMarks, points[2].coordinate)
-        val R4 = roadKilometerSegment(axis, distanceMarks, points[3].coordinate)
-        val R7 = roadKilometerSegment(axis, distanceMarks, points[4].coordinate)
-        val R5 = roadKilometerSegment(axis, distanceMarks, points[5].coordinate)
-       val RG = roadKilometerSegment(axis, distanceMarks, points[6].coordinate)
-        val HG = roadKilometerSegment(axis, distanceMarks, points[7].coordinate)
-        val GDS = roadKilometerSegment(axis, distanceMarks, points[8].coordinate)
+        val r2 = roadKilometerSegment(axis, distanceMarks, points[1].coordinate)
+        println("r2 km= ${r2[0].km}")
+        println("r2 m = ${r2[0].meter}")
+        println("r2 off = ${r2[0].offset}\n")
+        Assert.assertEquals(points[1].kmPlusOffset.meter, r2[0].meter, 0.2)
 
-        val r2 = shiftAndOffsetCalc(axis, distanceMarks[0])
-    /*    Assert.assertEquals(
-            r2.crossPoint.latitude,
-            r1[0]?.segment?.lastIndex?.let { r1[0]?.segment?.get(it) }!!.latitude,
-            0.1
-        )*/
+        val r3 = roadKilometerSegment(axis, distanceMarks, points[2].coordinate)
+        println("r3 km = ${r3[0].km}")
+        println("r3  m = ${r3[0].meter}")
+        println("r3  off = ${r3[0].offset}\n")
+        Assert.assertEquals(points[2].kmPlusOffset.meter, r3[0].meter, 0.2)
 
-        val r3 = shiftAndOffsetCalc(axis, distanceMarks[1])
-       /* Assert.assertEquals(
-            r3.crossPoint.latitude,
-            r1[1]?.segment?.lastIndex?.let { r1[1]?.segment?.get(it) }!!.latitude,
-            0.1
-        )*/
+        val r4 = roadKilometerSegment(axis, distanceMarks, points[3].coordinate)
+        println("r4 km = ${r4[0].km}")
+        println("r4 m = ${r4[0].meter}")
+        println("r4 off = ${r4[0].offset}\n")
+        Assert.assertEquals(points[3].kmPlusOffset.meter, r4[0].meter, 0.2)
 
-        val r4 = shiftAndOffsetCalc(axis, distanceMarks[2])
-    /*    Assert.assertEquals(
-            r4.crossPoint.latitude,
-            r1[1]?.segment?.lastIndex?.let { r1[1]?.segment?.get(it) }!!.latitude,
-            0.1
-        )*/
+        val r5 = roadKilometerSegment(axis, distanceMarks, points[4].coordinate)
+        println("r5 km = ${r5[0].km}")
+        println("r5 m = ${r5[0].meter}\n")
+        Assert.assertEquals(points[4].kmPlusOffset.meter, r5[0].meter, 0.2)
 
-/*        Assert.assertEquals(
-            axis[axis.lastIndex].latitude,
-            r1[3]?.segment?.lastIndex?.let { r1[3]?.segment?.get(it) }!!.latitude,
-            0.1
-        )*/
+        val r6 = roadKilometerSegment(axis, distanceMarks, points[5].coordinate)
+        println("r6 = ${r6[0].km}")
+        println("r1 = ${r6[0].meter}\n")
+        Assert.assertEquals(points[5].kmPlusOffset.meter, r6[0].meter, 0.2)
+
+        val r7 = roadKilometerSegment(axis, distanceMarks, points[6].coordinate)
+        println("r7 = ${r7[0].km}")
+        println("r7 = ${r7[0].meter}\n")
+        Assert.assertEquals(points[6].kmPlusOffset.meter, r7[0].meter, 0.2)
+
+        val r8 = roadKilometerSegment(axis, distanceMarks, points[7].coordinate)
+        println("r8 = ${r8[0].km}")
+        println("r8 = ${r8[0].meter}\n")
+        Assert.assertEquals(points[7].kmPlusOffset.meter, r8[0].meter, 0.2)*/
+
+        val r9 = roadKilometerSegment(axis, distanceMarks, points[8].coordinate)
+        println("r9 = ${r9[0].km}")
+        println("r9 = ${r9[0].meter}\n")
+        Assert.assertEquals(points[8].kmPlusOffset.meter, r9[0].meter, 0.2)
     }
 
     @Test
