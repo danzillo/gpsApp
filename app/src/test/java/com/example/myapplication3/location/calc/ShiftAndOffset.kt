@@ -11,7 +11,8 @@ data class ShiftAndOffset(
     val prevPoint: Int,
     val nextPoint: Int,
     var minPoint: Int,
-    val totalLength: Double
+    val totalLength: Double,
+    val listSymboll:Boolean
 ) {
     override fun toString() =
         "<ShiftAndOffset> {shift: $shift, offset: $offset, lat: ${crossPoint.latitude}, long:  ${crossPoint.longitude}}"
@@ -34,6 +35,7 @@ fun shiftAndOffsetCalc(
     var totalLengthBtSegment = 0.0
     var nextPoint = -1
     var prevPoint = -1
+    var listSymboll:Boolean
 
     for (axisCounter in 0..axis.lastIndex) {
 
@@ -105,6 +107,7 @@ fun shiftAndOffsetCalc(
 
             prevPoint = numOfMinVertex
             nextPoint = numOfMinVertex
+            totalLengthBtSegment= offset
         }
 
         // Если точка стоит перед крайней вершиной
@@ -211,7 +214,8 @@ fun shiftAndOffsetCalc(
         prevPoint = prevPoint,
         nextPoint = nextPoint,
         minPoint = minPoint,
-        totalLength = currentLength
+        totalLength = currentLength,
+        listSymboll = listSymbol[1]
     )
 }
 

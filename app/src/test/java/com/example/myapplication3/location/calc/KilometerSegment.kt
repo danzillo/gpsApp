@@ -75,23 +75,16 @@ fun roadKilometerSegment(
 
         if (kmPointCounter == kmPoint.lastIndex) {
             segment = mutableListOf()
-            segment.add(kmShiftAndOffset.crossPoint)
+           // segment.add(kmShiftAndOffset.crossPoint)
             for (axisCounter in nextPoint..lastPoint) {
                 segment.add(axis[axisCounter])
             }
-            // segment.add(kmShiftAndOffset.crossPoint)
-            kmPoints.add(axis[lastPoint])
+            kmPoints.add(axis[axis.lastIndex])
             roadKilometerMap[kmPointCounter + 1] = KilometerSegment(segment, 0.0, kmPoints)
         }
-
         // Расстояние от начала до проекции
-
-
         // Точка пересечения перпендикуляра с дорогой (с нее заполняется сегмент)
         prevCrossPoint = kmShiftAndOffset.crossPoint
-
-
-
 
     }
 
@@ -101,6 +94,12 @@ fun roadKilometerSegment(
     // Добавляем расстояние до 0 точки, и до конца оси(полное расстояние)
     kmPointsLength.add(0, 0.0)
     kmPointsLength.add(kmPointsLength.size, totalLength)
+    if(r1.minPoint == kmPoints.lastIndex && r1.listSymboll == true){
+        r1.minPoint-=1
+        val r3 = shiftAndOffsetCalc(roadKilometerMap[r1.minPoint]?.segment!!, cord)
+        println(r3.totalLength)
+        road.add(PointData(r1.minPoint, r1.totalLength,r1.offset))
+    }
 
     // Учитываем с какой стороны относительно точки находится столб
     if (r1.minPoint > 0 && r1.minPoint <= kmPointsLength.lastIndex && r1.shift < kmPointsLength[r1.minPoint])
