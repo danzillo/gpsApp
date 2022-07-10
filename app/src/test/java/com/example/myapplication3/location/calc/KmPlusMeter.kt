@@ -1,3 +1,4 @@
+/*
 package com.example.myapplication3.location.calc
 
 class KmPlusMeter()
@@ -13,4 +14,4 @@ fun kmPlusMeter(
         println("КМ: ${km.prevPoint}")
     }
 
-}
+}*/

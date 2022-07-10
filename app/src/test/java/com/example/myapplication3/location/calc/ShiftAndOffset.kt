@@ -17,6 +17,7 @@ data class ShiftAndOffset(
     override fun toString() =
         "<ShiftAndOffset> {shift: $shift, offset: $offset, lat: ${crossPoint.latitude}, long:  ${crossPoint.longitude}}"
 }
+/*
 
 fun shiftAndOffsetCalc(
     axis: MutableList<Coordinate>,
@@ -219,13 +220,14 @@ fun shiftAndOffsetCalc(
     )
 }
 
-/**
+*
  * Функция для нахождения смещения от дороги
  * @param length - расстояние от (пред или след) вершины до столба
  * @param lengthMin - минимальное расстояние от вершины
  * @param lengthRoad - длина сегмента оси между двумя вершинами (одна из них - мин)
  * @return длина перпендикуляра
- */
+
+
 
 private fun findOffset(
     length: Double,
@@ -290,9 +292,10 @@ private fun checkOffsetAndColumnPlace(segmentAz: Double, pointAz: Double): Mutab
         val thirdBoard = segmentAz - 90
 
         offsetSymbol = pointAz < firstBoard && pointAz > secondBoard
-       /* println("Point:"+pointAz)
+ println("Point:"+pointAz)
         println("FirstBor:"+firstBoard)
-        println("third:"+thirdBoard)*/
+        println("third:"+thirdBoard)
+
 
         columnPos = if (pointAz <= firstBoard && pointAz >= thirdBoard) {
             true
@@ -324,3 +327,4 @@ private fun checkOffsetAndColumnPlace(segmentAz: Double, pointAz: Double): Mutab
     listSymbol.add(columnPos)
     return listSymbol
 }
+*/

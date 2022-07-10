@@ -86,7 +86,7 @@ internal class GeoLibTest {
         )
     )
 
-    @Test
+  /*  @Test
     fun testShiftAndOffsetCalc() {
         val r1 = shiftAndOffsetCalc(axis, points[0].coordinate)
         println("r1 = $r1")
@@ -99,11 +99,11 @@ internal class GeoLibTest {
         val r5 = shiftAndOffsetCalc(axis, points[4].coordinate)
         println("r5 = $r5, l1 = $l1")
         Assert.assertEquals(l1, r5.shift, 0.2)
-    }
+    }*/
 
     @Test
     fun testToadKmSegment() {
-        fun testOnePoint(testPoint: TestPoint) {
+      /*  fun testOnePoint(testPoint: TestPoint) {
             println("-=[ Test: ${testPoint.name} ]=------------------------------------------------")
             val res = roadKilometerSegment(axis, distanceMarks, testPoint.coordinate)[0]
             println("km = ${res.km}")
@@ -113,27 +113,41 @@ internal class GeoLibTest {
            // Assert.assertEquals(testPoint.kmPlusOffset.meter, res.meter, 0.2)
            // Assert.assertEquals(testPoint.kmPlusOffset.offset, -res.offset, 0.2)
         }
-
+*/
         //for(point in points)
-            testOnePoint(points[9])
+          //  testOnePoint(points[9])
+
+        val one = KilometerPointsCalc(axis, distanceMarks)
+        one.roadKilometerPoints()
+        one.kmSegments()
+        // Содеожит список все точек пересечения
+        //one.kmCrossPoints
+
+        // Нахожу ближайшую точку
+        val two = ShiftAndOffsetCalc(one.kmCrossPoints, myPosition[0])
+
+        val stolb = ShiftAndOffsetCalc(
+            axis,
+            distanceMarks[1])
+        println("BEACH:" + stolb.shift)
     }
 
-    @Test
+  /*  @Test
     fun findOffsetSum() {
         val r1 = shiftAndOffsetCalc(axis, distanceMarks[0])
         println("Coord ${r1.crossPoint.latitude}  SHift ${r1.shift} Offset ${r1.offset}")
-        /* println("r1 = $r1")
-        println(r1.offset)*/
+        *//* println("r1 = $r1")
+        println(r1.offset)*//*
         val r2 = shiftAndOffsetCalc(axis, distanceMarks[1])
         println("Coord ${r2.crossPoint.latitude}  SHift ${r2.shift} Offset ${r2.offset}")
-        /*   println("r1 = $r2")
-        println(r2.offset)*/
+        *//*   println("r1 = $r2")
+        println(r2.offset)*//*
         val r3 = shiftAndOffsetCalc(axis, myPosition[2])
         val r4 = shiftAndOffsetCalc(axis, myPosition[3])
-        /* println("r1 = $r3")
-        println(r3.offset)*/
+        *//* println("r1 = $r3")
+        println(r3.offset)*//*
     }
-
+*/
     @Test
     fun testAzimuthSign() {
         val g1 = Geodesic.WGS84.Inverse(
