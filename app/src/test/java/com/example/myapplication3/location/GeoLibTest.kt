@@ -101,6 +101,7 @@ internal class GeoLibTest {
         Assert.assertEquals(l1, r5.shift, 0.2)
     }*/
 
+
     @Test
     fun testToadKmSegment() {
       /*  fun testOnePoint(testPoint: TestPoint) {
@@ -120,12 +121,22 @@ internal class GeoLibTest {
         val one = KilometerPointsCalc(axis, distanceMarks)
         one.roadKilometerPoints()
         one.kmSegments()
+        println( one.kmCrossPoints[3].latitude)
+        println( one.kmCrossPoints[3].longitude)
         // Содеожит список все точек пересечения
         //one.kmCrossPoints
+      // val r1 = ShiftAndOffsetCalc(one.kmCrossPoints, points[4].coordinate).shiftAndOffsetCalc()
+     //  println(r1.totalLength)
 
+        //val r45 = ShiftAndOffsetCalc(axis, distanceMarks[1]).
+      //  println(r1.shift)
         // Нахожу ближайшую точку
-        val two = ShiftAndOffsetCalc(one.kmCrossPoints, myPosition[0])
+        //val two = ShiftAndOffsetCalc(one.kmCrossPoints, myPosition[0])
+        val two = KmPlusMeterCalc(one.kmCrossPoints,  points[7].coordinate, one.segmentData).checkKmPluM()
 
+        println("KM: " +two.km)
+        println("SHIFT: " +two.shift)
+        println("OFF: " +two.offset)
         val stolb = ShiftAndOffsetCalc(
             axis,
             distanceMarks[1])

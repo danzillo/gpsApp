@@ -12,7 +12,7 @@ data class ShiftAndOffset(
     val nextPoint: Int,
     var minPoint: Int,
     val totalLength: Double,
-    val listSymboll:Boolean
+    val isAheadPoint:Boolean
 ) {
     override fun toString() =
         "<ShiftAndOffset> {shift: $shift, offset: $offset, lat: ${crossPoint.latitude}, long:  ${crossPoint.longitude}}"

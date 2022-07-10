@@ -1,3 +1,4 @@
+/*
 package com.example.myapplication3.location.calc
 
 data class KilometerSegment(
@@ -118,3 +119,4 @@ fun roadKilometerSegment(
 
     return road
 }
+*/

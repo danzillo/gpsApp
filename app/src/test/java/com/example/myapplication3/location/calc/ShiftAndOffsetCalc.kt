@@ -207,7 +207,7 @@ class ShiftAndOffsetCalc(
             nextPoint = nextPoint,
             minPoint = minPoint,
             totalLength = currentLength,
-            listSymboll = listSymbol[1]
+            isAheadPoint = listSymbol[1]
         )
     }
 

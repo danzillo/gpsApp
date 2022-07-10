@@ -1,6 +1,6 @@
 package com.example.myapplication3.location.calc
 
-class Coordinate(
+data class Coordinate(
     var longitude: Double,
     var latitude: Double
 )
