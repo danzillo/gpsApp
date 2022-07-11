@@ -336,7 +336,6 @@ class ShiftAndOffsetCalc {
                 else !(pointAz < secondBoarder && pointAz >= (secondBoarder - firstBoarder) || pointAz <= 180 && pointAz > (180 - abs(
                     thirdBoarder
                 )))
-
         } else {
             // Все что внутри это -, снаружи +!
             val firstBoarder = segmentAz
