@@ -329,13 +329,8 @@ class ShiftAndOffsetCalc {
 
             offsetSymbol = !(pointAz < firstBoarder && pointAz > secondBoarder)
             columnPos =
-                if (pointAz in thirdBoarder..firstBoarder) {
-                    true
-                } else if (pointAz < thirdBoarder && pointAz >= secondBoarder)
-                    false
-                else !(pointAz < secondBoarder && pointAz >= (secondBoarder - firstBoarder) || pointAz <= 180 && pointAz > (180 - abs(
-                    thirdBoarder
-                )))
+                pointAz in thirdBoarder..firstBoarder || pointAz > firstBoarder && pointAz < translateAngle(firstBoarder+90)
+
         } else {
             // Все что внутри это -, снаружи +!
             val firstBoarder = segmentAz
@@ -362,8 +357,7 @@ class ShiftAndOffsetCalc {
         segmentAz: Double,
         pointAz: Double
     ): Boolean {
-        val offsetSymbol: Boolean
-        offsetSymbol = !(pointAz < segmentAz && pointAz > translateAngle(segmentAz - 180))
+        val offsetSymbol: Boolean = !(pointAz < segmentAz && pointAz > translateAngle(segmentAz - 180))
         return offsetSymbol
     }
 
