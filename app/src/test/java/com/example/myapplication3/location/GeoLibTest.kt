@@ -104,7 +104,7 @@ internal class GeoLibTest {
         val testList = mutableListOf(
             Coordinate(84.881719, 56.468855),
             Coordinate(84.881150, 56.469313),
-            //Coordinate(84.882063, 56.469612)
+            Coordinate(84.882063, 56.469612)
         )
         val pos = Coordinate( 84.880215, 56.469253)
         val pos2 = Coordinate( 84.880864, 56.469328)

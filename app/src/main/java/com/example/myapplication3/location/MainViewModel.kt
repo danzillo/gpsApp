@@ -15,6 +15,7 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.*
+import com.example.myapplication3.location.calc.*
 import com.google.android.gms.location.*
 import java.util.*
 import kotlin.math.*
@@ -174,6 +175,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         )
         // TODO: посмотреть подробнее про радиус для WGS-84
     }
+
+    fun showCurrentPos(location: Coordinate): String{
+        val r1 = KilometerPointsCalc()
+        r1.kmSegments(axis, distanceMarks)
+        val res = KmPlusMeterCalc().checkKmPluM(
+            r1.kmCrossPoints,
+            location,
+            r1.segmentData
+        )
+        return ("KM:${res.km} М:${res.shift.toInt()} Off:${res.offset.toInt()}")
+    }
+
+
 
     companion object {
         private val TAG = MainViewModel::class.simpleName

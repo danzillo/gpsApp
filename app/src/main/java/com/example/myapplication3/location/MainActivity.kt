@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication3.databinding.ActivityMainBinding
+import com.example.myapplication3.location.calc.Coordinate
 import java.lang.Math.asin
 import java.lang.Math.sin
 
@@ -126,7 +127,8 @@ class MainActivity : AppCompatActivity() {
             binding.currentSpeed.text =
                 ((location.speed * 100).toInt() / 100).toString() + " м/c"
             binding.accuracySpeed.text = location.speedAccuracyMetersPerSecond.toString() + " м"
-            binding.provider.text = location.accuracy.toString()
+           // binding.provider.text = location.accuracy.toString()
+            binding.provider.text = viewModel.showCurrentPos(Coordinate(location.longitude, location.latitude))
             // binding.provider.text = location.provider.toString()
         } else {
             if (viewModel.isDecimalPosition.value == true) {
