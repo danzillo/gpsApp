@@ -25,7 +25,7 @@ class KmPlusMeterCalc {
             // Ищем ShiftAndOffset на сегменте в пределах которого находится точка
             val r2 = ShiftAndOffsetCalc().shiftAndOffsetCalc(segments[r1.minPoint].segment, myPos)
 
-            return KmPlusMeter(r1.minPoint, segments[segments.lastIndex].length -segments[segments.lastIndex-1].length , r2.offset)
+            return KmPlusMeter(r1.minPoint, segments[segments.lastIndex].length - segments[segments.lastIndex-1].length , r2.offset)
         }
 
         // Если координата точки вблизи вершины, которая находится за точкой

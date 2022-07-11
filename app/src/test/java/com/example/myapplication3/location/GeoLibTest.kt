@@ -95,17 +95,8 @@ internal class GeoLibTest {
           }
 
         for(point in points)
-          testOnePoint(points[points.lastIndex])
-
-        val one = KilometerPointsCalc()
-        one.kmSegments(axis, distanceMarks)
-
-        val two =
-            KmPlusMeterCalc().checkKmPluM(one.kmCrossPoints, points[3].coordinate, one.segmentData)
-
-        println("KM: " + two.km)
-        println("SHIFT: " + two.shift)
-        println("OFF: " + two.offset)
+           // testOnePoint(point)
+            testOnePoint(points[5])
     }
 
     @Test

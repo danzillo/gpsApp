@@ -26,14 +26,16 @@ class KilometerPointsCalc {
 
             // Запись сегмента для 1 столба
             if (kmSegmentCounter == 0) {
+
                 // Начальная точка оси
                 kmCrossPoints.add(axis[prevPoint])
+
                 // Записываем все точки между началом и 1 столбом
-                println(kmShiftAndOffset[kmSegmentCounter].prevPoint)
                 for (axisCounter in prevPoint..kmShiftAndOffset[kmSegmentCounter].prevPoint) {
                     segment.add(axis[axisCounter])
                 }
-                // Координаты проекции столба ??
+
+                // Координаты проекции столба
                 kmCrossPoints.add(kmShiftAndOffset[kmSegmentCounter].crossPoint)
             }
 
@@ -66,7 +68,6 @@ class KilometerPointsCalc {
                         kmShiftAndOffset[kmSegmentCounter].shift
                     )
                 )
-                //  println( kmShiftAndOffset[kmSegmentCounter].shift)
             } else {
                 segmentData.add(
                     SegmentData(
@@ -75,7 +76,6 @@ class KilometerPointsCalc {
                         kmShiftAndOffset[kmSegmentCounter].shift
                     )
                 )
-                //  println( segmentData[kmSegmentCounter].length)
             }
 
             // Если столб является последним

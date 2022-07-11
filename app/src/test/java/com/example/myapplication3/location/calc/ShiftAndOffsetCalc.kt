@@ -178,7 +178,6 @@ class ShiftAndOffsetCalc {
                 prevPoint = numOfMinVertex
                 nextPoint = numOfMinVertex + 1
                 totalLengthBtSegment += projection
-
             } else {
                 if (numOfMinVertex > 0) {
                     // Пересечение перпендикуляра до сегмента
@@ -304,7 +303,7 @@ class ShiftAndOffsetCalc {
 
             offsetSymbol = !(pointAz < firstBoarder && pointAz > secondBoarder)
             columnPos =
-                if (pointAz in thirdBoarder..firstBoarder || pointAz < firstBoarder && pointAz < secondBoarder - 90) {
+                if (pointAz in thirdBoarder..firstBoarder ) {
                     true
                 } else if (pointAz < thirdBoarder && pointAz >= secondBoarder)
                     false
