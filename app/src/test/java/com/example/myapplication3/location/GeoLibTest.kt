@@ -72,31 +72,42 @@ internal class GeoLibTest {
             name = "Дача (3+448 R 5.5)",
             coordinate = Coordinate(84.9586023413717, 56.4291355996175),
             kmPlusOffset = KmPlusOffset(3, 448.6, 5.5)
-        ),
-        TestPoint(
-            name = "Где-то за осью",
-            coordinate = Coordinate(84.959554, 56.424777),
-            kmPlusOffset = KmPlusOffset(3, 619.7, 327.6)
         )
     )
 
 
     @Test
     fun testToadKmSegment() {
-          fun testOnePoint(testPoint: TestPoint) {
-              val r1 = KilometerPointsCalc()
-              r1.kmSegments(axis, distanceMarks)
-              println("-=[ Test: ${testPoint.name} ]=------------------------------------------------")
-              val res =  KmPlusMeterCalc().checkKmPluM(r1.kmCrossPoints, testPoint.coordinate, r1.segmentData)
-              println("km = ${res.km}")
-              println("m = ${res.shift}")
-              println("off = ${res.offset}\n")
-              Assert.assertEquals(testPoint.kmPlusOffset.km, res.km)
-          }
+        fun testOnePoint(testPoint: TestPoint) {
+            val r1 = KilometerPointsCalc()
+            r1.kmSegments(axis, distanceMarks)
+            println("-=[ Test: ${testPoint.name} ]=------------------------------------------------")
+            val res = KmPlusMeterCalc().checkKmPluM(
+                r1.kmCrossPoints,
+                testPoint.coordinate,
+                r1.segmentData
+            )
+            println("km = ${res.km}")
+            println("m = ${res.shift}")
+            println("off = ${res.offset}\n")
+            Assert.assertEquals(testPoint.kmPlusOffset.km, res.km)
+        }
 
-        for(point in points)
-           // testOnePoint(point)
+        for (point in points)
+        // testOnePoint(point)
             testOnePoint(points[5])
+    }
+
+    @Test
+    fun testBlindAngle() {
+        val testList = mutableListOf(
+            Coordinate(84.953440, 56.445428),
+            Coordinate(84.953634, 56.445594),
+            Coordinate(84.954054, 56.445453)
+        )
+        val pos = Coordinate(84.953624, 56.445813)
+        println(ShiftAndOffsetCalc().shiftAndOffsetCalc(testList, pos).crossPoint)
+        Assert.assertEquals(56.443467, ShiftAndOffsetCalc().shiftAndOffsetCalc(testList, pos).crossPoint.latitude, 0.02)
     }
 
     @Test

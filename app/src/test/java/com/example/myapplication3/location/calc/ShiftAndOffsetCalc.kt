@@ -82,7 +82,8 @@ class ShiftAndOffsetCalc {
                 segmentData[numOfMinVertex].azi1,
                 segmentData[numOfMinVertex - 1].azi1
             )
-            blindOrNot = isBlindAngle(blindBoarder, pointData[numOfMinVertex].azi1)
+            blindOrNot = isBlindAngle(blindBoarder, pointData[1].azi1)
+            print(blindOrNot)
         }
 
         // Является ли вершина крайней
@@ -303,7 +304,7 @@ class ShiftAndOffsetCalc {
 
             offsetSymbol = !(pointAz < firstBoarder && pointAz > secondBoarder)
             columnPos =
-                if (pointAz in thirdBoarder..firstBoarder ) {
+                if (pointAz in thirdBoarder..firstBoarder) {
                     true
                 } else if (pointAz < thirdBoarder && pointAz >= secondBoarder)
                     false
@@ -325,8 +326,7 @@ class ShiftAndOffsetCalc {
                 false
             else pointAz >= secondBoarder && pointAz <= secondBoarder + abs(firstBoarder) || pointAz >= -180 && pointAz > (-180 + abs(
                 thirdBoarder
-            )
-                    )
+            ))
         }
 
         listSymbol.add(offsetSymbol)
