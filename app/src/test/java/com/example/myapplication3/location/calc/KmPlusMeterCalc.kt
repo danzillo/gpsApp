@@ -1,33 +1,30 @@
 package com.example.myapplication3.location.calc
 
-class KmPlusMeterCalc(
-    val crossPoints: MutableList<Coordinate>,
-    val myPos: Coordinate,
-    val segments: MutableList<SegmentData>
-) {
-    //  val locationData: KmPlusMeter? = null
+class KmPlusMeterCalc {
 
-    // Для определения ближайшего столба
-    private val r1 = ShiftAndOffsetCalc(crossPoints, myPos).shiftAndOffsetCalc()
-
-    fun checkKmPluM(): KmPlusMeter {
-
+    fun checkKmPluM(
+        crossPoints: MutableList<Coordinate>,
+        myPos: Coordinate,
+        segments: MutableList<SegmentData>
+    ): KmPlusMeter {
+        // Для определения ближайшего столба
+        val r1 = ShiftAndOffsetCalc().shiftAndOffsetCalc(crossPoints, myPos)
         // Если координата на краю оси
-        println("R1:"+r1.minPoint)
-        println("R1:"+r1.shift)
+        println("R1:" + r1.minPoint)
+        println("R1:" + r1.shift)
         if (r1.minPoint == crossPoints.lastIndex && r1.isAheadPoint) {
             r1.minPoint -= 1
-            val r2 = ShiftAndOffsetCalc(segments[r1.minPoint].segment, myPos).shiftAndOffsetCalc()
+            val r2 = ShiftAndOffsetCalc().shiftAndOffsetCalc(segments[r1.minPoint].segment, myPos)
             println(r2.totalLength)
-          //  println("R1:"+r1.minPoint)
-          //  println("R1:"+r1.shift)
+            //  println("R1:"+r1.minPoint)
+            //  println("R1:"+r1.shift)
             return KmPlusMeter(r1.minPoint, r2.shift, r2.offset)
         }
 
-        if (r1.minPoint > 0 && r1.minPoint <= segments.lastIndex && r1.shift < segments[r1.minPoint].length)
+        if (r1.minPoint > 0 && r1.shift < segments[r1.minPoint - 1].length)
             r1.minPoint -= 1
-        // TODO Слепой, r1MinPoint, comment
-        val r2 = ShiftAndOffsetCalc(segments[r1.minPoint].segment, myPos).shiftAndOffsetCalc()
+        // TODO Слепой, comment
+        val r2 = ShiftAndOffsetCalc().shiftAndOffsetCalc(segments[r1.minPoint].segment, myPos)
 
         return KmPlusMeter(r1.minPoint, r2.shift, r2.offset)
     }

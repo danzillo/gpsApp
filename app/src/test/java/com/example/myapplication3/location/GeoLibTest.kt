@@ -86,68 +86,65 @@ internal class GeoLibTest {
         )
     )
 
-  /*  @Test
-    fun testShiftAndOffsetCalc() {
-        val r1 = shiftAndOffsetCalc(axis, points[0].coordinate)
-        println("r1 = $r1")
+    /*  @Test
+      fun testShiftAndOffsetCalc() {
+          val r1 = shiftAndOffsetCalc(axis, points[0].coordinate)
+          println("r1 = $r1")
 
-        val r2 = shiftAndOffsetCalc(axis, points[1].coordinate)
-        println("r2 = $r2")
-        Assert.assertEquals(points[2].kmPlusOffset.meter, r2.shift, 0.2)
+          val r2 = shiftAndOffsetCalc(axis, points[1].coordinate)
+          println("r2 = $r2")
+          Assert.assertEquals(points[2].kmPlusOffset.meter, r2.shift, 0.2)
 
-        val l1 = points[4].kmPlusOffset.meter + knownDistanceMarks[1]!!.first
-        val r5 = shiftAndOffsetCalc(axis, points[4].coordinate)
-        println("r5 = $r5, l1 = $l1")
-        Assert.assertEquals(l1, r5.shift, 0.2)
-    }*/
+          val l1 = points[4].kmPlusOffset.meter + knownDistanceMarks[1]!!.first
+          val r5 = shiftAndOffsetCalc(axis, points[4].coordinate)
+          println("r5 = $r5, l1 = $l1")
+          Assert.assertEquals(l1, r5.shift, 0.2)
+      }*/
 
 
     @Test
     fun testToadKmSegment() {
-      /*  fun testOnePoint(testPoint: TestPoint) {
-            println("-=[ Test: ${testPoint.name} ]=------------------------------------------------")
-            val res = roadKilometerSegment(axis, distanceMarks, testPoint.coordinate)[0]
-            println("km = ${res.km}")
-            println("m = ${res.meter}")
-            println("off = ${res.offset}\n")
-            Assert.assertEquals(testPoint.kmPlusOffset.km, res.km)
-           // Assert.assertEquals(testPoint.kmPlusOffset.meter, res.meter, 0.2)
-           // Assert.assertEquals(testPoint.kmPlusOffset.offset, -res.offset, 0.2)
-        }
-*/
+        /*  fun testOnePoint(testPoint: TestPoint) {
+              println("-=[ Test: ${testPoint.name} ]=------------------------------------------------")
+              val res = roadKilometerSegment(axis, distanceMarks, testPoint.coordinate)[0]
+              println("km = ${res.km}")
+              println("m = ${res.meter}")
+              println("off = ${res.offset}\n")
+              Assert.assertEquals(testPoint.kmPlusOffset.km, res.km)
+             // Assert.assertEquals(testPoint.kmPlusOffset.meter, res.meter, 0.2)
+             // Assert.assertEquals(testPoint.kmPlusOffset.offset, -res.offset, 0.2)
+          }
+  */
         //for(point in points)
-          //  testOnePoint(points[9])
+        //  testOnePoint(points[9])
 
-        val one = KilometerPointsCalc(axis, distanceMarks)
-        one.roadKilometerPoints()
-        one.kmSegments()
-        println( one.kmCrossPoints[3].latitude)
-        println( one.kmCrossPoints[3].longitude)
+        val one = KilometerPointsCalc()
+        one.roadKilometerPoints(axis, distanceMarks)
+        one.kmSegments(axis, distanceMarks)
+        println(one.kmCrossPoints[3].latitude)
+        println(one.kmCrossPoints[3].longitude)
         // Содеожит список все точек пересечения
         //one.kmCrossPoints
-      // val r1 = ShiftAndOffsetCalc(one.kmCrossPoints, points[4].coordinate).shiftAndOffsetCalc()
-     //  println(r1.totalLength)
+        // val r1 = ShiftAndOffsetCalc(one.kmCrossPoints, points[4].coordinate).shiftAndOffsetCalc()
+        //  println(r1.totalLength)
 
         //val r45 = ShiftAndOffsetCalc(axis, distanceMarks[1]).
-      //  println(r1.shift)
+        //  println(r1.shift)
         // Нахожу ближайшую точку
         //val two = ShiftAndOffsetCalc(one.kmCrossPoints, myPosition[0])
-        val two = KmPlusMeterCalc(one.kmCrossPoints,  points[7].coordinate, one.segmentData).checkKmPluM()
+        val two =
+            KmPlusMeterCalc().checkKmPluM(one.kmCrossPoints, points[0].coordinate, one.segmentData)
 
-        println("KM: " +two.km)
-        println("SHIFT: " +two.shift)
-        println("OFF: " +two.offset)
-        val stolb = ShiftAndOffsetCalc(
-            axis,
-            distanceMarks[1])
-        println("BEACH:" + stolb.shift)
+        println("KM: " + two.km)
+        println("SHIFT: " + two.shift)
+        println("OFF: " + two.offset)
     }
 
-  /*  @Test
-    fun findOffsetSum() {
-        val r1 = shiftAndOffsetCalc(axis, distanceMarks[0])
-        println("Coord ${r1.crossPoint.latitude}  SHift ${r1.shift} Offset ${r1.offset}")
-        *//* println("r1 = $r1")
+    /*  @Test
+      fun findOffsetSum() {
+          val r1 = shiftAndOffsetCalc(axis, distanceMarks[0])
+          println("Coord ${r1.crossPoint.latitude}  SHift ${r1.shift} Offset ${r1.offset}")
+          *//* println("r1 = $r1")
         println(r1.offset)*//*
         val r2 = shiftAndOffsetCalc(axis, distanceMarks[1])
         println("Coord ${r2.crossPoint.latitude}  SHift ${r2.shift} Offset ${r2.offset}")

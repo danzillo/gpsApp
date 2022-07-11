@@ -6,8 +6,7 @@ import kotlin.math.abs
 import kotlin.math.pow
 
 class ShiftAndOffsetCalc(
-    var axis: MutableList<Coordinate>,
-    var point: Coordinate,
+
 ) {
     var shift: Double = 0.0
     var offset: Double = 0.0
@@ -18,7 +17,10 @@ class ShiftAndOffsetCalc(
     var totalLength: Double = 0.0
     var isAheadPoint: Boolean = false
 
-    fun shiftAndOffsetCalc(): ShiftAndOffset {
+    fun shiftAndOffsetCalc(
+        axis: MutableList<Coordinate>,
+        point: Coordinate,
+    ): ShiftAndOffset {
         var minLengthToPoint =
             Double.MAX_VALUE  // Хранит минимальное расстояние между вершиной и столбом
         var numOfMinVertex = 0 // Номер вершины от которой расстояние минимально
@@ -245,7 +247,14 @@ class ShiftAndOffsetCalc(
         return firstAngle - secondAngle
     }
 
-    // Находит размерность смежного угла, и вычисляет промежуток в котором находится "слепой угол"
+    private fun transformAngle(angle: Double): Double {
+        return if (angle > 180 || angle < -180) {
+            if (angle < -180) angle + 360
+            else angle - 360
+        } else angle
+    }
+
+    // Находит размерность вертикального угла, и вычисляет промежуток в котором находится "слепой угол"
     private fun adjacentAngle(
         firstAngle: Double,
         secondAngle: Double
@@ -274,7 +283,7 @@ class ShiftAndOffsetCalc(
         pointAz: Double
     ): MutableList<Boolean> {
         // Определяет знак смещения -1 справа +1 слева
-        var offsetSymbol = false
+        var offsetSymbol = true
         // Определяет смещение относительно столба -1 = столб справа столб слева 1
         var columnPos = false
         val listSymbol = mutableListOf<Boolean>()
@@ -284,11 +293,7 @@ class ShiftAndOffsetCalc(
             val secondBoard = segmentAz - 180
             val thirdBoard = segmentAz - 90
 
-            offsetSymbol = pointAz < firstBoard && pointAz > secondBoard
-            /* println("Point:"+pointAz)
-             println("FirstBor:"+firstBoard)
-             println("third:"+thirdBoard)*/
-
+            offsetSymbol = !(pointAz < firstBoard && pointAz > secondBoard)
             columnPos = if (pointAz <= firstBoard && pointAz >= thirdBoard) {
                 true
             } else if (pointAz < thirdBoard && pointAz >= secondBoard)
@@ -303,7 +308,7 @@ class ShiftAndOffsetCalc(
             val secondBoard = segmentAz + 180
             val thirdBoard = segmentAz + 90
 
-            offsetSymbol = !(pointAz > firstBoard && pointAz < secondBoard) //слева
+            offsetSymbol = pointAz > firstBoard && pointAz < secondBoard //слева
 
             columnPos = if (pointAz > firstBoard && pointAz < thirdBoard) {
                 true

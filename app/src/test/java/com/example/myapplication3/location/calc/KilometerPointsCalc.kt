@@ -1,9 +1,6 @@
 package com.example.myapplication3.location.calc
 
-class KilometerPointsCalc(
-    private val axis: MutableList<Coordinate>,
-    private val kmPoint: MutableList<Coordinate>,
-) {
+class KilometerPointsCalc {
 
     //  val roadKilometerMap = mutableMapOf<Int, KilometerSegment>()
     // val road = mutableListOf<PointData>()
@@ -19,7 +16,10 @@ class KilometerPointsCalc(
     val segmentData = mutableListOf<SegmentData>()
 
     // Поиск всех точек пересечения км столбов
-    fun roadKilometerPoints(): MutableList<ShiftAndOffset> {
+    fun roadKilometerPoints(
+        axis: MutableList<Coordinate>,
+        kmPoint: MutableList<Coordinate>
+    ): MutableList<ShiftAndOffset> {
         /**
          * @param kmPointData - объект класса ShiftAndOffset для хранения информации о
          * сегментах дороги, а именно: длина от начала до проекции столба, местоположение столба относительно вершины,
@@ -27,14 +27,21 @@ class KilometerPointsCalc(
          */
         // Сохраняем информацию по всем км столбам
         for (kmPointCounter in 0..kmPoint.lastIndex) {
-            val kmPointData = ShiftAndOffsetCalc(axis, kmPoint[kmPointCounter])
-            kmShiftAndOffset.add(kmPointData.shiftAndOffsetCalc())
+            kmShiftAndOffset.add(
+                ShiftAndOffsetCalc().shiftAndOffsetCalc(
+                    axis,
+                    kmPoint[kmPointCounter]
+                )
+            )
         }
         return kmShiftAndOffset
     }
 
     // Разбитие оси на километровые сегменты
-    fun kmSegments(): MutableList<SegmentData> {
+    fun kmSegments(
+        axis: MutableList<Coordinate>,
+        kmPoint: MutableList<Coordinate>
+    ): MutableList<SegmentData> {
         for (kmSegmentCounter in 0..kmPoint.lastIndex) {
             var segment = mutableListOf<Coordinate>()
             // Запись сегмент для 1 столба
@@ -79,16 +86,16 @@ class KilometerPointsCalc(
                         kmShiftAndOffset[kmSegmentCounter].shift
                     )
                 )
-              //  println( kmShiftAndOffset[kmSegmentCounter].shift)
+                //  println( kmShiftAndOffset[kmSegmentCounter].shift)
             } else {
                 segmentData.add(
                     SegmentData(
                         kmSegmentCounter,
                         segment,
-                        (kmShiftAndOffset[kmSegmentCounter].shift - kmShiftAndOffset[kmSegmentCounter - 1].shift)
+                        kmShiftAndOffset[kmSegmentCounter].shift
                     )
                 )
-              //  println( segmentData[kmSegmentCounter].length)
+                //  println( segmentData[kmSegmentCounter].length)
             }
 
             // Если столб является последним
@@ -107,20 +114,12 @@ class KilometerPointsCalc(
                     SegmentData(
                         kmSegmentCounter + 1,
                         segment,
-                        (kmShiftAndOffset[kmSegmentCounter].totalLength - kmShiftAndOffset[kmSegmentCounter].shift)
+                        (kmShiftAndOffset[kmSegmentCounter].totalLength)
                     )
                 )
             }
         }
-        return  segmentData
+        return segmentData
     }
 }
 
-
-class SegmentData(
-    val numOfSeg: Int,
-    val segment: MutableList<Coordinate>,
-    val length: Double
-) {
-
-}
