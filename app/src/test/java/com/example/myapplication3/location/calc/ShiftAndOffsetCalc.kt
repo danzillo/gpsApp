@@ -60,7 +60,7 @@ class ShiftAndOffsetCalc {
         }
 
         val minPoint = numOfMinVertex
-        //TODO: Учесть «слепой угол»
+
         //TODO: Расчёт высоты в треугольнике с помощью sin
 
         // Определяем угол между следующим сегментом оси и вектором на исходную точку
@@ -82,7 +82,8 @@ class ShiftAndOffsetCalc {
                 segmentData[numOfMinVertex].azi1,
                 segmentData[numOfMinVertex - 1].azi1
             )
-            blindOrNot = isBlindAngle(blindBoarder, pointData[1].azi1)
+            blindOrNot = isBlindAngle(blindBoarder, pointData[numOfMinVertex].azi1)
+
             print(blindOrNot)
         }
 
@@ -148,6 +149,8 @@ class ShiftAndOffsetCalc {
                 prevPoint = numOfMinVertex
                 nextPoint = numOfMinVertex + 1
                 // Определяем координаты пересечения с точкой
+                pointData[numOfMinVertex].lon2 = pointData[numOfMinVertex].lon1
+                pointData[numOfMinVertex].lat2 = pointData[numOfMinVertex].lat1
                 coordinateData = pointData[numOfMinVertex]
             }
             // Если true - означает, что точка находится спереди от вершины
@@ -263,16 +266,38 @@ class ShiftAndOffsetCalc {
         return (lengthMin.pow(2) - height.pow(2)).pow(0.5)
     }
 
+    // Функция, которая позволяет менять значения угла к принятым в решении ед. от 180 до -180.
+    private fun translateAngle(angle: Double): Double {
+        return if (angle > 180) angle - 360
+        else if (angle < -180) angle + 360
+        else angle
+    }
+
     // Находит границы слепого угла
     private fun blindAngleBoarder(
         firstAngle: Double,
         secondAngle: Double
     ): MutableList<Double> {
-        val firstBoarder: Double = if (firstAngle >= 0) firstAngle - 180
-        else firstAngle + 180
-        val secondBoarder: Double = if (secondAngle >= 0) secondAngle - 180
-        else secondAngle + 180
-        return mutableListOf(firstBoarder, secondBoarder)
+        val firstBoarder: Double
+        val secondBoarder: Double
+
+        // Если угол острый
+        if (abs(translateAngle(firstAngle - secondAngle)) < 90) {
+            firstBoarder = if (firstAngle >= 0) firstAngle - 180
+            else firstAngle + 180
+            secondBoarder = if (secondAngle >= 0) secondAngle - 180
+            else secondAngle + 180
+            return mutableListOf(firstBoarder, secondBoarder)
+        } else {// Если угол тупой
+            if (secondAngle > translateAngle(firstAngle + 180)) {
+                firstBoarder = translateAngle(firstAngle + 90)
+                secondBoarder = translateAngle(secondAngle - 90)
+            } else {
+                firstBoarder = translateAngle(firstAngle - 90)
+                secondBoarder = translateAngle(secondAngle + 90)
+            }
+            return mutableListOf(firstBoarder, secondBoarder)
+        }
     }
 
     // Находится ли точка в "слепом" угле
@@ -332,5 +357,23 @@ class ShiftAndOffsetCalc {
         listSymbol.add(offsetSymbol)
         listSymbol.add(columnPos)
         return listSymbol
+    }
+
+    private fun checkOffsetSymbol(
+        segmentAz: Double,
+        pointAz: Double
+    ): Boolean {
+        val offsetSymbol: Boolean
+        offsetSymbol = !(pointAz < segmentAz && pointAz > translateAngle(segmentAz - 180))
+        return offsetSymbol
+    }
+
+    private fun checkColumnPlace(
+        segmentAz: Double,
+        pointAz: Double
+    ): Boolean {
+        val columnPos: Boolean
+
+        return columnPos
     }
 }

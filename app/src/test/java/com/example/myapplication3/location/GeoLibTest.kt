@@ -95,19 +95,20 @@ internal class GeoLibTest {
 
         for (point in points)
         // testOnePoint(point)
-            testOnePoint(points[5])
+            testOnePoint(point)
     }
 
     @Test
     fun testBlindAngle() {
         val testList = mutableListOf(
-            Coordinate(84.953440, 56.445428),
-            Coordinate(84.953634, 56.445594),
-            Coordinate(84.954054, 56.445453)
+            Coordinate(84.881719, 56.468855),
+            Coordinate(84.881150, 56.469313),
+            //Coordinate(84.882063, 56.469612)
         )
-        val pos = Coordinate(84.953624, 56.445813)
-        println(ShiftAndOffsetCalc().shiftAndOffsetCalc(testList, pos).crossPoint)
-        Assert.assertEquals(56.443467, ShiftAndOffsetCalc().shiftAndOffsetCalc(testList, pos).crossPoint.latitude, 0.02)
+        val pos = Coordinate( 84.880215, 56.469253)
+        val pos2 = Coordinate( 84.880864, 56.469328)
+        println(ShiftAndOffsetCalc().shiftAndOffsetCalc(testList, pos2).crossPoint)
+        Assert.assertEquals(56.469313, ShiftAndOffsetCalc().shiftAndOffsetCalc(testList, pos).crossPoint.latitude, 0.02)
     }
 
     @Test
