@@ -72,11 +72,6 @@ internal class GeoLibTest {
             name = "Дача (3+448 R 5.5)",
             coordinate = Coordinate(84.9586023413717, 56.4291355996175),
             kmPlusOffset = KmPlusOffset(3, 448.6, 5.5)
-        ),
-        TestPoint(
-            name = "Где-то за осью",
-            coordinate = Coordinate(84.959554, 56.424777),
-            kmPlusOffset = KmPlusOffset(3, 619.7, 327.6)
         )
     )
 
@@ -98,9 +93,9 @@ internal class GeoLibTest {
             Assert.assertEquals(testPoint.kmPlusOffset.km, res.km)
         }
 
-      //  for (point in points)
-        // testOnePoint(point)
-            testOnePoint(points[9])
+        for (point in points)
+         testOnePoint(point)
+
     }
 
     @Test
