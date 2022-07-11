@@ -5,17 +5,10 @@ import net.sf.geographiclib.GeodesicData
 import kotlin.math.abs
 import kotlin.math.pow
 
-class ShiftAndOffsetCalc(
-
-) {
-    var shift: Double = 0.0
-    var offset: Double = 0.0
-    lateinit var crossPoint: Coordinate
-    var prevPoint: Int = -1
-    var nextPoint: Int = -1
-    var minPoint: Int = 0
-    var totalLength: Double = 0.0
-    var isAheadPoint: Boolean = false
+class ShiftAndOffsetCalc {
+    private var offset: Double = 0.0
+    private var prevPoint: Int = -1
+    private var nextPoint: Int = -1
 
     fun shiftAndOffsetCalc(
         axis: MutableList<Coordinate>,
@@ -24,13 +17,13 @@ class ShiftAndOffsetCalc(
         var minLengthToPoint =
             Double.MAX_VALUE  // Хранит минимальное расстояние между вершиной и столбом
         var numOfMinVertex = 0 // Номер вершины от которой расстояние минимально
-        var numOfMinSeg = 0 // Номер сегмента от которого расстояние минимально
         val pointData = mutableListOf<GeodesicData>() // Хранит гео-инф. о вершинах и столбах
         val segmentData = mutableListOf<GeodesicData>()  // Хранит гео-инф. о вершинах
         val projection: Double // Проекция перпендикуляра столба
         val coordinateData: GeodesicData // Хранит инф. о координатах проекции столба
         var currentLength = 0.0
         var totalLengthBtSegment = 0.0
+        var blindOrNot = false
 
         for (axisCounter in 0..axis.lastIndex) {
 
@@ -73,7 +66,7 @@ class ShiftAndOffsetCalc(
         // Определяем угол между следующим сегментом оси и вектором на исходную точку
         // для последующего определения способа расчёта смещения и его знака
 
-        numOfMinSeg = numOfMinVertex
+        var numOfMinSeg: Int = numOfMinVertex // Номер сегмента от которого расстояние минимально
         if (numOfMinVertex == axis.lastIndex) numOfMinSeg -= 1
 
         // Определяем с какой стороны от крайней точки находится столб
@@ -83,7 +76,16 @@ class ShiftAndOffsetCalc(
                 pointData[numOfMinVertex].azi1
             )
 
-        // Если вершина является крайней
+        // Проверяем находится ли точка в слепой зоне
+        if (numOfMinVertex > 0 && numOfMinVertex < axis.lastIndex) {
+            val blindBoarder = blindAngleBoarder(
+                segmentData[numOfMinVertex].azi1,
+                segmentData[numOfMinVertex - 1].azi1
+            )
+            blindOrNot = isBlindAngle(blindBoarder, pointData[numOfMinVertex].azi1)
+        }
+
+        // Является ли вершина крайней
         if (numOfMinVertex != numOfMinSeg) {
 
             // Если точка стоит за осью дороги
@@ -133,8 +135,22 @@ class ShiftAndOffsetCalc(
             }
 
         } else {
+            // Если точка находится в слепом угле, то
+            if (blindOrNot) {
+
+                // Находим смещение до точки
+                offset = pointData[numOfMinVertex].s12
+                // Если проекция столба справа, то -1
+                if (!listSymbol[0]) {
+                    offset *= -1
+                }
+                prevPoint = numOfMinVertex
+                nextPoint = numOfMinVertex + 1
+                // Определяем координаты пересечения с точкой
+                coordinateData = pointData[numOfMinVertex]
+            }
             // Если true - означает, что точка находится спереди от вершины
-            if (listSymbol[1]) {
+            else if (listSymbol[1]) {
 
                 // Рассчитываем ближайшее расстояние от точки до оси
                 offset = findOffset(
@@ -232,6 +248,14 @@ class ShiftAndOffsetCalc(
     }
 
     // Функция для нахождения длины проекции
+
+    /**
+     * Функция для нахождения длины проекции
+     * @param lengthMin - минимальное расстояние от вершины до точки(гипотенуза)
+     * @param height - длина перпендикуляра(катет)
+     * @return длина проекции(катет)
+     */
+
     private fun findProjectionLength(
         lengthMin: Double,
         height: Double,
@@ -239,43 +263,28 @@ class ShiftAndOffsetCalc(
         return (lengthMin.pow(2) - height.pow(2)).pow(0.5)
     }
 
-    // Поиск угла между азимутами двух векторов
-    private fun findAngle(
-        firstAngle: Double,
-        secondAngle: Double
-    ): Double {
-        return firstAngle - secondAngle
-    }
-
-    private fun transformAngle(angle: Double): Double {
-        return if (angle > 180 || angle < -180) {
-            if (angle < -180) angle + 360
-            else angle - 360
-        } else angle
-    }
-
-    // Находит размерность вертикального угла, и вычисляет промежуток в котором находится "слепой угол"
-    private fun adjacentAngle(
+    // Находит границы слепого угла
+    private fun blindAngleBoarder(
         firstAngle: Double,
         secondAngle: Double
     ): MutableList<Double> {
-        val adjacentAngle = (360 - 2 * findAngle(firstAngle, secondAngle)) / 2
-
-        return if (firstAngle > secondAngle) {
-            mutableListOf(
-                (firstAngle + adjacentAngle),
-                (secondAngle - adjacentAngle)
-            )
-        } else {
-            mutableListOf(
-                (firstAngle - adjacentAngle),
-                (secondAngle + adjacentAngle)
-            )
-        }
+        val firstBoarder: Double = if (firstAngle >= 0) firstAngle - 180
+        else firstAngle + 180
+        val secondBoarder: Double = if (secondAngle >= 0) secondAngle - 180
+        else secondAngle + 180
+        return mutableListOf(firstBoarder, secondBoarder)
     }
 
-    private fun convertMeterToKilometer(meters: Double): Int {
-        return (meters / 1000).toInt()
+    // Находится ли точка в "слепом" угле
+    private fun isBlindAngle(
+        angles: MutableList<Double>,
+        posAngle: Double
+    ): Boolean {
+        return if (angles[0] > angles[1] && angles[1] > 0 || angles[0] > angles[1] && angles[0] < 0) {
+            posAngle > angles[1] && posAngle < angles[0]
+        } else {
+            posAngle < angles[1] && posAngle > angles[0]
+        }
     }
 
     private fun checkOffsetAndColumnPlace(
@@ -283,39 +292,40 @@ class ShiftAndOffsetCalc(
         pointAz: Double
     ): MutableList<Boolean> {
         // Определяет знак смещения -1 справа +1 слева
-        var offsetSymbol = true
+        val offsetSymbol: Boolean
         // Определяет смещение относительно столба -1 = столб справа столб слева 1
-        var columnPos = false
+        val columnPos: Boolean
         val listSymbol = mutableListOf<Boolean>()
         if (segmentAz > 0) {
             // Все что внутри, то +, снаружи -!
-            val firstBoard = segmentAz
-            val secondBoard = segmentAz - 180
-            val thirdBoard = segmentAz - 90
+            val firstBoarder = segmentAz
+            val secondBoarder = segmentAz - 180
+            val thirdBoarder = segmentAz - 90
 
-            offsetSymbol = !(pointAz < firstBoard && pointAz > secondBoard)
-            columnPos = if (pointAz <= firstBoard && pointAz >= thirdBoard) {
-                true
-            } else if (pointAz < thirdBoard && pointAz >= secondBoard)
-                false
-            else !(pointAz < secondBoard && pointAz >= (secondBoard - firstBoard) || pointAz <= 180 && pointAz > (180 - abs(
-                thirdBoard
-            )))
+            offsetSymbol = !(pointAz < firstBoarder && pointAz > secondBoarder)
+            columnPos =
+                if (pointAz in thirdBoarder..firstBoarder || pointAz < firstBoarder && pointAz < secondBoarder - 90) {
+                    true
+                } else if (pointAz < thirdBoarder && pointAz >= secondBoarder)
+                    false
+                else !(pointAz < secondBoarder && pointAz >= (secondBoarder - firstBoarder) || pointAz <= 180 && pointAz > (180 - abs(
+                    thirdBoarder
+                )))
 
         } else {
             // Все что внутри это -, снаружи +!
-            val firstBoard = segmentAz
-            val secondBoard = segmentAz + 180
-            val thirdBoard = segmentAz + 90
+            val firstBoarder = segmentAz
+            val secondBoarder = segmentAz + 180
+            val thirdBoarder = segmentAz + 90
 
-            offsetSymbol = pointAz > firstBoard && pointAz < secondBoard //слева
+            offsetSymbol = pointAz > firstBoarder && pointAz < secondBoarder //слева
 
-            columnPos = if (pointAz > firstBoard && pointAz < thirdBoard) {
+            columnPos = if (pointAz > firstBoarder && pointAz < thirdBoarder) {
                 true
-            } else if (pointAz > thirdBoard && pointAz < secondBoard)
+            } else if (pointAz > thirdBoarder && pointAz < secondBoarder)
                 false
-            else pointAz >= secondBoard && pointAz <= secondBoard + abs(firstBoard) || pointAz >= -180 && pointAz > (-180 + abs(
-                thirdBoard
+            else pointAz >= secondBoarder && pointAz <= secondBoarder + abs(firstBoarder) || pointAz >= -180 && pointAz > (-180 + abs(
+                thirdBoarder
             )
                     )
         }
@@ -324,6 +334,4 @@ class ShiftAndOffsetCalc(
         listSymbol.add(columnPos)
         return listSymbol
     }
-
 }
-// класс который будет считать shift, offset + total length и передваать в дата класс

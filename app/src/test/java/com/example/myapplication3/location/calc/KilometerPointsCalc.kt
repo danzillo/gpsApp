@@ -1,41 +1,12 @@
 package com.example.myapplication3.location.calc
 
 class KilometerPointsCalc {
-
-    //  val roadKilometerMap = mutableMapOf<Int, KilometerSegment>()
-    // val road = mutableListOf<PointData>()
-    var kmLength: Double = 0.0
     val prevPoint = 0
     var nextPoint = 0
-    var prevCrossPoint = Coordinate(0.0, 0.0)
     val lastPoint = axis.lastIndex
     val kmCrossPoints = mutableListOf<Coordinate>()
-    val kmPointsLength = mutableListOf<Double>()
-    var totalLength: Double = 0.0
     val kmShiftAndOffset = mutableListOf<ShiftAndOffset>()
     val segmentData = mutableListOf<SegmentData>()
-
-    // Поиск всех точек пересечения км столбов
-    fun roadKilometerPoints(
-        axis: MutableList<Coordinate>,
-        kmPoint: MutableList<Coordinate>
-    ): MutableList<ShiftAndOffset> {
-        /**
-         * @param kmPointData - объект класса ShiftAndOffset для хранения информации о
-         * сегментах дороги, а именно: длина от начала до проекции столба, местоположение столба относительно вершины,
-         * точка пересечения столба с осью дороги.
-         */
-        // Сохраняем информацию по всем км столбам
-        for (kmPointCounter in 0..kmPoint.lastIndex) {
-            kmShiftAndOffset.add(
-                ShiftAndOffsetCalc().shiftAndOffsetCalc(
-                    axis,
-                    kmPoint[kmPointCounter]
-                )
-            )
-        }
-        return kmShiftAndOffset
-    }
 
     // Разбитие оси на километровые сегменты
     fun kmSegments(
@@ -44,7 +15,16 @@ class KilometerPointsCalc {
     ): MutableList<SegmentData> {
         for (kmSegmentCounter in 0..kmPoint.lastIndex) {
             var segment = mutableListOf<Coordinate>()
-            // Запись сегмент для 1 столба
+
+            // kmShiftAndOffset для хранения информации класса ShiftAndOffset
+            kmShiftAndOffset.add(
+                ShiftAndOffsetCalc().shiftAndOffsetCalc(
+                    axis,
+                    kmPoint[kmSegmentCounter]
+                )
+            )
+
+            // Запись сегмента для 1 столба
             if (kmSegmentCounter == 0) {
                 // Начальная точка оси
                 kmCrossPoints.add(axis[prevPoint])
@@ -72,7 +52,7 @@ class KilometerPointsCalc {
             }
 
             // Добавляем точку в которой заканчивается данный сегмент
-            segment.add(kmCrossPoints[kmSegmentCounter])
+            segment.add(kmCrossPoints[kmSegmentCounter + 1])
 
             // Индекс точки, которая идет после проекции столба на ось(2 в списке)
             nextPoint = kmShiftAndOffset[kmSegmentCounter].nextPoint
