@@ -368,12 +368,23 @@ class ShiftAndOffsetCalc {
         return offsetSymbol
     }
 
-    private fun checkColumnPlace(
+/*    private fun checkColumnPlace(
         segmentAz: Double,
         pointAz: Double
     ): Boolean {
         val columnPos: Boolean
+        if (segmentAz > 0) {
+            columnPos =
+                if (pointAz in thirdBoarder..firstBoarder) {
+                    true
+                } else if (pointAz < thirdBoarder && pointAz >= secondBoarder)
+                    false
+                else !(pointAz < secondBoarder && pointAz >= (secondBoarder - firstBoarder) || pointAz <= 180 && pointAz > (180 - abs(
+                    thirdBoarder
+                )))
+        }
 
+        else
         return columnPos
-    }
+    }*/
 }
