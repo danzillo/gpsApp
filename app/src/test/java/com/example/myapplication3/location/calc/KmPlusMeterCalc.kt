@@ -1,6 +1,7 @@
 package com.example.myapplication3.location.calc
 
 class KmPlusMeterCalc {
+
     /**
      * @param crossPoints точки пересечение КМ столбов с дорогой
      * @param myPos позиция человека
@@ -37,4 +38,5 @@ class KmPlusMeterCalc {
 
         return KmPlusMeter(r1.minPoint, r2.shift, r2.offset)
     }
+
 }

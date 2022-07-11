@@ -5,10 +5,14 @@ import net.sf.geographiclib.GeodesicData
 import kotlin.math.abs
 import kotlin.math.pow
 
+/**
+ * Класс для
+ * - получения координат проекции
+ * - расчёт длины до проекции
+ * - расчёт
+ */
 class ShiftAndOffsetCalc {
-    private var offset: Double = 0.0
-    private var prevPoint: Int = -1
-    private var nextPoint: Int = -1
+    //TODO: (ПОТОМ) Накапливать сведения об и не считать каждый раз
 
     fun shiftAndOffsetCalc(
         axis: MutableList<Coordinate>,
@@ -24,6 +28,9 @@ class ShiftAndOffsetCalc {
         var currentLength = 0.0
         var totalLengthBtSegment = 0.0
         var blindOrNot = false
+        var prevPoint: Int = -1
+        var nextPoint: Int = -1
+        var offset: Double = 0.0
 
         for (axisCounter in 0..axis.lastIndex) {
 
@@ -239,7 +246,6 @@ class ShiftAndOffsetCalc {
      * @param lengthRoad - длина сегмента оси между двумя вершинами (одна из них - мин)
      * @return длина перпендикуляра
      */
-
     private fun findOffset(
         length: Double,
         lengthMin: Double,
@@ -250,15 +256,12 @@ class ShiftAndOffsetCalc {
         return 2 * square / lengthRoad
     }
 
-    // Функция для нахождения длины проекции
-
     /**
      * Функция для нахождения длины проекции
      * @param lengthMin - минимальное расстояние от вершины до точки(гипотенуза)
      * @param height - длина перпендикуляра(катет)
      * @return длина проекции(катет)
      */
-
     private fun findProjectionLength(
         lengthMin: Double,
         height: Double,

@@ -91,10 +91,11 @@ internal class GeoLibTest {
             println("m = ${res.shift}")
             println("off = ${res.offset}\n")
             Assert.assertEquals(testPoint.kmPlusOffset.km, res.km)
+            Assert.assertEquals(testPoint.kmPlusOffset.meter, res.shift, 0.2)
+            Assert.assertEquals(testPoint.kmPlusOffset.offset, res.offset, 0.2)
         }
 
         for (point in points)
-        // testOnePoint(point)
             testOnePoint(point)
     }
 

@@ -1,14 +1,32 @@
 package com.example.myapplication3.location.calc
 
+/**
+ * Класс для
+ * - разбиения оси дороги на километровые участки.
+ * - хранения километровых участков дороги.
+ */
 class KilometerPointsCalc {
-    val prevPoint = 0
-    var nextPoint = 0
-    val lastPoint = axis.lastIndex
-    val kmCrossPoints = mutableListOf<Coordinate>()
-    val kmShiftAndOffset = mutableListOf<ShiftAndOffset>()
+    private val prevPoint = 0
+    private var nextPoint = 0
+    private val lastPoint = axis.lastIndex
+    private val kmShiftAndOffset = mutableListOf<ShiftAndOffset>()
+
+    /**
+     * TODO: Описание
+     * TODO: listOf()
+     */
     val segmentData = mutableListOf<SegmentData>()
 
-    // Разбитие оси на километровые сегменты
+    /**
+     * TODO: Write docs
+     */
+    val kmCrossPoints = mutableListOf<Coordinate>()
+
+    /**
+     * TODO: Назначить его конструктором
+     *
+     *  Разбитие оси на километровые сегменты
+     */
     fun kmSegments(
         axis: MutableList<Coordinate>,
         kmPoint: MutableList<Coordinate>
@@ -101,5 +119,6 @@ class KilometerPointsCalc {
         }
         return segmentData
     }
+
 }
 
