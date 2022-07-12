@@ -100,9 +100,6 @@ class ShiftAndOffsetCalc {
             // Если точка стоит за осью дороги
             if (listSymbol[1]) {
                 offset = minLengthToPoint
-                if (!listSymbol[0]) {
-                    offset *= -1
-                }
 
                 coordinateData = Geodesic.WGS84.Inverse(
                     point.latitude,
@@ -222,7 +219,7 @@ class ShiftAndOffsetCalc {
                     totalLengthBtSegment -= projection
 
                 } else {
-                    offset = minLengthToPoint
+                    totalLengthBtSegment = -minLengthToPoint
                     coordinateData = GeodesicData()
                 }
             }
