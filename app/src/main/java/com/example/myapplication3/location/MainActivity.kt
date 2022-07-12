@@ -154,8 +154,8 @@ class MainActivity : AppCompatActivity() {
                 ((location.speed * 100).toInt() / 100).toString() + " м/c"
             binding.accuracySpeed.text = location.speedAccuracyMetersPerSecond.toString() + " м"
             // binding.provider.text = location.accuracy.toString()
-            binding.provider.text =
-                viewModel.showCurrentPos(Coordinate(location.longitude, location.latitude))
+            binding.provider.text ="-"
+              //  viewModel.showCurrentPos(Coordinate(location.longitude, location.latitude))
             // binding.provider.text = location.provider.toString()
         } else {
             if (viewModel.isDecimalPosition.value == true) {
