@@ -1,19 +1,21 @@
 package com.example.myapplication3.location
-
 import android.content.Intent
 import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.preference.PreferenceManager
+
 import android.util.Log
-import android.view.View
+
+
 import androidx.lifecycle.ViewModelProvider
+import androidx.preference.PreferenceManager
 import com.example.myapplication3.databinding.ActivityMapBinding
 import org.osmdroid.config.Configuration
-import org.osmdroid.library.BuildConfig
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Overlay
+
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
@@ -25,6 +27,8 @@ class MapActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
 
     private lateinit var map: MapView
+
+    private lateinit var path: Overlay
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,8 +57,9 @@ class MapActivity : AppCompatActivity() {
 
         // Создаем карту
         map = binding.map
+
         // Устанавливаем ее тип
-       // map.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        // map.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
         // Видимость кнопок zoom-a
         map.setBuiltInZoomControls(false)
@@ -64,6 +69,9 @@ class MapActivity : AppCompatActivity() {
         map.controller.setZoom(20.0)
         // Начальная точка отображения карты
         map.controller.setCenter(GeoPoint(0.0, 0.0))
+
+        // Рисуем направление до ближайшей дороги
+
 
         binding.switchMapToData.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)

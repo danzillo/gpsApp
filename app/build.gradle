@@ -51,7 +51,10 @@ dependencies {
     // LiveData
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
     implementation files('libs/GeographicLib-Java-2.0.jar')
+    // OSM
     implementation  'org.osmdroid:osmdroid-android:6.1.5'
+
+    implementation 'androidx.preference:preference:1.2.0'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.0'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.0'
     testImplementation 'junit:junit:4.13.2'
