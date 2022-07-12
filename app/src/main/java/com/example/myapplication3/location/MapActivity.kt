@@ -4,15 +4,14 @@ package com.example.myapplication3.location
 import android.content.Intent
 import android.location.LocationManager
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.example.myapplication3.databinding.ActivityMapBinding
-import com.example.myapplication3.location.calc.axis
 import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
@@ -26,7 +25,7 @@ class MapActivity : AppCompatActivity() {
 
     private lateinit var map: MapView
 
-   // private lateinit var line: Polyline
+    // private lateinit var line: Polyline
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +62,7 @@ class MapActivity : AppCompatActivity() {
         map.setBuiltInZoomControls(false)
         // Возможность управлять картой через touch screen
         map.setMultiTouchControls(true)
+        //map.set
         // Начальный масштаб карты
         map.controller.setZoom(20.0)
         // Начальная точка отображения карты
@@ -79,29 +79,33 @@ class MapActivity : AppCompatActivity() {
 
     private fun updateLocationOnScreen() {
 
-        val location = viewModel.lastLocation.value
-        if (location != null) {
+        // Провайдер
+        val prov = GpsMyLocationProvider(this)
+        prov.addLocationSource(LocationManager.GPS_PROVIDER)
 
-            // Центр карты на телефоне
-            map.controller.setCenter(GeoPoint(location.latitude, location.longitude))
-            // Провайдер
-            val prov = GpsMyLocationProvider(this)
-            prov.addLocationSource(LocationManager.GPS_PROVIDER)
-            // Точка текущей позиции
-            val locationOverlay = MyLocationNewOverlay(prov, map)
-            locationOverlay.enableMyLocation()
-          //  map.overlayManager.remove(line)
+        // Точка текущей позиции
+        val locationOverlay = MyLocationNewOverlay(prov, map)
+        locationOverlay.enableMyLocation()
+        // Авто перемещение к текущей позиции
+        locationOverlay.enableFollowLocation()
 
-           // line.addPoint(GeoPoint(location.latitude, location.longitude))
-           // line.addPoint(GeoPoint(axis[0].latitude, axis[0].longitude))
-
-            // Текущая позиция
-            map.overlayManager.add(locationOverlay)
-           // map.overlayManager.add(line)
+        locationOverlay.runOnFirstFix {
+            Log.d(
+                TAG,
+                "Долгота:${locationOverlay.lastFix.latitude} Широта: ${locationOverlay.lastFix.longitude} Provider: ${locationOverlay.lastFix.provider} " +
+                        "All providers: ${locationOverlay.mMyLocationProvider}"
+            )
         }
+        Log.i(TAG, "IS update loc ${locationOverlay}")
+
+        // Текущая позиция
+        map.overlayManager.add(locationOverlay)
+
     }
 
     companion object {
         private val TAG = MapActivity::class.simpleName
     }
 }
+
+
