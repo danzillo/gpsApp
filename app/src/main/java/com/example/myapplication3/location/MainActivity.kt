@@ -11,9 +11,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication3.databinding.ActivityMainBinding
 
 
-import com.example.myapplication3.location.calc.Coordinate
-
-
 // моментальное обновление данных геолокации
 class MainActivity : AppCompatActivity() {
 

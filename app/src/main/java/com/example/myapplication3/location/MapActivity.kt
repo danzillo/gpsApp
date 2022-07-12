@@ -8,13 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.example.myapplication3.databinding.ActivityMapBinding
-import com.example.myapplication3.location.calc.Coordinate
 import com.example.myapplication3.location.calc.axis
 import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
-import org.osmdroid.views.overlay.Overlay
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
@@ -29,7 +26,7 @@ class MapActivity : AppCompatActivity() {
 
     private lateinit var map: MapView
 
-    private lateinit var path: Overlay
+   // private lateinit var line: Polyline
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,19 +90,18 @@ class MapActivity : AppCompatActivity() {
             // Точка текущей позиции
             val locationOverlay = MyLocationNewOverlay(prov, map)
             locationOverlay.enableMyLocation()
+          //  map.overlayManager.remove(line)
 
-            val line = Polyline()
-            line.addPoint(GeoPoint(location.latitude, location.longitude))
-            line.addPoint(GeoPoint(axis[0].latitude, axis[0].longitude))
-            map.overlayManager.remove(line)
+           // line.addPoint(GeoPoint(location.latitude, location.longitude))
+           // line.addPoint(GeoPoint(axis[0].latitude, axis[0].longitude))
+
             // Текущая позиция
             map.overlayManager.add(locationOverlay)
-            map.overlayManager.add(line)
+           // map.overlayManager.add(line)
         }
     }
 
     companion object {
         private val TAG = MapActivity::class.simpleName
-        private const val GPS_PERMISSION_CODE = 101
     }
 }
