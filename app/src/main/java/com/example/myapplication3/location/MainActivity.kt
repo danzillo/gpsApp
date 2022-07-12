@@ -1,6 +1,7 @@
 package com.example.myapplication3.location
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -8,9 +9,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication3.databinding.ActivityMainBinding
+
+
 import com.example.myapplication3.location.calc.Coordinate
-import java.lang.Math.asin
-import java.lang.Math.sin
 
 
 // моментальное обновление данных геолокации
@@ -50,8 +51,34 @@ class MainActivity : AppCompatActivity() {
             updateLocationOnScreen()
         }
 
+        binding.switchMapToData.setOnClickListener{
+           val intent = Intent(this, MapActivity::class.java)
+            startActivity(intent)
+        }
+
         // Начальное отображение данных
         updateLocationOnScreen()
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.stopLocationUpdates()
+        viewModel.saveCoordinateTypeData(viewModel.isDecimalPosition.value)
+        Log.i(
+            TAG,
+            "Pause activity"
+        )
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.stopLocationUpdates()
+        viewModel.saveCoordinateTypeData(viewModel.isDecimalPosition.value)
+        Log.i(
+            TAG,
+            "Stop activity"
+        )
     }
 
     override fun onDestroy() {
@@ -108,7 +135,6 @@ class MainActivity : AppCompatActivity() {
     fun updateLocationOnScreen() {
 
         val location = viewModel.lastLocation.value
-
         if (location != null) {
             if (viewModel.isDecimalPosition.value == true) {
                 binding.button.text = "Переключить на DMS координаты"
@@ -127,8 +153,9 @@ class MainActivity : AppCompatActivity() {
             binding.currentSpeed.text =
                 ((location.speed * 100).toInt() / 100).toString() + " м/c"
             binding.accuracySpeed.text = location.speedAccuracyMetersPerSecond.toString() + " м"
-           // binding.provider.text = location.accuracy.toString()
-            binding.provider.text = viewModel.showCurrentPos(Coordinate(location.longitude, location.latitude))
+            // binding.provider.text = location.accuracy.toString()
+            binding.provider.text =
+                viewModel.showCurrentPos(Coordinate(location.longitude, location.latitude))
             // binding.provider.text = location.provider.toString()
         } else {
             if (viewModel.isDecimalPosition.value == true) {

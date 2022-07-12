@@ -414,6 +414,18 @@
         android:layout_marginEnd="56dp"
         android:text="Сменить отображение GPS" />
 
+    <Button
+        android:id="@+id/switchMapToData"
+        android:layout_width="150dp"
+        android:layout_height="100dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="114dp"
+        android:layout_marginTop="678dp"
+        android:layout_marginEnd="110dp"
+        android:text="Открыть карту" />
 
 </RelativeLayout>
 </ScrollView>
