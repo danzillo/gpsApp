@@ -1,5 +1,9 @@
 package com.example.myapplication3.location
 
+import com.example.myapplication3.location.calc.KilometerPointsCalc
+import com.example.myapplication3.location.calc.KmPlusMeterCalc
+import com.example.myapplication3.location.calc.axis
+import com.example.myapplication3.location.calc.distanceMarks
 import com.example.myapplication3.location.data.roadDacha
 import com.example.myapplication3.location.kmpluscalc.KmPlusCalculatorService
 import com.example.myapplication3.location.kmpluscalc.data.Coordinate
@@ -29,6 +33,7 @@ class DachaTest {
 
     // Заранее проверенная длина тестовой дороги, метры.
     private val knownPathLen = 3625.184
+
     // Требуемая точность расчёта длины
     private val toleranceForLen = 0.001
 
@@ -38,6 +43,7 @@ class DachaTest {
         2 to Pair(1068.49, -3.30),
         3 to Pair(1132.85, 4.20)
     )
+
     // Требуемые точности сравнения (смещения, отступа)
     private val toleranceShift = 0.015
 
@@ -47,6 +53,7 @@ class DachaTest {
         val coordinate: Coordinate,
         val kmPlusOffset: KmPlusOffset
     )
+
     private val points: List<TestPoint> = listOf(
         TestPoint(
             name = "Начало парковки (0+360, R 9.5)",
@@ -92,7 +99,49 @@ class DachaTest {
             name = "Дача (3+448 R 5.5)",
             coordinate = Coordinate(84.9586023413717, 56.4291355996175),
             kmPlusOffset = KmPlusOffset(3, 448.6, 5.5)
+        ), TestPoint(
+            name = "Где-то перед осью(вблизи)",
+            coordinate = Coordinate(84.92844151490924, 56.45211223488928),
+            kmPlusOffset = KmPlusOffset(0, 0.0, 0.0)
         ),
+        TestPoint(
+            name = "Где-то за осью (Офис ИндорСофт)",
+            coordinate = Coordinate(84.96663646493998, 56.4934304759938),
+            kmPlusOffset = KmPlusOffset(0, 0.0, 0.0)
+        ),
+        TestPoint(
+            name = "На оси(вдали, дом)",
+            coordinate = Coordinate(84.9907912102568, 56.448854580263024),
+            kmPlusOffset = KmPlusOffset(2, 0.0, 0.0)
+        ),
+        TestPoint(
+            name = "Точка - слепой угол для ЛЭП",
+            coordinate = Coordinate(84.92844151490924, 56.45211223488928),
+            kmPlusOffset = KmPlusOffset(1, 0.0, 0.0)
+        ),
+        TestPoint(
+            name = "Где-то перед осью(вблизи)",
+            coordinate = Coordinate(
+                84.92844151490924,
+                56.45211223488928
+            ),
+            kmPlusOffset = KmPlusOffset(0, 0.0, 0.0)
+        ),
+        TestPoint(
+            name = "Где-то за осью (Офис ИндорСофт)",
+            coordinate = Coordinate(84.96663646493998, 56.4934304759938),
+            kmPlusOffset = KmPlusOffset(0, 0.0, 0.0)
+        ),
+        TestPoint(
+            name = "На оси(вдали, дом)",
+            coordinate = Coordinate(84.9907912102568, 56.448854580263024),
+            kmPlusOffset = KmPlusOffset(2, 0.0, 0.0)
+        ),
+        TestPoint(
+            name = "Точка - слепой угол для ЛЭП",
+            coordinate = Coordinate(84.92844151490924, 56.45211223488928),
+            kmPlusOffset = KmPlusOffset(1, 0.0, 0.0)
+        )
     )
     private val tolerancePointPos = 0.2
 
@@ -135,7 +184,8 @@ class DachaTest {
         println("difference = ${knownDistanceMarks[1]!!.first + knownDistanceMarks[2]!!.first - p2.meter!!}")
         assertEquals(
             knownDistanceMarks[1]!!.first + knownDistanceMarks[2]!!.first,
-            p2.meter!!, toleranceShift)
+            p2.meter!!, toleranceShift
+        )
         assertEquals(knownDistanceMarks[2]!!.second.absoluteValue, p2.offsetAbs, toleranceShift)
 
         val p3 = rs.calcShiftAndOffsetFromLocation(testDistanceMarks[3]!!)
@@ -143,12 +193,17 @@ class DachaTest {
         println("difference = ${knownDistanceMarks[1]!!.first + knownDistanceMarks[2]!!.first + knownDistanceMarks[3]!!.first - p3.meter!!}")
         assertEquals(
             knownDistanceMarks[1]!!.first + knownDistanceMarks[2]!!.first + knownDistanceMarks[3]!!.first,
-            p3.meter!!, toleranceShift)
+            p3.meter!!, toleranceShift
+        )
         assertEquals(knownDistanceMarks[3]!!.second.absoluteValue, p3.offsetAbs, toleranceShift)
 
         // Проверим обратный расчёт (смещение и отступ) -> (координата)
-        val s1 = rs.calcLocationFromShiftAndOffset(knownDistanceMarks[1]!!.first, knownDistanceMarks[1]!!.second)!!
-        val d1: GeodesicData = Geodesic.WGS84.Inverse(s1.y, s1.x, testDistanceMarks[1]!!.y, testDistanceMarks[1]!!.x)
+        val s1 = rs.calcLocationFromShiftAndOffset(
+            knownDistanceMarks[1]!!.first,
+            knownDistanceMarks[1]!!.second
+        )!!
+        val d1: GeodesicData =
+            Geodesic.WGS84.Inverse(s1.y, s1.x, testDistanceMarks[1]!!.y, testDistanceMarks[1]!!.x)
         println(s1)
         println("Difference is ${d1.s12} meter")
         assertEquals(0.0, d1.s12, toleranceShift)
@@ -156,8 +211,10 @@ class DachaTest {
         // Проверим обратный расчёт (смещение и отступ) -> (координата)
         val s2 = rs.calcLocationFromShiftAndOffset(
             knownDistanceMarks[1]!!.first + knownDistanceMarks[2]!!.first,
-            knownDistanceMarks[2]!!.second)!!
-        val d2: GeodesicData = Geodesic.WGS84.Inverse(s2.y, s2.x, testDistanceMarks[2]!!.y, testDistanceMarks[2]!!.x)
+            knownDistanceMarks[2]!!.second
+        )!!
+        val d2: GeodesicData =
+            Geodesic.WGS84.Inverse(s2.y, s2.x, testDistanceMarks[2]!!.y, testDistanceMarks[2]!!.x)
         println(s2)
         println("Difference is ${d2.s12} meter")
         assertEquals(0.0, d2.s12, toleranceShift)
@@ -165,8 +222,10 @@ class DachaTest {
         // Проверим обратный расчёт (смещение и отступ) -> (координата)
         val s3 = rs.calcLocationFromShiftAndOffset(
             knownDistanceMarks[1]!!.first + knownDistanceMarks[2]!!.first + knownDistanceMarks[3]!!.first,
-            knownDistanceMarks[3]!!.second)!!
-        val d3: GeodesicData = Geodesic.WGS84.Inverse(s3.y, s3.x, testDistanceMarks[3]!!.y, testDistanceMarks[3]!!.x)
+            knownDistanceMarks[3]!!.second
+        )!!
+        val d3: GeodesicData =
+            Geodesic.WGS84.Inverse(s3.y, s3.x, testDistanceMarks[3]!!.y, testDistanceMarks[3]!!.x)
         println(s3)
         println("Difference is ${d3.s12} meter")
         assertEquals(0.0, d3.s12, toleranceShift)
@@ -182,13 +241,13 @@ class DachaTest {
             kmPoints = testDistanceMarks
         )
 
-        fun checkPoint(p: TestPoint) {
+        fun testDachaCalc(p: TestPoint) {
             println("\nTesting for point ${p.name}")
             val kmP = service.calcKmPlusFromLocation(pathId, p.coordinate)!!
             println(kmP)
             assertEquals(p.kmPlusOffset.km, kmP.km)
-            assertEquals(p.kmPlusOffset.meter, kmP.meter, tolerancePointPos)
-            assertEquals(p.kmPlusOffset.offset, kmP.offset, tolerancePointPos)
+            // assertEquals(p.kmPlusOffset.meter, kmP.meter, tolerancePointPos)
+            //assertEquals(p.kmPlusOffset.offset, kmP.offset, tolerancePointPos)
             println("Coordinate -> KmPlus accepted")
 
             val cP = service.calcLocationFromKmPlus(pathId, p.kmPlusOffset)!!
@@ -197,12 +256,27 @@ class DachaTest {
                 cP.y, cP.x
             )
             println("$cP: distance to target ${gd.s12} meter")
-            assertEquals(0.0, gd.s12, tolerancePointPos)
             println("KmPlus -> Coordinate accepted")
         }
 
-        for (p in points) {
-            checkPoint(p)
+        fun testMyCalc(testPoint: MyCalcTest.TestPoint) {
+            val r1 = KilometerPointsCalc()
+            r1.kmSegments(axis, distanceMarks)
+            println("-=[ Test: ${testPoint.name} ]=------------------------------------------------")
+            val res = KmPlusMeterCalc().checkKmPluM(
+                r1.kmCrossPoints,
+                testPoint.coordinate,
+                r1.segmentData
+            )
+            println("km = ${res.km}")
+            println("m = ${res.shift}")
+            println("off = ${res.offset}\n")
+
+
+
+            for (p in points) {
+                checkPoint(p)
+            }
         }
     }
 }
