@@ -1,12 +1,14 @@
 package com.example.myapplication3.location
 
+import android.app.Application
 import com.example.myapplication3.location.calc.*
 import net.sf.geographiclib.*
 import org.junit.Assert
 import org.junit.Test
 import kotlin.Pair
+import kotlin.system.measureTimeMillis
 
-internal class GeoLibTest {
+internal class MyCalcTest {
 
     // Заранее проверенные положения опорных точек
     private val knownDistanceMarks: Map<Int, Pair<Double, Double>> = mapOf(
@@ -72,6 +74,26 @@ internal class GeoLibTest {
             name = "Дача (3+448 R 5.5)",
             coordinate = Coordinate(84.9586023413717, 56.4291355996175),
             kmPlusOffset = KmPlusOffset(3, 448.6, 5.5)
+        ),
+        TestPoint(
+            name = "Где-то перед осью(вблизи)",
+            coordinate = Coordinate(84.92844151490924, 56.45211223488928),
+            kmPlusOffset = KmPlusOffset(0, 0.0, 0.0)
+        ),
+        TestPoint(
+            name = "Где-то за осью (Офис ИндорСофт)",
+            coordinate = Coordinate(84.96663646493998, 56.4934304759938),
+            kmPlusOffset = KmPlusOffset(0, 0.0, 0.0)
+        ),
+        TestPoint(
+            name = "На оси(вдали, дом)",
+            coordinate = Coordinate(84.9907912102568, 56.448854580263024),
+            kmPlusOffset = KmPlusOffset(2, 0.0, 0.0)
+        ),
+        TestPoint(
+            name = "Где-то перед осью(вблизи)",
+            coordinate = Coordinate(84.92844151490924, 56.45211223488928),
+            kmPlusOffset = KmPlusOffset(0, 0.0, 0.0)
         )
     )
 
@@ -95,52 +117,8 @@ internal class GeoLibTest {
             Assert.assertEquals(testPoint.kmPlusOffset.offset, res.offset, 0.2)
         }
 
-        //for (point in points)
-           // testOnePoint(point)
-            testOnePoint(points[5])
+        for (point in points)
+            testOnePoint(point)
     }
 
-    @Test
-    fun testBlindAngle() {
-        val testList = mutableListOf(
-            Coordinate(84.881719, 56.468855),
-            Coordinate(84.881150, 56.469313),
-            Coordinate(84.882063, 56.469612)
-        )
-        val pos = Coordinate( 84.880215, 56.469253)
-        val pos2 = Coordinate( 84.880864, 56.469328)
-        println(ShiftAndOffsetCalc().shiftAndOffsetCalc(testList, pos2).crossPoint)
-        Assert.assertEquals(56.469313, ShiftAndOffsetCalc().shiftAndOffsetCalc(testList, pos).crossPoint.latitude, 0.02)
-    }
-
-    @Test
-    fun testAzimuthSign() {
-        val g1 = Geodesic.WGS84.Inverse(
-            54.0, 85.0,
-            54.0, 85.1
-        )
-        println("g1 → ${g1.azi1}")
-        Assert.assertEquals(90.0, g1.azi1, 0.1)
-
-        val g2 = Geodesic.WGS84.Inverse(
-            54.0, 85.0,
-            54.0, 84.9
-        )
-        println("g2 ← ${g2.azi1}")
-        Assert.assertEquals(-90.0, g2.azi1, 0.1)
-
-        val g3 = Geodesic.WGS84.Inverse(
-            54.0, 85.0,
-            53.9, 84.9
-        )
-        println("g3 ↙ ${g3.azi1}")
-        Assert.assertEquals(-149.4, g3.azi1, 0.1)
-
-        val g4 = Geodesic.WGS84.Inverse(
-            54.0, 85.0,
-            53.9, 85.1
-        )
-        println("g4 ↘ ${g4.azi1}")
-        Assert.assertEquals(149.4, g4.azi1, 0.1)
-    }
 }
