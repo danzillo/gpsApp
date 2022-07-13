@@ -8,11 +8,12 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import com.example.myapplication3.databinding.ActivityGpsDataBinding
 import com.example.myapplication3.databinding.ActivityMainBinding
 
 class GpsDataActivity : AppCompatActivity() {
     // Биндинг для получения доступа к элементам слоя activity_main.xml
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityGpsDataBinding
 
     // Создаем экземпляр ViewModel
     private lateinit var viewModel: MainViewModel
@@ -20,7 +21,7 @@ class GpsDataActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityGpsDataBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         // Подключение ViewModel
@@ -45,8 +46,8 @@ class GpsDataActivity : AppCompatActivity() {
             updateLocationOnScreen()
         }
 
-        binding.switchMapToData.setOnClickListener{
-            val intent = Intent(this, MapActivity::class.java)
+        binding.switchGPSToMain.setOnClickListener{
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
 
