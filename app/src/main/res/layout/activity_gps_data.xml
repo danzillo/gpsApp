@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/ScrollView01"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:scrollbars="none" >
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!--Поля Долготы-->
+        <ImageView
+            android:id="@+id/imageLongitude"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/textLongitude"
+            android:layout_alignParentStart="true"
+
+            android:layout_marginStart="@dimen/padding_image_start"
+            android:layout_marginTop="@dimen/padding_image_top"
+
+            app:srcCompat="@drawable/ic_baseline_gps_fixed_24" />
+
+        <TextView
+            android:id="@+id/textLongitude"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+
+            android:layout_marginStart="@dimen/padding_text_start"
+            android:layout_marginTop="@dimen/padding_text_top_big"
+
+            android:text="Долгота:"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/longitude"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+
+            android:layout_marginStart="@dimen/padding_input_text_start"
+            android:layout_marginTop="@dimen/padding_input_text_top"
+
+            android:layout_marginEnd="@dimen/padding_text_start"
+            android:layout_toEndOf="@+id/textLongitude"
+            android:hint="Загрузка.." />
+
+        <!--Поля Широты-->
+
+        <TextView
+            android:id="@+id/textLatitude"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/textLongitude"
+            android:layout_alignParentStart="true"
+
+            android:layout_marginStart="@dimen/padding_text_start"
+            android:layout_marginTop="@dimen/padding_text_top_small"
+            android:text="Широта:"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/latitude"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/longitude"
+            android:layout_alignParentEnd="true"
+
+            android:layout_marginStart="@dimen/padding_input_text_start"
+            android:layout_marginTop="@dimen/padding_input_text_start"
+            android:layout_marginEnd="@dimen/padding_text_start"
+
+            android:layout_toEndOf="@+id/textLongitude"
+            android:hint="Загрузка.." />
+
+
+        <!--Поля Азимута-->
+        <TextView
+            android:id="@+id/textAzimut"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/textLatitude"
+            android:layout_alignParentStart="true"
+
+            android:layout_marginStart="@dimen/padding_text_start"
+            android:layout_marginTop="@dimen/padding_text_top_small"
+
+            android:text="Азимут:"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/azimut"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/latitude"
+            android:layout_alignParentEnd="true"
+
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="@dimen/padding_text_top_small"
+            android:layout_marginEnd="@dimen/padding_text_start"
+
+            android:layout_toEndOf="@+id/textLongitude"
+            android:hint="Загрузка.." />
+
+        <!--Поля BearingAccuracy-->
+        <TextView
+            android:id="@+id/textBearingAccuracy"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/textAzimut"
+            android:layout_alignParentStart="true"
+
+            android:layout_marginStart="@dimen/padding_text_start"
+            android:layout_marginTop="@dimen/padding_text_top_small"
+
+            android:text="Точность:"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/bearingAccuracy"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/azimut"
+            android:layout_alignParentEnd="true"
+
+            android:layout_marginStart="@dimen/padding_input_text_start"
+            android:layout_marginTop="@dimen/padding_input_text_start"
+            android:layout_marginEnd="@dimen/padding_text_start"
+
+            android:layout_toEndOf="@+id/textLongitude"
+            android:hint="Загрузка.." />
+
+        <TextView
+            android:id="@+id/textAltitude"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/textBearingAccuracy"
+            android:layout_alignParentStart="true"
+
+            android:layout_marginStart="@dimen/padding_text_start"
+            android:layout_marginTop="@dimen/padding_text_top_small"
+
+            android:text="Высота:"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/altitude"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/bearingAccuracy"
+            android:layout_alignParentEnd="true"
+
+            android:layout_marginStart="@dimen/padding_input_text_start"
+            android:layout_marginTop="@dimen/padding_input_text_start"
+            android:layout_marginEnd="@dimen/padding_text_start"
+            android:layout_toEndOf="@+id/textLongitude"
+
+            android:hint="Загрузка.." />
+
+        <!--Изображение перед датой-->
+        <ImageView
+            android:id="@+id/imageTime"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/textCurrentDate"
+            android:layout_alignParentStart="true"
+
+            android:layout_marginStart="@dimen/padding_image_start"
+            android:layout_marginTop="@dimen/padding_image_top"
+
+            app:srcCompat="@drawable/ic_baseline_access_time_24" />
+
+        <!--Поля даты-->
+        <TextView
+            android:id="@+id/textCurrentDate"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/textAltitude"
+            android:layout_alignParentStart="true"
+
+            android:layout_marginStart="@dimen/padding_text_start"
+            android:layout_marginTop="@dimen/padding_text_top_big"
+
+            android:text="Дата:"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/currentDate"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/textAltitude"
+            android:layout_alignParentEnd="true"
+
+            android:layout_marginStart="@dimen/padding_input_text_start"
+
+            android:layout_marginTop="@dimen/padding_text_top_big"
+            android:layout_marginEnd="@dimen/padding_input_text_start"
+
+            android:layout_toEndOf="@+id/textLongitude"
+
+            android:hint="Загрузка.." />
+
+        <!-- Поля время -->
+        <TextView
+            android:id="@+id/textCurrentTime"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/textCurrentDate"
+            android:layout_alignParentStart="true"
+
+            android:layout_marginStart="@dimen/padding_text_start"
+            android:layout_marginTop="@dimen/padding_text_top_small"
+
+            android:text="Время: "
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/currentTime"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/currentDate"
+            android:layout_alignParentEnd="true"
+
+            android:layout_marginStart="@dimen/padding_input_text_start"
+            android:layout_marginTop="@dimen/padding_input_text_start"
+            android:layout_marginEnd="@dimen/padding_input_text_start"
+
+            android:layout_toEndOf="@+id/textLongitude"
+
+            android:hint="Загрузка.." />
+
+        <!--Изображение перед скоростью-->
+        <ImageView
+            android:id="@+id/imageView4"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/textCurrentSpeed"
+            android:layout_alignParentStart="true"
+
+            android:layout_marginStart="@dimen/padding_image_start"
+            android:layout_marginTop="@dimen/padding_image_top"
+
+            app:srcCompat="@drawable/ic_baseline_speed_24" />
+
+        <!-- Поля скорости -->
+        <TextView
+            android:id="@+id/textCurrentSpeed"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/textCurrentTime"
+            android:layout_alignParentStart="true"
+
+            android:layout_marginStart="@dimen/padding_text_start"
+
+            android:layout_marginTop="@dimen/padding_text_top_big"
+
+            android:text="Скорость:"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/currentSpeed"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/currentTime"
+            android:layout_alignParentEnd="true"
+
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="@dimen/padding_text_top_big"
+            android:layout_marginEnd="@dimen/padding_input_text_start"
+
+            android:layout_toEndOf="@+id/textLongitude"
+
+            android:hint="Загрузка.." />
+
+
+        <!-- Поля точности скорости -->
+        <TextView
+
+            android:id="@+id/textAccuracySpeed"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/textCurrentSpeed"
+            android:layout_alignParentStart="true"
+
+            android:layout_marginStart="@dimen/padding_text_start"
+            android:layout_marginTop="@dimen/padding_text_top_small"
+
+            android:text="Точность:"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/accuracySpeed"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/currentSpeed"
+            android:layout_alignParentEnd="true"
+
+            android:layout_marginStart="@dimen/padding_input_text_start"
+            android:layout_marginTop="@dimen/padding_input_text_start"
+            android:layout_marginEnd="@dimen/padding_input_text_start"
+
+            android:layout_toEndOf="@+id/textLongitude"
+            android:hint="Загрузка.." />
+
+
+        <!--Изображение перед провйдером-->
+        <ImageView
+            android:id="@+id/imageProvider"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/textProvider"
+            android:layout_alignParentStart="true"
+
+            android:layout_marginStart="@dimen/padding_image_start"
+            android:layout_marginTop="@dimen/padding_image_top"
+
+            app:srcCompat="@drawable/ic_baseline_wifi_protected_setup_24" />
+
+        <!--Поля провайдера-->
+
+        <TextView
+            android:id="@+id/textProvider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/textAccuracySpeed"
+            android:layout_alignParentStart="true"
+
+            android:layout_marginStart="@dimen/padding_text_start"
+            android:layout_marginTop="@dimen/padding_text_top_big"
+
+            android:text="Провайдер:"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/provider"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:layout_alignTop="@+id/accuracySpeed"
+            android:layout_alignParentEnd="true"
+
+            android:layout_marginStart="@dimen/padding_input_text_start"
+            android:layout_marginTop="@dimen/padding_text_top_big"
+            android:layout_marginEnd="@dimen/padding_input_text_start"
+
+            android:layout_toEndOf="@+id/textLongitude"
+
+            android:hint="Загрузка.."
+
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="291dp"
+            android:layout_height="103dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="64dp"
+            android:layout_marginTop="565dp"
+            android:layout_marginEnd="56dp"
+            android:text="Сменить отображение GPS" />
+
+        <Button
+            android:id="@+id/switchMapToData"
+            android:layout_width="150dp"
+            android:layout_height="100dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="114dp"
+            android:layout_marginTop="678dp"
+            android:layout_marginEnd="110dp"
+            android:text="Открыть карту" />
+
+    </RelativeLayout>
+</ScrollView>

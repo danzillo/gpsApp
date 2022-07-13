@@ -187,8 +187,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return ("KM:${res.km} М:${res.shift.toInt()} Off:${res.offset.toInt()}")
     }
 
-
-
     companion object {
         private val TAG = MainViewModel::class.simpleName
         private const val GPS_PERMISSION_CODE = 101
