@@ -1,4 +1,4 @@
-package com.example.myapplication3.location.calc
+package com.example.myapplication3.location.kmpluscalc.data
 
 data class KmPlusOffset(
     val km: Int? = null,
