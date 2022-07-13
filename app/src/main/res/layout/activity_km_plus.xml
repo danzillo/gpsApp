@@ -4,4 +4,157 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".location.KmPlusActivity"/>
+    tools:context=".location.KmPlusActivity">
+
+
+    <TextView
+        android:id="@+id/accuracy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/padding_big"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="64dp"
+        android:text="Точность"
+        app:layout_constraintEnd_toStartOf="@+id/accuracyData"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/accuracyData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="TextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/speed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_big"
+        android:layout_marginEnd="64dp"
+        android:text="Скорость"
+        app:layout_constraintEnd_toStartOf="@+id/speedData"
+        app:layout_constraintStart_toStartOf="@+id/accuracy"
+        app:layout_constraintTop_toBottomOf="@+id/accuracy" />
+
+
+    <TextView
+        android:id="@+id/speedData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_big"
+        android:text="TextView"
+        app:layout_constraintStart_toStartOf="@+id/accuracyData"
+        app:layout_constraintTop_toBottomOf="@+id/accuracy" />
+
+
+    <TextView
+        android:id="@+id/azimuth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_big"
+        android:layout_marginEnd="64dp"
+        android:text="Направление"
+        app:layout_constraintEnd_toStartOf="@+id/azimuthData"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/speed"
+        app:layout_constraintTop_toBottomOf="@+id/speed" />
+
+    <TextView
+        android:id="@+id/azimuthData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_big"
+        android:text="TextView"
+        app:layout_constraintStart_toStartOf="@+id/speedData"
+        app:layout_constraintTop_toBottomOf="@+id/speed" />
+
+    <TextView
+        android:id="@+id/satellite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_big"
+        android:layout_marginEnd="64dp"
+        android:text="Спутники"
+        app:layout_constraintEnd_toStartOf="@+id/satelliteData"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/azimuth"
+        app:layout_constraintTop_toBottomOf="@+id/azimuth" />
+
+    <TextView
+        android:id="@+id/satelliteData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_big"
+        android:text="TextView"
+        app:layout_constraintStart_toStartOf="@+id/azimuthData"
+        app:layout_constraintTop_toBottomOf="@+id/azimuth" />
+
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_big"
+        android:layout_marginEnd="64dp"
+        android:text="Время"
+        app:layout_constraintEnd_toStartOf="@+id/timeData"
+        app:layout_constraintHorizontal_bias="0.05"
+        app:layout_constraintStart_toStartOf="@+id/satellite"
+        app:layout_constraintTop_toBottomOf="@+id/satellite" />
+
+    <TextView
+        android:id="@+id/timeData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_big"
+        android:text="TextView"
+        app:layout_constraintStart_toStartOf="@+id/satelliteData"
+        app:layout_constraintTop_toBottomOf="@+id/satellite" />
+
+    <TextView
+        android:id="@+id/kmPlus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_big"
+        android:layout_marginEnd="64dp"
+        android:text="КМ+М"
+        app:layout_constraintEnd_toStartOf="@+id/kmPlusData"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/time"
+        app:layout_constraintTop_toBottomOf="@+id/time" />
+
+    <TextView
+        android:id="@+id/kmPlusData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_big"
+        android:text="TextView"
+        app:layout_constraintStart_toStartOf="@+id/timeData"
+        app:layout_constraintTop_toBottomOf="@+id/time" />
+
+    <TextView
+        android:id="@+id/offset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="TextView"
+        app:layout_constraintStart_toStartOf="@+id/kmPlusData"
+        app:layout_constraintTop_toBottomOf="@+id/kmPlus" />
+
+    <Button
+        android:id="@+id/switchKmPluToMain"
+        android:layout_width="126dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="124dp"
+        android:text="Назад"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.584"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/offset" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

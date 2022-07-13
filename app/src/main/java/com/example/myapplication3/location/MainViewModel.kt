@@ -176,7 +176,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         // TODO: посмотреть подробнее про радиус для WGS-84
     }
 
-    fun showCurrentPos(location: Coordinate): String{
+    fun showCurrentPos(location: Coordinate): List<Double>{
         val r1 = KilometerPointsCalc()
         r1.kmSegments(axis, distanceMarks)
         val res = KmPlusMeterCalc().checkKmPluM(
@@ -184,7 +184,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             location,
             r1.segmentData
         )
-        return ("KM:${res.km} М:${res.shift.toInt()} Off:${res.offset.toInt()}")
+
+        return listOf<Double>(res.km.toDouble(), res.shift, res.offset)
     }
 
     companion object {
