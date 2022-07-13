@@ -91,7 +91,7 @@ class ShiftAndOffsetCalc {
             )
             blindOrNot = isBlindAngle(blindBoarder, pointData[numOfMinVertex].azi1)
 
-            print(blindOrNot)
+            // print(blindOrNot)
         }
 
         // Является ли вершина крайней
@@ -100,6 +100,9 @@ class ShiftAndOffsetCalc {
             // Если точка стоит за осью дороги
             if (listSymbol[1]) {
                 offset = minLengthToPoint
+                if (!listSymbol[0]) {
+                    offset *= -1
+                }
 
                 coordinateData = Geodesic.WGS84.Inverse(
                     point.latitude,
@@ -219,7 +222,7 @@ class ShiftAndOffsetCalc {
                     totalLengthBtSegment -= projection
 
                 } else {
-                    totalLengthBtSegment = -minLengthToPoint
+                    offset = minLengthToPoint
                     coordinateData = GeodesicData()
                 }
             }
@@ -325,27 +328,21 @@ class ShiftAndOffsetCalc {
             // Все что внутри, то +, снаружи -!
             val firstBoarder = segmentAz
             val secondBoarder = segmentAz - 180
-            val thirdBoarder = segmentAz - 90
 
             offsetSymbol = !(pointAz < firstBoarder && pointAz > secondBoarder)
-            columnPos =
-                pointAz in thirdBoarder..firstBoarder || pointAz > firstBoarder && pointAz < translateAngle(firstBoarder+90)
-
         } else {
             // Все что внутри это -, снаружи +!
             val firstBoarder = segmentAz
             val secondBoarder = segmentAz + 180
-            val thirdBoarder = segmentAz + 90
 
             offsetSymbol = pointAz > firstBoarder && pointAz < secondBoarder //слева
-
-            columnPos = if (pointAz > firstBoarder && pointAz < thirdBoarder) {
-                true
-            } else if (pointAz > thirdBoarder && pointAz < secondBoarder)
-                false
-            else pointAz >= secondBoarder && pointAz <= secondBoarder + abs(firstBoarder) || pointAz >= -180 && pointAz > (-180 + abs(
-                thirdBoarder
-            ))
+        }
+        columnPos = if (segmentAz >= 90) {
+            translateAngle(segmentAz + 90) <= pointAz && -180 >= pointAz || segmentAz - 90 < pointAz
+        } else if (segmentAz <= -90) {
+            translateAngle(segmentAz - 90) <= pointAz && 180 >= pointAz || segmentAz + 90 > pointAz
+        } else {
+            segmentAz - 90 < pointAz && segmentAz + 90 > pointAz
         }
 
         listSymbol.add(offsetSymbol)
@@ -357,7 +354,8 @@ class ShiftAndOffsetCalc {
         segmentAz: Double,
         pointAz: Double
     ): Boolean {
-        val offsetSymbol: Boolean = !(pointAz < segmentAz && pointAz > translateAngle(segmentAz - 180))
+        val offsetSymbol: Boolean =
+            !(pointAz < segmentAz && pointAz > translateAngle(segmentAz - 180))
         return offsetSymbol
     }
 
